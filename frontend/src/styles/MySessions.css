@@ -1,0 +1,498 @@
+/* MySessions.css */
+
+.sessions-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Back Button */
+  .back-button {
+    padding: 8px 16px;
+    margin-bottom: 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    align-self: flex-start;
+  }
+
+  .back-button:hover {
+    background-color: #0056b3;
+  }
+
+  /* Header Styles */
+  .sessions-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    width: 100%;
+    max-width: 1000px;
+    text-align: center;
+  }
+  
+  .sessions-header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+  }
+  
+  .sessions-header p {
+    font-size: 1rem;
+    color: #6c757d;
+    margin: 0;
+  }
+  
+  /* Loading State */
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    width: 100%;
+    max-width: 1000px;
+  }
+  
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e9ecef;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 0.75rem;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .loading-state p {
+    font-size: 1rem;
+    color: #6c757d;
+    margin: 0;
+  }
+  
+  /* Error State */
+  .error-state {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    margin: 1.5rem 0;
+    width: 100%;
+    max-width: 1000px;
+  }
+  
+  .error-state h2 {
+    color: #e74c3c;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+  }
+  
+  .error-state p {
+    color: #6c757d;
+    margin-bottom: 1.25rem;
+    line-height: 1.4;
+  }
+  
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 1000px;
+  }
+  
+  .empty-state h3 {
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+  }
+  
+  .empty-state p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
+  
+  /* Sessions List */
+  .sessions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 1000px;
+  }
+  
+  /* Session Card */
+  .session-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e9ecef;
+  }
+  
+  .session-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .session-main-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  /* Tutor Section */
+  .session-tutor h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+  }
+  
+  .tutor-profile-details {
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border-left: 3px solid #3498db;
+    margin-top: 0.5rem;
+  }
+  
+  .tutor-profile-details > div {
+    margin-bottom: 0.35rem;
+    line-height: 1.5;
+    font-size: 0.9rem;
+  }
+  
+  .tutor-profile-details > div:last-child {
+    margin-bottom: 0;
+  }
+  
+  .tutor-profile-details strong {
+    color: #2c3e50;
+    margin-right: 0.35rem;
+  }
+    
+  .student-email {
+    color: #6c757d;
+    font-size: 0.85rem;
+  }
+  
+  /* Session Details */
+  .session-details h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #3498db;
+    margin-bottom: 0.5rem;
+  }
+  
+  .session-description {
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Session Meta Information */
+  .session-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  
+  .label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  
+  .value {
+    font-size: 0.9rem;
+    color: #2c3e50;
+    font-weight: 500;
+  }
+  
+  /* Status and Actions Section */
+  .session-status-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    min-width: 180px;
+  }
+  
+  /* Status Section */
+  .status-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .status {
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  
+  .status.active {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    box-shadow: 0 2px 4px rgba(21, 87, 36, 0.1);
+  }
+  
+  .registration-status {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #28a745;
+  }
+  
+  /* Session Actions */
+  .session-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  /* Button Styles */
+  .btn-primary, .btn-secondary {
+    padding: 0.65rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    width: 100%;
+    max-width: 180px;
+  }
+  
+  .btn-primary {
+    background: #3498db;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+  }
+  
+  .btn-secondary {
+    background: white;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+  }
+  
+  .btn-secondary:hover {
+    background: #e74c3c;
+    color: white;
+    transform: translateY(-1px);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .sessions-page {
+      padding: 1rem;
+    }
+    
+    .sessions-header {
+      padding-bottom: 0.75rem;
+    }
+    
+    .sessions-header h1 {
+      font-size: 1.75rem;
+    }
+    
+    .sessions-header p {
+      font-size: 0.95rem;
+    }
+    
+    .session-card {
+      flex-direction: column;
+      padding: 1.25rem;
+      gap: 1.25rem;
+    }
+    
+    .session-tutor h3 {
+      font-size: 1rem;
+    }
+    
+    .tutor-profile-details {
+      padding: 0.65rem;
+    }
+    
+    .tutor-profile-details > div {
+      font-size: 0.85rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    .session-details h4 {
+      font-size: 0.95rem;
+    }
+    
+    .session-description {
+      font-size: 0.85rem;
+    }
+    
+    .session-meta {
+      grid-template-columns: 1fr;
+      gap: 0.65rem;
+    }
+    
+    .meta-item {
+      padding: 0.5rem;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    
+    .label {
+      font-size: 0.75rem;
+    }
+    
+    .value {
+      font-size: 0.85rem;
+    }
+    
+    .session-status-actions {
+      width: 100%;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .status-section {
+      align-items: center;
+      text-align: center;
+    }
+    
+    .status {
+      font-size: 0.75rem;
+      padding: 0.4rem 1rem;
+    }
+    
+    .session-actions {
+      width: auto;
+      align-items: flex-end;
+    }
+    
+    .btn-secondary {
+      max-width: none;
+      min-width: 130px;
+      font-size: 0.8rem;
+      padding: 0.55rem 1rem;
+    }
+    
+    .empty-state {
+      padding: 2rem 1.5rem;
+    }
+    
+    .empty-state h3 {
+      font-size: 1.1rem;
+    }
+    
+    .empty-state p {
+      font-size: 0.95rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .sessions-header {
+      margin-bottom: 1.5rem;
+    }
+    
+    .sessions-header h1 {
+      font-size: 1.5rem;
+    }
+    
+    .session-card {
+      padding: 1rem;
+    }
+    
+    .session-status-actions {
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .status-section {
+      align-items: center;
+      width: 100%;
+    }
+    
+    .session-actions {
+      width: 100%;
+      align-items: center;
+    }
+    
+    .btn-secondary {
+      width: 100%;
+      max-width: none;
+    }
+  }
+  
+  /* Print Styles */
+  @media print {
+    .sessions-page {
+      background: white;
+      padding: 0;
+    }
+    
+    .session-actions {
+      display: none;
+    }
+    
+    .session-card {
+      box-shadow: none;
+      border: 1px solid #ddd;
+      margin-bottom: 0.75rem;
+      break-inside: avoid;
+    }
+  }
