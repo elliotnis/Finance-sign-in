@@ -1,95 +1,48 @@
-from __future__ import annotations
-
-import uuid
-from datetime import datetime, timezone
-from typing import Any
-
-from .db import supabase
-
-# Table names (Supabase / Postgres)
-T_USERS = "users"
-T_SLOTS = "availability_slots"
-T_REGS = "registrations"
-T_REFL = "reflections"
-
-
-def _now():
-    return datetime.now(timezone.utc)
-
-
-def _uuid_str(s: str) -> str:
-    return str(uuid.UUID(s))
-
-
-def _row_slot_to_doc(row: dict[str, Any]) -> dict[str, Any]:
-    """Match legacy Mongo-shaped availability document for API responses."""
-    sid = str(row["id"])
-    out = {
-        "_id": sid,
-        "id": sid,
-        "tutor_email": row["tutor_email"],
-        "tutor_name": row["tutor_name"],
-        "session_type": row["session_type"],
-        "date": row["date"],
-        "time_slot": row["time_slot"],
-        "location": row.get("location"),
-        "description": row.get("description"),
-        "is_registered": row.get("is_registered", False),
-        "registered_student": row.get("registered_student"),
-        "status": row.get("status", "active"),
-        "created_at": row.get("created_at"),
-        "updated_at": row.get("updated_at"),
-        "is_available": not row.get("is_registered", False),
-        "student_registered": row.get("registered_student"),
-    }
-    return out
-
+from .mongo import user_collection, session_collection, registration_collection, reflection_collection
+from datetime import datetime
+from bson import ObjectId
 
 def check_email_exists(email):
-    r = supabase.table(T_USERS).select("id").eq("email", email).limit(1).execute()
-    return bool(r.data)
-
+    """Check if email already exists in database"""
+    return user_collection.find_one({"email": email})
 
 def create_user(email, password):
-    r = (
-        supabase.table(T_USERS)
-        .insert({"email": email, "password": password})
-        .execute()
-    )
-    if not r.data:
-        raise RuntimeError("Failed to create user")
-    return str(r.data[0]["id"])
-
+    """Create a new user in database"""
+    user = {
+        "email": email,
+        "password": password
+    }
+    result = user_collection.insert_one(user)
+    return str(result.inserted_id)
 
 def verify_user_credentials(email, password):
-    r = supabase.table(T_USERS).select("id, email, password").eq("email", email).limit(1).execute()
-    if not r.data:
+    """Verify if email and password match exactly"""
+    user = user_collection.find_one({"email": email})
+    if not user:
         return None
-    user = r.data[0]
-    if user.get("password") != password:
+    if user["password"] != password:
         return None
-    user["_id"] = str(user["id"])
     return user
 
-
 def get_all_users():
-    r = supabase.table(T_USERS).select("id, email, profile").execute()
-    users = r.data or []
+    """Get all users from database (without passwords)"""
+    users = list(user_collection.find({}, {"password": 0}))
     for user in users:
-        user["_id"] = str(user["id"])
+        user["_id"] = str(user["_id"])
     return users
 
-
-def create_user_profile(
-    email, SID, full_name, preferred_name, study_year, major, contact_phone, profile_email, profile_picture=None
-):
-    r = supabase.table(T_USERS).select("id, profile").eq("email", email).limit(1).execute()
-    if not r.data:
+def create_user_profile(email, SID, full_name, preferred_name, study_year, major, contact_phone, profile_email, profile_picture=None):
+    """Create a profile for a user"""
+    # First check if user exists
+    user = user_collection.find_one({"email": email})
+    if not user:
         return None
-    row = r.data[0]
-    if row.get("profile"):
+
+    # Check if profile already exists
+    if "profile" in user and user["profile"]:
         return "Profile already exists"
 
+    # Create profile
     profile_data = {
         "full_name": full_name,
         "preferred_name": preferred_name,
@@ -98,113 +51,125 @@ def create_user_profile(
         "major": major,
         "contact_phone": contact_phone,
         "personal_email": profile_email,
-        "profile_picture": profile_picture,
+        "profile_picture": profile_picture
     }
-    ur = supabase.table(T_USERS).update({"profile": profile_data}).eq("email", email).execute()
-    if not ur.data:
-        return None
-    return "1"
 
+    # Update user with profile
+    result = user_collection.update_one(
+        {"email": email},
+        {"$set": {"profile": profile_data}}
+    )
+
+    return str(result.modified_count) if result.modified_count > 0 else None
 
 def get_user_profile(email):
-    r = supabase.table(T_USERS).select("id, profile").eq("email", email).limit(1).execute()
-    if not r.data:
+    """Get a user's profile"""
+    user = user_collection.find_one({"email": email}, {"password": 0})
+    if not user:
         return None
-    user = r.data[0]
-    if not user.get("profile"):
-        return "Profile not found"
-    prof = user["profile"]
-    if isinstance(prof, str):
-        return "Profile not found"
-    user["_id"] = str(user["id"])
-    return prof
 
+    if "profile" not in user:
+        return "Profile not found"
 
-def update_user_profile(
-    email,
-    SID=None,
-    full_name=None,
-    preferred_name=None,
-    study_year=None,
-    major=None,
-    contact_phone=None,
-    profile_email=None,
-    profile_picture=None,
-):
-    r = supabase.table(T_USERS).select("profile").eq("email", email).limit(1).execute()
-    if not r.data:
+    # Convert ObjectId to string for JSON serialization
+    user["_id"] = str(user["_id"])
+    return user["profile"]
+
+def update_user_profile(email, SID=None, full_name=None, preferred_name=None, study_year=None, major=None, contact_phone=None, profile_email=None, profile_picture=None):
+    """Update a user's profile"""
+    # First check if user exists
+    user = user_collection.find_one({"email": email})
+    if not user:
         return None
-    current = r.data[0].get("profile") or {}
-    if not current:
+
+    # Check if profile exists
+    if "profile" not in user:
         return "Profile not found"
 
+    # Build update data with only provided fields
+    update_data = {}
     if full_name is not None:
-        current["full_name"] = full_name
+        update_data["profile.full_name"] = full_name
     if preferred_name is not None:
-        current["preferred_name"] = preferred_name
+        update_data["profile.preferred_name"] = preferred_name
     if SID is not None:
-        current["SID"] = SID
+        update_data["profile.SID"] = SID
     if study_year is not None:
-        current["study_year"] = study_year
+        update_data["profile.study_year"] = study_year
     if major is not None:
-        current["major"] = major
+        update_data["profile.major"] = major
     if contact_phone is not None:
-        current["contact_phone"] = contact_phone
+        update_data["profile.contact_phone"] = contact_phone
     if profile_email is not None:
-        current["personal_email"] = profile_email
+        update_data["profile.personal_email"] = profile_email  # Note: this is profile_email, not login email
     if profile_picture is not None:
-        current["profile_picture"] = profile_picture
+        update_data["profile.profile_picture"] = profile_picture
 
-    if not any(
-        [
-            full_name is not None,
-            preferred_name is not None,
-            SID is not None,
-            study_year is not None,
-            major is not None,
-            contact_phone is not None,
-            profile_email is not None,
-            profile_picture is not None,
-        ]
-    ):
+    if not update_data:
         return "No fields to update"
 
-    ur = supabase.table(T_USERS).update({"profile": current}).eq("email", email).execute()
-    if not ur.data:
-        return None
-    return "1"
+    # Update user profile
+    result = user_collection.update_one(
+        {"email": email},
+        {"$set": update_data}
+    )
 
+    # If we matched a document, the update is considered successful even if no changes were made
+    return str(result.matched_count) if result.matched_count > 0 else None
 
 def delete_user_profile(email):
-    r = supabase.table(T_USERS).select("profile").eq("email", email).limit(1).execute()
-    if not r.data:
+    """Delete a user's profile"""
+    # Check if user exists
+    user = user_collection.find_one({"email": email})
+    if not user:
         return None
-    if not r.data[0].get("profile"):
+
+    # Check if profile exists
+    if "profile" not in user:
         return "Profile not found"
-    ur = supabase.table(T_USERS).update({"profile": None}).eq("email", email).execute()
-    if not ur.data:
-        return None
-    return "1"
 
+    # Remove profile from user
+    result = user_collection.update_one(
+        {"email": email},
+        {"$unset": {"profile": 1}}
+    )
 
-def create_tutor_availability(
-    tutor_email, tutor_name, session_type, date, time_slot, location, description=None, force_cancel_booking=False
-):
+    return str(result.modified_count) if result.modified_count > 0 else None
+
+# ==================== Tutor Availability Management Functions ====================
+# create tutor availability
+def create_tutor_availability(tutor_email, tutor_name, session_type, date, time_slot, location, description=None, force_cancel_booking=False):
+    """Create a new tutor availability slot"""
+    
+    # Check if the tutor (creator) has already booked a session (as student) at the same time
     booking_conflict = check_student_booking_conflict(tutor_email, date, time_slot)
     if booking_conflict:
         if not force_cancel_booking:
+            # Return conflict info to ask for confirmation
             return {
                 "error": "student_booking_exists",
                 "message": "You already have a booked session at this time. If you create this session, your booking will be automatically cancelled.",
-                "conflict_info": booking_conflict,
+                "conflict_info": booking_conflict
             }
-        supabase.table(T_REGS).update({"status": "cancelled", "updated_at": _now().isoformat()}).eq(
-            "id", booking_conflict["registration_id"]
-        ).execute()
-        supabase.table(T_SLOTS).update(
-            {"is_registered": False, "registered_student": None, "updated_at": _now().isoformat()}
-        ).eq("id", booking_conflict["session_id"]).execute()
-
+        else:
+            # User confirmed, cancel the student booking
+            # Update registration status to cancelled
+            registration_collection.update_one(
+                {"_id": ObjectId(booking_conflict["registration_id"])},
+                {"$set": {
+                    "status": "cancelled",
+                    "updated_at": datetime.utcnow()
+                }}
+            )
+            # Free up the session slot
+            session_collection.update_one(
+                {"_id": ObjectId(booking_conflict["session_id"])},
+                {"$set": {
+                    "is_registered": False,
+                    "registered_student": None
+                }}
+            )
+    
     availability_data = {
         "tutor_email": tutor_email,
         "tutor_name": tutor_name,
@@ -213,370 +178,414 @@ def create_tutor_availability(
         "time_slot": time_slot,
         "location": location,
         "description": description,
-        "is_registered": False,
-        "registered_student": None,
+        "is_registered": False,  # Track if a student registered for this slot
+        "registered_student": None,  # Email of registered student
         "status": "active",
-        "created_at": _now().isoformat(),
-        "updated_at": _now().isoformat(),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
     }
-    r = supabase.table(T_SLOTS).insert(availability_data).execute()
-    if not r.data:
-        return None
-    return str(r.data[0]["id"])
-
+    
+    result = session_collection.insert_one(availability_data)
+    return str(result.inserted_id)
 
 def get_tutor_availability(tutor_email=None, date=None, session_type=None, status="active"):
-    q = supabase.table(T_SLOTS).select("*")
-    q = q.eq("status", status)
+    """Get tutor availability slots with optional filters"""
+    query = {"status": status}
+    
     if tutor_email:
-        q = q.eq("tutor_email", tutor_email)
+        query["tutor_email"] = tutor_email
     if date:
-        q = q.eq("date", date)
+        query["date"] = date
     if session_type:
-        q = q.eq("session_type", session_type)
-    r = q.execute()
-    availabilities = r.data or []
+        query["session_type"] = session_type
+    
+    availabilities = list(session_collection.find(query))
     for availability in availabilities:
-        row = _row_slot_to_doc(availability)
-        se = row.get("student_registered")
-        if se:
-            student_user = supabase.table(T_USERS).select("profile").eq("email", se).limit(1).execute()
-            if student_user.data and student_user.data[0].get("profile"):
-                p = student_user.data[0]["profile"]
-                row["student_profile"] = {
-                    "email": se,
-                    "preferred_name": p.get("preferred_name"),
-                    "study_year": p.get("study_year"),
+        availability["_id"] = str(availability["_id"])
+        availability["id"] = availability["_id"]
+        availability["is_available"] = not availability.get("is_registered", False)
+        availability["student_registered"] = availability.get("registered_student")
+        
+        # Add student profile information if someone is registered
+        if availability.get("registered_student"):
+            student_email = availability.get("registered_student")
+            student_user = user_collection.find_one({"email": student_email})
+            if student_user and "profile" in student_user:
+                availability["student_profile"] = {
+                    "email": student_email,
+                    "preferred_name": student_user["profile"].get("preferred_name"),
+                    "study_year": student_user["profile"].get("study_year"),
                 }
             else:
-                row["student_profile"] = {"email": se, "preferred_name": None, "study_year": None}
+                # If no profile, just provide email
+                availability["student_profile"] = {
+                    "email": student_email,
+                    "preferred_name": None,
+                    "study_year": None,
+                }
         else:
-            row["student_profile"] = None
-        availability.clear()
-        availability.update(row)
-
+            availability["student_profile"] = None
+    
     if len(availabilities) == 0:
         return None
+    
     return availabilities
 
-
 def delete_tutor_availability(availability_id, tutor_email):
+    """Delete a tutor's availability slot (only if it's their own)"""
     try:
-        aid = _uuid_str(availability_id)
-    except ValueError:
-        return None
-    try:
-        r = (
-            supabase.table(T_SLOTS)
-            .select("*")
-            .eq("id", aid)
-            .eq("tutor_email", tutor_email)
-            .limit(1)
-            .execute()
-        )
-        if not r.data:
+        # Check if the slot belongs to the tutor
+        availability = session_collection.find_one({
+            "_id": ObjectId(availability_id),
+            "tutor_email": tutor_email
+        })
+        
+        if not availability:
             return "Availability slot not found or not owned by this tutor"
-        availability = r.data[0]
+        
+        # Check if someone is registered
         if availability.get("is_registered", False):
             return "Cannot delete slot with registered student"
-        dr = supabase.table(T_SLOTS).delete().eq("id", aid).execute()
-        if not dr.data:
-            return None
-        return "1"
-    except Exception:
+        
+        # Delete the availability slot
+        result = session_collection.delete_one({"_id": ObjectId(availability_id)})
+        return str(result.deleted_count) if result.deleted_count > 0 else None
+    except:
         return None
 
-
+# ==================== Student register sessions Functions ====================
+    
 def get_student_calendar_view(session_type=None, date=None, student_email=None):
-    q = supabase.table(T_SLOTS).select("*").eq("status", "active").eq("is_registered", False)
+    """Get calendar view for students - grouped by date/time with multiple tutor options"""
+    query = {"status": "active", "is_registered": False}  # Only show available slots
+    
     if session_type:
-        q = q.eq("session_type", session_type)
+        query["session_type"] = session_type
     if date:
-        q = q.eq("date", date)
+        query["date"] = date
+    
+    # Exclude sessions created by the student themselves
     if student_email:
-        q = q.neq("tutor_email", student_email)
-    r = q.execute()
-    availabilities = r.data or []
-
-    calendar_slots: dict[str, dict] = {}
+        query["tutor_email"] = {"$ne": student_email}
+    
+    availabilities = list(session_collection.find(query))
+    
+    # Group by date, time_slot, and session_type
+    calendar_slots = {}
+    
     for availability in availabilities:
-        row = _row_slot_to_doc(availability)
-        key = f"{row['date']}_{row['time_slot']}_{row['session_type']}"
+        availability["_id"] = str(availability["_id"])
+        availability["id"] = availability["_id"]
+        availability["is_available"] = True  # All in this query are available
+        availability["student_registered"] = None
+        
+        # Create a key for grouping
+        key = f"{availability['date']}_{availability['time_slot']}_{availability['session_type']}"
+        
         if key not in calendar_slots:
             calendar_slots[key] = {
-                "date": row["date"],
-                "time_slot": row["time_slot"],
-                "session_type": row["session_type"],
-                "available_tutors": [],
+                "date": availability["date"],
+                "time_slot": availability["time_slot"],
+                "session_type": availability["session_type"],
+                "available_tutors": []
             }
-        calendar_slots[key]["available_tutors"].append(row)
-
+        
+        calendar_slots[key]["available_tutors"].append(availability)
+    
     return list(calendar_slots.values())
 
-
 def register_student_for_tutor_slot(student_email, availability_id, force_cancel_creator_session=False):
+    """Register a student for a specific tutor's availability slot"""
     try:
-        aid = _uuid_str(availability_id)
-    except ValueError:
-        return "Availability slot not found"
-
-    try:
-        ar = supabase.table(T_SLOTS).select("*").eq("id", aid).limit(1).execute()
-        if not ar.data:
+        # Check if availability slot exists and is active
+        availability = session_collection.find_one({"_id": ObjectId(availability_id)})
+        if not availability:
             return "Availability slot not found"
-        availability = ar.data[0]
-
-        if availability.get("status") != "active":
+        
+        if availability["status"] != "active":
             return "Availability slot is not active"
-
+        
+        # Check if student is trying to register for their own session
         if student_email == availability.get("tutor_email"):
             return "You cannot register for your own session"
-
+        
+        # Check if slot is already registered (one-on-one)
         if availability.get("is_registered", False):
             return "This tutor slot is already taken"
-
-        ex = (
-            supabase.table(T_REGS)
-            .select("id")
-            .eq("student_email", student_email)
-            .eq("session_id", aid)
-            .eq("status", "registered")
-            .limit(1)
-            .execute()
-        )
-        if ex.data:
+        
+        # Check if student is already registered for this specific slot
+        existing_registration = registration_collection.find_one({
+            "student_email": student_email,
+            "session_id": ObjectId(availability_id),
+            "status": "registered"
+        })
+        
+        if existing_registration:
             return "Already registered for this tutor slot"
-
+        
+        # Check for time conflicts (same student can't book multiple sessions at same time)
         if check_time_conflict(student_email, availability["date"], availability["time_slot"]):
             return "Time conflict with existing registration"
-
-        creator_conflict = check_creator_time_conflict(
-            student_email, availability["date"], availability["time_slot"]
-        )
+        
+        # Check if student has created a session at the same time (as creator/tutor)
+        creator_conflict = check_creator_time_conflict(student_email, availability["date"], availability["time_slot"])
         if creator_conflict:
             if creator_conflict["is_booked"]:
+                # Creator session is already booked by a student - cannot proceed
                 return {
                     "error": "creator_session_booked",
                     "message": "You already have a booked session at this time. Cannot book another session at the same time.",
-                    "conflict_info": creator_conflict,
+                    "conflict_info": creator_conflict
                 }
-            if not force_cancel_creator_session:
-                return {
-                    "error": "creator_session_exists",
-                    "message": "You have created a session at this time. If you confirm this booking, your created session will be automatically cancelled.",
-                    "conflict_info": creator_conflict,
-                }
-            supabase.table(T_SLOTS).delete().eq("id", creator_conflict["session_id"]).execute()
-
-        ts = _now().isoformat()
-        ins = (
-            supabase.table(T_REGS)
-            .insert(
-                {
-                    "student_email": student_email,
-                    "session_id": aid,
-                    "registration_time": ts,
-                    "status": "registered",
-                    "created_at": ts,
-                    "updated_at": ts,
-                }
-            )
-            .execute()
+            else:
+                # Creator session is not booked yet
+                if not force_cancel_creator_session:
+                    # Return conflict info to ask for confirmation
+                    return {
+                        "error": "creator_session_exists",
+                        "message": "You have created a session at this time. If you confirm this booking, your created session will be automatically cancelled.",
+                        "conflict_info": creator_conflict
+                    }
+                else:
+                    # User confirmed, delete the creator session
+                    session_collection.delete_one({"_id": ObjectId(creator_conflict["session_id"])})
+        
+        # Create registration
+        registration_data = {
+            "student_email": student_email,
+            "session_id": ObjectId(availability_id),
+            "registration_time": datetime.utcnow(),
+            "status": "registered",
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        result = registration_collection.insert_one(registration_data)
+        
+        # Update availability slot registration status
+        session_collection.update_one(
+            {"_id": ObjectId(availability_id)},
+            {"$set": {
+                "is_registered": True,
+                "registered_student": student_email
+            }}
         )
-        if not ins.data:
-            return None
-        reg_id = str(ins.data[0]["id"])
-
-        supabase.table(T_SLOTS).update(
-            {"is_registered": True, "registered_student": student_email, "updated_at": _now().isoformat()}
-        ).eq("id", aid).execute()
-
-        return reg_id
-    except Exception:
+        
+        return str(result.inserted_id)
+    
+    except Exception as e:
         return None
-
 
 def cancel_student_registration_for_tutor_slot(student_email, availability_id):
+    """Cancel a student's registration for a specific tutor slot"""
     try:
-        aid = _uuid_str(availability_id)
-    except ValueError:
-        return None
-    try:
-        ur = (
-            supabase.table(T_REGS)
-            .update({"status": "cancelled", "updated_at": _now().isoformat()})
-            .eq("student_email", student_email)
-            .eq("session_id", aid)
-            .eq("status", "registered")
-            .execute()
+        # Find and update the registration
+        result = registration_collection.update_one(
+            {
+                "student_email": student_email,
+                "session_id": ObjectId(availability_id),
+                "status": "registered"
+            },
+            {
+                "$set": {
+                    "status": "cancelled",
+                    "updated_at": datetime.utcnow()
+                }
+            }
         )
-        if not ur.data:
-            return None
-        supabase.table(T_SLOTS).update(
-            {"is_registered": False, "registered_student": None, "updated_at": _now().isoformat()}
-        ).eq("id", aid).execute()
-        return "1"
-    except Exception:
+        
+        if result.modified_count > 0:
+            # Free up the tutor slot (make it available again)
+            session_collection.update_one(
+                {"_id": ObjectId(availability_id)},
+                {"$set": {
+                    "is_registered": False,
+                    "registered_student": None
+                }}
+            )
+            return str(result.modified_count)
+        
+        return None
+    except:
         return None
 
+
+# ==================== Session Registration Helper Functions ====================
 
 def check_time_conflict(student_email, date, time_slot):
-    r = supabase.table(T_REGS).select("session_id").eq("student_email", student_email).eq("status", "registered").execute()
-    for reg in r.data or []:
-        sid = reg["session_id"]
-        sr = supabase.table(T_SLOTS).select("date, time_slot").eq("id", sid).limit(1).execute()
-        if sr.data and sr.data[0]["date"] == date and sr.data[0]["time_slot"] == time_slot:
-            return True
-    return False
-
+    """Check if student has a time conflict with existing registrations"""
+    # Get all active registrations for the student
+    registrations = list(registration_collection.find({
+        "student_email": student_email,
+        "status": "registered"
+    }))
+    
+    for reg in registrations:
+        # Get session details for each registration
+        session = session_collection.find_one({"_id": reg["session_id"]})
+        if session and session["date"] == date and session["time_slot"] == time_slot:
+            return True  # Conflict found
+    
+    return False  # No conflict
 
 def check_creator_time_conflict(student_email, date, time_slot):
-    s = (
-        supabase.table(T_SLOTS)
-        .select("*")
-        .eq("tutor_email", student_email)
-        .eq("date", date)
-        .eq("time_slot", time_slot)
-        .eq("status", "active")
-        .limit(1)
-        .execute()
-    )
-    if not s.data:
-        return None
-    creator_session = s.data[0]
-    cid = str(creator_session["id"])
-    return {
-        "session_id": cid,
-        "is_booked": creator_session.get("is_registered", False),
-        "booked_by": creator_session.get("registered_student"),
-        "session_type": creator_session.get("session_type"),
-        "location": creator_session.get("location"),
-    }
-
-
-def check_student_booking_conflict(tutor_email, date, time_slot):
-    r = supabase.table(T_REGS).select("id, session_id").eq("student_email", tutor_email).eq("status", "registered").execute()
-    for reg in r.data or []:
-        sid = reg["session_id"]
-        sr = supabase.table(T_SLOTS).select("*").eq("id", sid).limit(1).execute()
-        if not sr.data:
-            continue
-        session = sr.data[0]
-        if session["date"] == date and session["time_slot"] == time_slot:
-            return {
-                "registration_id": str(reg["id"]),
-                "session_id": str(session["id"]),
-                "session_type": session.get("session_type"),
-                "tutor_name": session.get("tutor_name"),
-                "location": session.get("location"),
-            }
+    """
+    Check if student has created a session at the same time
+    Returns:
+        None: No conflict
+        dict: Conflict info with session details
+    """
+    # Check if the student has created a session (as tutor) at the same time
+    creator_session = session_collection.find_one({
+        "tutor_email": student_email,
+        "date": date,
+        "time_slot": time_slot,
+        "status": "active"
+    })
+    
+    if creator_session:
+        return {
+            "session_id": str(creator_session["_id"]),
+            "is_booked": creator_session.get("is_registered", False),
+            "booked_by": creator_session.get("registered_student"),
+            "session_type": creator_session.get("session_type"),
+            "location": creator_session.get("location")
+        }
+    
     return None
 
+def check_student_booking_conflict(tutor_email, date, time_slot):
+    """
+    Check if the person creating a session (as tutor) has already booked a session (as student) at the same time
+    Returns:
+        None: No conflict
+        dict: Conflict info with registration and session details
+    """
+    # Find all active registrations for this person as a student
+    registrations = list(registration_collection.find({
+        "student_email": tutor_email,
+        "status": "registered"
+    }))
+    
+    for reg in registrations:
+        # Get session details for each registration
+        session = session_collection.find_one({"_id": reg["session_id"]})
+        if session and session["date"] == date and session["time_slot"] == time_slot:
+            # Found a conflict - this person has booked a session at the same time
+            return {
+                "registration_id": str(reg["_id"]),
+                "session_id": str(session["_id"]),
+                "session_type": session.get("session_type"),
+                "tutor_name": session.get("tutor_name"),
+                "location": session.get("location")
+            }
+    
+    return None
 
 def get_student_registrations(student_email):
-    r = supabase.table(T_REGS).select("*").eq("student_email", student_email).eq("status", "registered").execute()
-    registrations = r.data or []
+    """Get active registrations for a student"""
+    # Only get registrations with "registered" status
+    registrations = list(registration_collection.find({
+        "student_email": student_email,
+        "status": "registered"
+    }))
+    
     result = []
     for reg in registrations:
         try:
-            sid = reg["session_id"]
-            session = supabase.table(T_SLOTS).select("*").eq("id", sid).limit(1).execute()
-            if not session.data:
+            # Get session details (tutor availability)
+            session = session_collection.find_one({"_id": reg["session_id"]})
+            if not session:
                 continue
-            srow = session.data[0]
-            tutor_email = srow.get("tutor_email")
-
-            reg_time = reg.get("registration_time")
-            if hasattr(reg_time, "isoformat"):
-                rt_str = reg_time.isoformat()
-            else:
-                rt_str = str(reg_time) if reg_time else ""
-
+            
+            # Get tutor email safely
+            tutor_email = session.get("tutor_email")
+            
             reg_data = {
-                "registration_id": str(reg["id"]),
-                "availability_id": str(sid),
+                "registration_id": str(reg["_id"]),
+                "availability_id": str(reg["session_id"]),  # This is actually availability_id in the new system
                 "student_email": reg["student_email"],
-                "registration_time": rt_str,
+                "registration_time": reg["registration_time"].isoformat() if isinstance(reg["registration_time"], datetime) else str(reg["registration_time"]),
                 "status": reg["status"],
                 "session_details": {
-                    "session_type": srow.get("session_type", ""),
-                    "tutor_name": srow.get("tutor_name", ""),
-                    "tutor_email": tutor_email or "",
-                    "date": srow.get("date", ""),
-                    "time_slot": srow.get("time_slot", ""),
-                    "location": srow.get("location", ""),
-                    "description": srow.get("description", ""),
-                },
+                    "session_type": session.get("session_type", ""),
+                    "tutor_name": session.get("tutor_name", ""),
+                    "tutor_email": tutor_email if tutor_email else "",
+                    "date": session.get("date", ""),
+                    "time_slot": session.get("time_slot", ""),
+                    "location": session.get("location", ""),
+                    "description": session.get("description", "")
+                }
             }
+            
+            # Add tutor profile information - wrapped in try-catch to prevent errors
             try:
                 if tutor_email:
-                    tu = supabase.table(T_USERS).select("profile").eq("email", tutor_email).limit(1).execute()
-                    if tu.data and tu.data[0].get("profile"):
-                        p = tu.data[0]["profile"]
+                    tutor_user = user_collection.find_one({"email": tutor_email})
+                    if tutor_user and "profile" in tutor_user:
                         reg_data["tutor_profile"] = {
                             "email": tutor_email,
-                            "preferred_name": p.get("preferred_name"),
-                            "study_year": p.get("study_year"),
+                            "preferred_name": tutor_user["profile"].get("preferred_name"),
+                            "study_year": tutor_user["profile"].get("study_year")
                         }
                     else:
+                        # If no profile, just provide email
                         reg_data["tutor_profile"] = {
                             "email": tutor_email,
                             "preferred_name": None,
-                            "study_year": None,
+                            "study_year": None
                         }
                 else:
                     reg_data["tutor_profile"] = None
-            except Exception:
+            except Exception as e:
+                # If getting profile fails, just set it to None
                 reg_data["tutor_profile"] = None
+            
             result.append(reg_data)
         except Exception as e:
-            print(f"Error processing registration {reg.get('id')}: {e}")
+            # If there's any error processing this registration, skip it and continue
+            print(f"Error processing registration {reg.get('_id')}: {e}")
             continue
+    
     return result
 
+# ==================== Verification / Reflection Functions ====================
 
 def get_user_sessions_for_verification(user_email):
+    """
+    Get all sessions that a user is involved in (as tutor or student)
+    Only return sessions that have been booked/registered
+    """
     result = []
-
-    tutor_sessions = (
-        supabase.table(T_SLOTS)
-        .select("*")
-        .eq("tutor_email", user_email)
-        .eq("status", "active")
-        .eq("is_registered", True)
-        .execute()
-    ).data or []
-
+    
+    # 1. Get sessions where user is the tutor and a student has registered
+    tutor_sessions = list(session_collection.find({
+        "tutor_email": user_email,
+        "status": "active",
+        "is_registered": True
+    }))
+    
     for session in tutor_sessions:
-        sid_str = str(session["id"])
-        tutor_ref = (
-            supabase.table(T_REFL)
-            .select("*")
-            .eq("session_id", sid_str)
-            .eq("role", "tutor")
-            .limit(1)
-            .execute()
-        )
-        student_ref = (
-            supabase.table(T_REFL)
-            .select("*")
-            .eq("session_id", sid_str)
-            .eq("role", "student")
-            .limit(1)
-            .execute()
-        )
+        # Check if both parties have submitted reflections
+        tutor_reflection = reflection_collection.find_one({
+            "session_id": str(session["_id"]),
+            "role": "tutor"
+        })
+        student_reflection = reflection_collection.find_one({
+            "session_id": str(session["_id"]),
+            "role": "student"
+        })
+        
+        # Get student profile
         student_email = session.get("registered_student")
         student_name = student_email
         if student_email:
-            su = supabase.table(T_USERS).select("profile").eq("email", student_email).limit(1).execute()
-            if su.data and su.data[0].get("profile"):
-                student_name = su.data[0]["profile"].get("preferred_name", student_email)
-
-        tr = tutor_ref.data[0] if tutor_ref.data else None
-        sr = student_ref.data[0] if student_ref.data else None
-
+            student_user = user_collection.find_one({"email": student_email})
+            if student_user and "profile" in student_user:
+                student_name = student_user["profile"].get("preferred_name", student_email)
+        
         session_data = {
-            "session_id": sid_str,
+            "session_id": str(session["_id"]),
             "date": session.get("date"),
             "time_slot": session.get("time_slot"),
             "session_type": session.get("session_type"),
@@ -586,47 +595,36 @@ def get_user_sessions_for_verification(user_email):
             "student_email": student_email,
             "student_name": student_name,
             "user_role": "tutor",
-            "tutor_reflected": tr is not None,
-            "student_reflected": sr is not None,
-            "is_verified": tr is not None,
-            "user_reflection": format_reflection(tr) if tr else None,
+            "tutor_reflected": tutor_reflection is not None,
+            "student_reflected": student_reflection is not None,
+            "is_verified": tutor_reflection is not None,  # User (tutor) verified if they submitted
+            "user_reflection": format_reflection(tutor_reflection) if tutor_reflection else None
         }
         result.append(session_data)
-
-    registrations = (
-        supabase.table(T_REGS).select("*").eq("student_email", user_email).eq("status", "registered").execute()
-    ).data or []
-
+    
+    # 2. Get sessions where user is the student (registered)
+    registrations = list(registration_collection.find({
+        "student_email": user_email,
+        "status": "registered"
+    }))
+    
     for reg in registrations:
-        sid = reg["session_id"]
-        sr_s = supabase.table(T_SLOTS).select("*").eq("id", sid).limit(1).execute()
-        if not sr_s.data:
+        session = session_collection.find_one({"_id": reg["session_id"]})
+        if not session:
             continue
-        session = sr_s.data[0]
-        sid_str = str(session["id"])
-
-        tutor_ref = (
-            supabase.table(T_REFL)
-            .select("*")
-            .eq("session_id", sid_str)
-            .eq("role", "tutor")
-            .limit(1)
-            .execute()
-        )
-        student_ref = (
-            supabase.table(T_REFL)
-            .select("*")
-            .eq("session_id", sid_str)
-            .eq("role", "student")
-            .limit(1)
-            .execute()
-        )
-
-        tr = tutor_ref.data[0] if tutor_ref.data else None
-        sr = student_ref.data[0] if student_ref.data else None
-
+        
+        # Check if both parties have submitted reflections
+        tutor_reflection = reflection_collection.find_one({
+            "session_id": str(session["_id"]),
+            "role": "tutor"
+        })
+        student_reflection = reflection_collection.find_one({
+            "session_id": str(session["_id"]),
+            "role": "student"
+        })
+        
         session_data = {
-            "session_id": sid_str,
+            "session_id": str(session["_id"]),
             "date": session.get("date"),
             "time_slot": session.get("time_slot"),
             "session_type": session.get("session_type"),
@@ -634,28 +632,24 @@ def get_user_sessions_for_verification(user_email):
             "tutor_email": session.get("tutor_email"),
             "tutor_name": session.get("tutor_name"),
             "student_email": user_email,
-            "student_name": user_email,
+            "student_name": user_email,  # We can get preferred name if needed
             "user_role": "student",
-            "tutor_reflected": tr is not None,
-            "student_reflected": sr is not None,
-            "is_verified": sr is not None,
-            "user_reflection": format_reflection(sr) if sr else None,
+            "tutor_reflected": tutor_reflection is not None,
+            "student_reflected": student_reflection is not None,
+            "is_verified": student_reflection is not None,  # User (student) verified if they submitted
+            "user_reflection": format_reflection(student_reflection) if student_reflection else None
         }
         result.append(session_data)
-
+    
     return result
 
-
 def format_reflection(reflection):
+    """Format a reflection document for API response"""
     if not reflection:
         return None
-    sa = reflection.get("submitted_at")
-    if hasattr(sa, "isoformat"):
-        sa_str = sa.isoformat()
-    else:
-        sa_str = str(sa) if sa else ""
+    
     return {
-        "id": str(reflection["id"]),
+        "id": str(reflection["_id"]),
         "session_id": reflection.get("session_id"),
         "submitted_by": reflection.get("submitted_by"),
         "role": reflection.get("role"),
@@ -663,42 +657,39 @@ def format_reflection(reflection):
         "attitude_rating": reflection.get("attitude_rating"),
         "meeting_content": reflection.get("meeting_content"),
         "photo_base64": reflection.get("photo_base64"),
-        "submitted_at": sa_str,
+        "submitted_at": reflection.get("submitted_at").isoformat() if isinstance(reflection.get("submitted_at"), datetime) else str(reflection.get("submitted_at"))
     }
 
-
 def submit_reflection(session_id, submitted_by, role, other_person_name, attitude_rating, meeting_content, photo_base64):
+    """
+    Submit a reflection for a session
+    Returns the reflection_id or error message
+    """
     try:
-        sid = _uuid_str(session_id)
-    except ValueError:
-        return "Session not found"
-
-    try:
-        sr = supabase.table(T_SLOTS).select("*").eq("id", sid).limit(1).execute()
-        if not sr.data:
+        # Check if session exists
+        session = session_collection.find_one({"_id": ObjectId(session_id)})
+        if not session:
             return "Session not found"
-        session = sr.data[0]
-
-        ex = (
-            supabase.table(T_REFL)
-            .select("id")
-            .eq("session_id", session_id)
-            .eq("submitted_by", submitted_by)
-            .eq("role", role)
-            .limit(1)
-            .execute()
-        )
-        if ex.data:
+        
+        # Check if user has already submitted a reflection for this session
+        existing_reflection = reflection_collection.find_one({
+            "session_id": session_id,
+            "submitted_by": submitted_by,
+            "role": role
+        })
+        
+        if existing_reflection:
             return "Reflection already submitted"
-
+        
+        # Verify that the user is actually part of this session
         if role == "tutor":
             if session.get("tutor_email") != submitted_by:
                 return "You are not the tutor for this session"
         elif role == "student":
             if session.get("registered_student") != submitted_by:
                 return "You are not registered for this session"
-
-        ts = _now().isoformat()
+        
+        # Create reflection
         reflection_data = {
             "session_id": session_id,
             "submitted_by": submitted_by,
@@ -707,13 +698,13 @@ def submit_reflection(session_id, submitted_by, role, other_person_name, attitud
             "attitude_rating": attitude_rating,
             "meeting_content": meeting_content,
             "photo_base64": photo_base64,
-            "submitted_at": ts,
-            "created_at": ts,
+            "submitted_at": datetime.utcnow(),
+            "created_at": datetime.utcnow()
         }
-        r = supabase.table(T_REFL).insert(reflection_data).execute()
-        if not r.data:
-            return None
-        return str(r.data[0]["id"])
+        
+        result = reflection_collection.insert_one(reflection_data)
+        return str(result.inserted_id)
+    
     except Exception as e:
         print(f"Error submitting reflection: {e}")
         return None

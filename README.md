@@ -1,40 +1,27 @@
 # Sign-up system
 
-Web app (Vite + React) and API (FastAPI). Data lives in **Supabase (PostgreSQL)**; the backend uses the Supabase REST API via the official Python client.
+Web app (Vite + React) and API (FastAPI). Data is stored in **MongoDB** (local via Docker Compose, or [MongoDB Atlas](https://www.mongodb.com/atlas) / any MongoDB deployment).
 
 ---
 
 ## Prerequisites
 
-- **Supabase project** with tables created (see below).
-- **Docker Compose** (for the containerized stack), *or* **Node 20+** and **Python 3.12+** for local dev.
+- **MongoDB** reachable from the API (included in Docker Compose), *or* **Node 20+** and **Python 3.12+** for local dev.
 
 ---
 
-## One-time setup
+## Environment variables
 
-### 1. Create database tables
-
-In the [Supabase SQL Editor](https://supabase.com/dashboard), run:
-
-[`supabase/migrations/20260421120000_sign_up_system_schema.sql`](supabase/migrations/20260421120000_sign_up_system_schema.sql)
-
-(Or apply the same file with the [Supabase CLI](https://supabase.com/docs/guides/cli) if you use it.)
-
-### 2. Configure environment variables
-
-**Docker (repo root):** copy [`.env.docker.example`](.env.docker.example) to `.env` and fill in:
+**Docker (repo root):** copy [`.env.docker.example`](.env.docker.example) to `.env` and adjust if needed:
 
 | Variable | Required | Notes |
 |----------|----------|--------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | `https://<project-ref>.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes | Publishable / anon key (Dashboard → **Settings → API**) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Strongly recommended | Service role secret; avoids RLS blocking the API |
-| `VITE_API_URL` | No | API URL **as the browser sees it** (default `http://localhost:8000`) |
-| `FRONTEND_PORT` | No | Host port for the web UI (default `8080`) |
+| `MONGODB_URL` | No (has default) | Default in Compose: `mongodb://mongo:27017` (the `mongo` service). Override for Atlas or another host. |
+| `VITE_API_URL` | No | API base URL **as the browser sees it** (default `http://localhost:8000`). |
+| `FRONTEND_PORT` | No | Host port for the web UI (default `8080`). |
 | `CORS_ORIGINS` | No | Comma-separated origins. If **unset**, the API allows `http://localhost:5173`, `http://localhost:8080`, and a few defaults—see `backend/main.py`. |
 
-**Local backend only:** use [`backend/.env.example`](backend/.env.example) as `backend/.env` with the same Supabase variables.
+**Local backend only:** copy [`backend/.env.example`](backend/.env.example) to `backend/.env` and set `MONGODB_URL` (e.g. `mongodb://localhost:27017` or your Atlas URI).
 
 The frontend calls the API using `VITE_API_URL` (defaults to `http://localhost:8000` in code if unset). For `npm run dev`, that matches the backend on port **8000**.
 
@@ -42,15 +29,17 @@ The frontend calls the API using `VITE_API_URL` (defaults to `http://localhost:8
 
 ## Launch: Docker Compose (recommended)
 
-From the **repository root** (after `.env` exists with Supabase keys):
+From the **repository root**:
 
 ```bash
 docker compose up --build
 ```
 
+This starts **MongoDB**, the **API**, and the **frontend** (nginx serving the built Vite app). Data is persisted in the `mongo_data` volume.
+
 | Service | URL |
 |--------|-----|
-| Web app | [http://localhost:8080](http://localhost:8080) — use `FRONTEND_PORT` in `.env` to change the host port |
+| Web app | [http://localhost:8080](http://localhost:8080) — override host port with `FRONTEND_PORT` in `.env` |
 | API + Swagger | [http://localhost:8000](http://localhost:8000) |
 | Health | [http://localhost:8000/_health](http://localhost:8000/_health) |
 
@@ -62,7 +51,7 @@ If the UI is opened from another host/port, set `VITE_API_URL` to the API base U
 
 ## Launch: local (no Docker)
 
-Use **two terminals**.
+Run **MongoDB** yourself (local install or Atlas), then use **two terminals**.
 
 **Terminal 1 — backend**
 
@@ -72,7 +61,7 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r app/requirements.txt
 export PYTHONPATH=.
-# Load Supabase vars, e.g. from backend/.env:
+# Set MONGODB_URL, e.g. in backend/.env:
 #   set -a && source .env && set +a
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
@@ -109,9 +98,3 @@ cd backend && source .venv/bin/activate && pip install -r app/requirements.txt
 export PYTHONPATH=.
 python -m pytest tests -q --tb=short
 ```
-
----
-
-## History
-
-Earlier versions used MongoDB; the app now uses Supabase only.
