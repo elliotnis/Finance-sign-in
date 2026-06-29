@@ -7,6 +7,7 @@ function Dashboard(){
     const [loading, setLoading] = useState(true);
     const [profilePicture, setProfilePicture] = useState(null);
     const [profileLoading, setProfileLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [displayName, setDisplayName] = useState(() => {
         const storedName = localStorage.getItem('preferred_name');
         // If stored name is email or looks like email, show Student
@@ -42,7 +43,23 @@ function Dashboard(){
         
         // Fetch user profile to get profile picture
         fetchUserProfile();
+        fetchAdminRole();
     }, [navigate]);
+
+    const fetchAdminRole = async () => {
+        try {
+            const userEmail = localStorage.getItem('user_email');
+            if (!userEmail) return;
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const response = await fetch(`${API_URL}/me/role?email=${encodeURIComponent(userEmail)}`);
+            if (response.ok) {
+                const data = await response.json();
+                setIsAdmin(Boolean(data.is_admin));
+            }
+        } catch (error) {
+            console.error('Error checking admin role:', error);
+        }
+    };
 
     const fetchUserProfile = async () => {
         try {
@@ -151,6 +168,16 @@ function Dashboard(){
             onClick: () => navigate('/verification'),
         },
     ];
+
+    if (isAdmin) {
+        quickActions.push({
+            title: 'Database',
+            description: 'Add, edit, or remove database entries.',
+            icon: 'fa-database',
+            accent: 'purple',
+            onClick: () => navigate('/database'),
+        });
+    }
 
     return (
         <div className="dashboard-container">

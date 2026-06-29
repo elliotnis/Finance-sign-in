@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel
 from .utils import (
     check_email_exists, create_user, verify_user_credentials, get_all_users,
     user_password_status, set_password_if_passwordless,
@@ -21,6 +22,13 @@ from .magic_link import (
     create_magic_link, create_magic_link_for_email, consume_magic_link, MagicLinkError,
 )
 from .email_service import EmailConfigError, EmailSendError
+from .admin_database import (
+    list_database_collections,
+    list_documents,
+    create_document,
+    update_document,
+    delete_document,
+)
 
     
 from .schema import (
@@ -39,6 +47,18 @@ from .schema import (
 
 
 router = APIRouter()
+
+
+class AdminDatabasePayload(BaseModel):
+    document: dict
+
+
+def require_admin(email: str):
+    if not is_admin(email):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can manage database entries",
+        )
 
 @router.post("/signup")
 def signup(user_data: UserSignup):
@@ -582,6 +602,100 @@ def submit_session_reflection(reflection_data: ReflectionSubmit):
 def get_my_role(email: str):
     """Tell the frontend whether this email is in the admin allow-list."""
     return {"email": email, "is_admin": is_admin(email)}
+
+
+# ==================== Admin Database Manager ====================
+
+@router.get("/admin/database/collections")
+def admin_database_collections(admin_email: str):
+    require_admin(admin_email)
+    return {"collections": list_database_collections()}
+
+
+@router.get("/admin/database/{collection_key}")
+def admin_database_documents(
+    collection_key: str,
+    admin_email: str,
+    search: str = "",
+    limit: int = 100,
+):
+    require_admin(admin_email)
+    try:
+        return list_documents(collection_key, search=search, limit=limit)
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Unknown database section",
+        )
+
+
+@router.post("/admin/database/{collection_key}")
+def admin_database_create(collection_key: str, admin_email: str, payload: AdminDatabasePayload):
+    require_admin(admin_email)
+    try:
+        document = create_document(collection_key, payload.document)
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Unknown database section",
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Could not create entry: {exc}",
+        )
+    return {"success": True, "document": document}
+
+
+@router.put("/admin/database/{collection_key}/{document_id}")
+def admin_database_update(
+    collection_key: str,
+    document_id: str,
+    admin_email: str,
+    payload: AdminDatabasePayload,
+):
+    require_admin(admin_email)
+    try:
+        document = update_document(collection_key, document_id, payload.document)
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Unknown database section",
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Could not update entry: {exc}",
+        )
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Entry not found",
+        )
+    return {"success": True, "document": document}
+
+
+@router.delete("/admin/database/{collection_key}/{document_id}")
+def admin_database_delete(collection_key: str, document_id: str, admin_email: str):
+    require_admin(admin_email)
+    try:
+        deleted = delete_document(collection_key, document_id)
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Unknown database section",
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Could not delete entry: {exc}",
+        )
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Entry not found",
+        )
+    return {"success": True, "message": "Entry deleted"}
 
 
 # ==================== Classes (admin-created group classes) ====================

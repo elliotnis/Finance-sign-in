@@ -1,12 +1,12 @@
 # Sign-up system
 
-Web app (Vite + React) and API (FastAPI). Data is stored in **MongoDB** (local via Docker Compose, or [MongoDB Atlas](https://www.mongodb.com/atlas) / any MongoDB deployment).
+Web app (Vite + React) and API (FastAPI). Data is stored in **MongoDB** through the Docker Compose database service.
 
 ---
 
 ## Prerequisites
 
-- **MongoDB** reachable from the API (included in Docker Compose), *or* **Node 20+** and **Python 3.12+** for local dev.
+- **Docker Compose** for the full app stack, *or* **Node 20+** and **Python 3.12+** for local frontend/backend development.
 
 ---
 
@@ -16,7 +16,6 @@ Web app (Vite + React) and API (FastAPI). Data is stored in **MongoDB** (local v
 
 | Variable | Required | Notes |
 |----------|----------|--------|
-| `MONGODB_URL` | No (has default) | Default in Compose: `mongodb://mongo:27017` (the `mongo` service). Override for Atlas or another host. |
 | `VITE_API_URL` | No | API base URL **as the browser sees it** (default `http://localhost:8000`). |
 | `FRONTEND_PORT` | No | Host port for the web UI (default `8080`). |
 | `TRADING_SIM_PORT` | No | Host port for the trading simulation frontend (default `4173`). |
@@ -26,7 +25,7 @@ Web app (Vite + React) and API (FastAPI). Data is stored in **MongoDB** (local v
 | `MAGIC_LINK_TTL_MINUTES` | No (default 15) | Minutes before a magic-link token expires. |
 | `ADMIN_EMAILS` | Yes for managing classes | Comma-separated admin emails. Only these accounts can create / cancel classes. |
 
-**Local backend only:** copy [`backend/.env.example`](backend/.env.example) to `backend/.env` and set `MONGODB_URL` (e.g. `mongodb://localhost:27017` or your Atlas URI). The same `SMTP_*`, `FRONTEND_URL`, `MAGIC_LINK_TTL_MINUTES`, and `ADMIN_EMAILS` variables apply for non-Docker dev.
+**Local backend only:** copy [`backend/.env.example`](backend/.env.example) to `backend/.env` and run the database service with Docker Compose. The same `SMTP_*`, `FRONTEND_URL`, `MAGIC_LINK_TTL_MINUTES`, and `ADMIN_EMAILS` variables apply for non-Docker dev.
 
 ### Setting up Gmail SMTP (one-time)
 
@@ -69,13 +68,13 @@ Stop: `Ctrl+C` or `docker compose down`.
 
 If the UI is opened from another host/port, set `VITE_API_URL` to the API base URL the **browser** must use, and add that UI origin via `CORS_ORIGINS` on the backend if needed.
 
-For VPS deployment with MongoDB hosted on the VPS, leave `MONGODB_URL` unset or set it to `mongodb://mongo:27017`. To migrate existing MongoDB Atlas data into the VPS Docker volume, see [docs/migrate-atlas-to-vps-mongo.md](docs/migrate-atlas-to-vps-mongo.md).
+For VPS deployment with MongoDB hosted on the VPS, use the included Compose database service. To migrate existing hosted data into the VPS Docker volume, see [docs/migrate-atlas-to-vps-mongo.md](docs/migrate-atlas-to-vps-mongo.md).
 
 ---
 
 ## Launch: local (no Docker)
 
-Run **MongoDB** yourself (local install or Atlas), then use **two terminals**.
+Run the database service with Docker Compose, then use **two terminals** if you want to run frontend/backend outside Docker.
 
 **Terminal 1 — backend**
 
@@ -85,7 +84,6 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r app/requirements.txt
 export PYTHONPATH=.
-# Set MONGODB_URL, e.g. in backend/.env:
 #   set -a && source .env && set +a
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```

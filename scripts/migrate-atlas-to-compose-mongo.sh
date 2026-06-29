@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ -z "${ATLAS_MONGODB_URL:-}" ]; then
-  echo "Set ATLAS_MONGODB_URL to the MongoDB Atlas connection string before running this script." >&2
-  echo "Example:" >&2
-  echo "  export ATLAS_MONGODB_URL='mongodb+srv://user:password@cluster.mongodb.net/?retryWrites=true&w=majority'" >&2
+if [ -z "${SOURCE_DATABASE_URI:-}" ]; then
+  echo "Set SOURCE_DATABASE_URI in the current shell before running this script." >&2
+  echo "Do not save that value in the repo or in the VPS .env file." >&2
   exit 1
 fi
 
@@ -33,7 +32,7 @@ docker run --rm \
   --user "$(id -u):$(id -g)" \
   -v "$DUMP_PATH:/dump" \
   mongo:7 \
-  mongodump --uri "$ATLAS_MONGODB_URL" --db "$DB_NAME" --out /dump
+  mongodump --uri "$SOURCE_DATABASE_URI" --db "$DB_NAME" --out /dump
 
 if [ ! -d "$DUMP_PATH/$DB_NAME" ]; then
   echo "Expected dump directory '$DUMP_PATH/$DB_NAME' was not created." >&2

@@ -86,7 +86,7 @@ jobs:
 
       - name: Deploy API to Cloud Run
         env:
-          MONGODB_URL: ${{ secrets.MONGODB_URL }}
+          DATABASE_URI: ${{ secrets.DATABASE_URI }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
@@ -100,7 +100,7 @@ jobs:
           import os
 
           out = {
-              "MONGODB_URL": os.environ["MONGODB_URL"],
+              "DATABASE_URI": os.environ["DATABASE_URI"],
               "SMTP_HOST": "smtp.gmail.com",
               "SMTP_PORT": "587",
               "SMTP_USER": os.environ["SMTP_USER"],

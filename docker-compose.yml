@@ -17,7 +17,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      MONGODB_URL: ${MONGODB_URL:-mongodb://mongo:27017}
+      DATABASE_URI: ${DATABASE_URI:-mongodb://mongo:27017}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
       # Passwordless email login (Gmail SMTP). All optional but required for the magic-link flow.
       SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}

@@ -9,6 +9,7 @@ import TutorCalendar from './components/TutorCalendar';
 import RegisterSession from './components/RegisterSession';
 import ClassesCalendar from './components/ClassesCalendar';
 import Verification from './components/Verification';
+import DatabaseManager from './components/DatabaseManager';
 import { AuthProvider } from './contexts/authcontext';
 import './App.css'
 import './styles/mobile.css'
@@ -28,6 +29,7 @@ function App() {
         <Route path="/register-session" element={<RegisterSession />} />
         <Route path="/classes" element={<ClassesCalendar />} />
         <Route path="/verification" element={<Verification />} />
+        <Route path="/database" element={<DatabaseManager />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

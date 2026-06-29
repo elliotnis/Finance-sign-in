@@ -58,7 +58,7 @@ Pushing to `main` or `master` runs tests, builds Docker images, pushes them to *
 |--------|---------|
 | `WIF_PROVIDER` | Full Workload Identity Provider name from GCP. |
 | `WIF_SERVICE_ACCOUNT` | Service account email for federation. |
-| `MONGODB_URL` | MongoDB connection string (Atlas or other). |
+| `DATABASE_URI` | Private database connection value for the API. |
 | `SMTP_USER` | Gmail (or other SMTP) user. |
 | `SMTP_PASSWORD` | App password or SMTP secret. |
 | `SMTP_FROM` | From header, e.g. `HKUST FINA Portal <you@gmail.com>`. |

@@ -10,6 +10,7 @@
   --dashboard-green: #168358;
   --dashboard-teal: #0f766e;
   --dashboard-red: #c24135;
+  --dashboard-purple: #6d3ab8;
   min-height: 100vh;
   background:
     linear-gradient(135deg, rgba(234, 242, 255, 0.92) 0%, rgba(255, 255, 255, 0.96) 42%, rgba(255, 249, 232, 0.78) 100%),
@@ -496,6 +497,10 @@
 
 .action-card-red {
   --card-accent: var(--dashboard-red);
+}
+
+.action-card-purple {
+  --card-accent: var(--dashboard-purple);
 }
 
 .card-icon {

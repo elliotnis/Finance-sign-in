@@ -1,17 +1,10 @@
-# Migrate MongoDB Atlas to VPS MongoDB
+# Migrate Hosted Data to VPS MongoDB
 
-The Docker Compose deployment includes a local `mongo` service. On the VPS, the backend should use that service instead of Atlas.
+The Docker Compose deployment includes a local `mongo` service. On the VPS, the backend should use that service.
 
-## 1. Configure the VPS app to use local MongoDB
+## 1. Configure the VPS app to use the local database
 
-In the repo root on the VPS, edit `.env`:
-
-```env
-# Leave this unset, or set it explicitly:
-MONGODB_URL=mongodb://mongo:27017
-```
-
-Do not put the Atlas URI in `.env` after migration. The Atlas URI should only be used temporarily while importing data.
+Do not put the old hosted database connection value in `.env` after migration. It should only be used temporarily while importing data.
 
 ## 2. Start MongoDB on the VPS
 
@@ -21,12 +14,12 @@ docker compose up -d mongo
 docker compose ps
 ```
 
-## 3. Migrate the Atlas data
+## 3. Migrate the existing data
 
-Set the Atlas URI only in the current shell session:
+Set the hosted database connection value only in the current shell session:
 
 ```bash
-export ATLAS_MONGODB_URL='mongodb+srv://USER:PASSWORD@CLUSTER.mongodb.net/?retryWrites=true&w=majority'
+export SOURCE_DATABASE_URI='paste the temporary connection value here'
 ```
 
 Run the migration:
@@ -36,7 +29,7 @@ chmod +x scripts/migrate-atlas-to-compose-mongo.sh
 ./scripts/migrate-atlas-to-compose-mongo.sh
 ```
 
-The script dumps the `sign_up_system` database from Atlas and restores it into the Compose MongoDB container using `--drop`, replacing any existing local collections with the Atlas data.
+The script dumps the `sign_up_system` database from the hosted source and restores it into the Compose MongoDB container using `--drop`, replacing any existing local collections with the imported data.
 
 If the Atlas database name is different:
 
@@ -66,11 +59,11 @@ After verifying:
 
 ```bash
 rm -rf mongo-migration-dump
-unset ATLAS_MONGODB_URL
+unset SOURCE_DATABASE_URI
 ```
 
 ## Notes
 
-- The Compose file does not publish MongoDB port `27017` to the VPS network, so MongoDB is reachable by the backend container but not directly from the internet.
-- Keep the `.env` file on the VPS only. Do not commit Atlas credentials or SMTP secrets.
+- The Compose file does not publish the database port to the VPS network, so the database is reachable by the backend container but not directly from the internet.
+- Keep the `.env` file on the VPS only. Do not commit hosted database credentials or SMTP secrets.
 - Keep the `mongo_data` Docker volume. Running `docker compose down` is fine; do not run `docker compose down -v` unless you intentionally want to delete the VPS database.
