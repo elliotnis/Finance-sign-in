@@ -1,15 +1,30 @@
 import { useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
 import '../styles/auth.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const EMAIL_DOMAINS = ['connect.ust.hk', 'ust.hk'];
 
+function getSafeReturnTo(location) {
+  const requested = location.state?.returnTo || sessionStorage.getItem('post_login_redirect') || '';
+  if (
+    typeof requested === 'string'
+    && requested.startsWith('/')
+    && !requested.startsWith('//')
+    && requested !== '/login'
+  ) {
+    return requested;
+  }
+  return '/dashboard';
+}
+
 function LoginForm() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [mode, setMode] = useState('password'); // 'password' | 'email-link'
+  const returnTo = getSafeReturnTo(location);
 
   return (
     <div className="container">
@@ -45,9 +60,9 @@ function LoginForm() {
         </div>
 
         {mode === 'password' ? (
-          <PasswordLogin navigate={navigate} login={login} />
+          <PasswordLogin navigate={navigate} login={login} returnTo={returnTo} />
         ) : (
-          <EmailLinkLogin navigate={navigate} />
+          <EmailLinkLogin navigate={navigate} returnTo={returnTo} />
         )}
 
         <div className="divider"><span>Quick Links</span></div>
@@ -68,7 +83,7 @@ function LoginForm() {
   );
 }
 
-function PasswordLogin({ navigate, login }) {
+function PasswordLogin({ navigate, login, returnTo }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -96,7 +111,7 @@ function PasswordLogin({ navigate, login }) {
       }
 
       let preferredName = null;
-      let targetPath = '/dashboard';
+      let targetPath = returnTo;
 
       try {
         const profileResponse = await fetch(`${API_URL}/profile/${email}`);
@@ -131,10 +146,11 @@ function PasswordLogin({ navigate, login }) {
 
       if (targetPath === '/complete-profile') {
         navigate('/complete-profile', {
-          state: { email, userId: data.user_id },
+          state: { email, userId: data.user_id, returnTo },
         });
       } else {
-        navigate('/dashboard');
+        sessionStorage.removeItem('post_login_redirect');
+        navigate(targetPath);
       }
     } catch (err) {
       console.error('Login error:', err);
@@ -209,7 +225,7 @@ function PasswordLogin({ navigate, login }) {
   );
 }
 
-function EmailLinkLogin({ navigate }) {
+function EmailLinkLogin({ navigate, returnTo }) {
   const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [domain, setDomain] = useState(EMAIL_DOMAINS[0]);
@@ -272,7 +288,7 @@ function EmailLinkLogin({ navigate }) {
 
   const completeEmailLogin = async (email, userId) => {
     let preferredName = null;
-    let targetPath = '/dashboard';
+    let targetPath = returnTo;
 
     try {
       const profileResponse = await fetch(`${API_URL}/profile/${encodeURIComponent(email)}`);
@@ -302,10 +318,11 @@ function EmailLinkLogin({ navigate }) {
 
     if (targetPath === '/complete-profile') {
       navigate('/complete-profile', {
-        state: { email, userId },
+        state: { email, userId, returnTo },
       });
     } else {
-      navigate('/dashboard');
+      sessionStorage.removeItem('post_login_redirect');
+      navigate(targetPath);
     }
   };
 

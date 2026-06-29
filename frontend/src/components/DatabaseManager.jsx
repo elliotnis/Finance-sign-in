@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/databaseManager.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -70,6 +70,7 @@ function compactValue(value) {
 
 function DatabaseManager() {
   const navigate = useNavigate();
+  const location = useLocation();
   const adminEmail = localStorage.getItem('user_email') || '';
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
@@ -91,7 +92,9 @@ function DatabaseManager() {
 
   useEffect(() => {
     if (!localStorage.getItem('user_id')) {
-      navigate('/login');
+      const returnTo = `${location.pathname}${location.search}`;
+      sessionStorage.setItem('post_login_redirect', returnTo);
+      navigate('/login', { replace: true, state: { returnTo } });
       return;
     }
 
@@ -108,7 +111,7 @@ function DatabaseManager() {
     }
 
     loadRole();
-  }, [adminEmail, navigate]);
+  }, [adminEmail, location.pathname, location.search, navigate]);
 
   useEffect(() => {
     if (!isAdmin) return;

@@ -3,6 +3,19 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
 import '../styles/auth.css';
 
+function getSafeReturnTo(locationState) {
+  const requested = locationState.returnTo || sessionStorage.getItem('post_login_redirect') || '';
+  if (
+    typeof requested === 'string'
+    && requested.startsWith('/')
+    && !requested.startsWith('//')
+    && requested !== '/login'
+  ) {
+    return requested;
+  }
+  return '/dashboard';
+}
+
 function ProfileCompletion() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,6 +27,7 @@ function ProfileCompletion() {
   
   const userEmail = locationState.email || sessionData.email || '';
   const userId = locationState.userId;
+  const returnTo = getSafeReturnTo(locationState);
 
   console.log('ProfileCompletion rendered');
   console.log('Location state:', location.state);
@@ -81,7 +95,8 @@ function ProfileCompletion() {
       });
 
       console.log('Profile created successfully:', data);
-      navigate('/dashboard');
+      sessionStorage.removeItem('post_login_redirect');
+      navigate(returnTo);
     } catch (err) {
       setError(err.message);
     } finally {
