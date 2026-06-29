@@ -22,7 +22,7 @@ try:
     # Indexes (idempotent — safe to run on every startup).
     # TTL index auto-deletes expired email codes from the collection.
     magic_link_collection.create_index("expires_at", expireAfterSeconds=0)
-    magic_link_collection.create_index("token")
+    magic_link_collection.create_index("token", unique=True)
     # Helps the weekly classes calendar query.
     class_collection.create_index([("date", 1), ("status", 1)])
 
