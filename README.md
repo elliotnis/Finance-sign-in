@@ -69,6 +69,8 @@ Stop: `Ctrl+C` or `docker compose down`.
 
 If the UI is opened from another host/port, set `VITE_API_URL` to the API base URL the **browser** must use, and add that UI origin via `CORS_ORIGINS` on the backend if needed.
 
+For VPS deployment with MongoDB hosted on the VPS, leave `MONGODB_URL` unset or set it to `mongodb://mongo:27017`. To migrate existing MongoDB Atlas data into the VPS Docker volume, see [docs/migrate-atlas-to-vps-mongo.md](docs/migrate-atlas-to-vps-mongo.md).
+
 ---
 
 ## Launch: local (no Docker)
