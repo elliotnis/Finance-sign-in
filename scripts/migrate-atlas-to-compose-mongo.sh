@@ -30,6 +30,7 @@ chmod 700 "$DUMP_PATH"
 
 echo "Dumping Atlas database '${DB_NAME}'..."
 docker run --rm \
+  --user "$(id -u):$(id -g)" \
   -v "$DUMP_PATH:/dump" \
   mongo:7 \
   mongodump --uri "$ATLAS_MONGODB_URL" --db "$DB_NAME" --out /dump
