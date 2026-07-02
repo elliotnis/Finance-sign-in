@@ -15,6 +15,7 @@ try:
     reflection_collection = db["reflection_collection"]  # For storing session reflections/verifications
     magic_link_collection = db["magic_link_collection"]  # For passwordless email sign-in codes
     class_collection = db["class_collection"]  # For admin-created group classes
+    allowed_email_collection = db["allowed_email_collection"]  # Students allowed to access the portal
 
     # Indexes (idempotent — safe to run on every startup).
     # TTL index auto-deletes expired email codes from the collection.
@@ -22,6 +23,8 @@ try:
     magic_link_collection.create_index("token", unique=True)
     # Helps the weekly classes calendar query.
     class_collection.create_index([("date", 1), ("status", 1)])
+    allowed_email_collection.create_index("email", unique=True)
+    allowed_email_collection.create_index([("active", 1), ("email", 1)])
 
     print("MongoDB connection successful")
     print("Connected to database:", db.name)

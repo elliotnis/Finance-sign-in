@@ -185,6 +185,35 @@
   gap: 1rem;
 }
 
+.db-import-panel {
+  background: #ffffff;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(22, 32, 51, 0.06);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.db-import-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.db-import-form textarea {
+  width: 100%;
+  min-height: 96px;
+  border: 1px solid #cbd7e7;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font: inherit;
+  color: #172236;
+  background: #fbfdff;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
 .db-form-panel,
 .db-list-panel {
   padding: 1rem;
@@ -392,6 +421,10 @@
 
   .db-toolbar {
     display: grid;
+  }
+
+  .db-import-form {
+    grid-template-columns: 1fr;
   }
 }
 

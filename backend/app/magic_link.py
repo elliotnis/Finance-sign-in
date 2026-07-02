@@ -18,6 +18,7 @@ from datetime import datetime, timedelta, timezone
 
 from .email_service import send_email
 from .mongo import magic_link_collection, user_collection
+from .utils import is_email_allowed
 
 ALLOWED_EMAIL_DOMAINS = ("connect.ust.hk", "ust.hk")
 DEFAULT_EMAIL_DOMAIN = ALLOWED_EMAIL_DOMAINS[0]
@@ -135,6 +136,8 @@ def consume_magic_link(code: str) -> dict | None:
             return None
 
     email = record["email"]
+    if not is_email_allowed(email):
+        return None
 
     magic_link_collection.update_one(
         {"_id": record["_id"]},

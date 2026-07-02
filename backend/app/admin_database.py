@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 from typing import Any
 
 from bson import ObjectId
@@ -9,10 +10,34 @@ from .mongo import (
     registration_collection,
     reflection_collection,
     class_collection,
+    allowed_email_collection,
 )
 
 
+EMAIL_RE = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
+HEADER_CELLS = {
+    "email",
+    "emails",
+    "student email",
+    "student emails",
+    "name",
+    "student name",
+    "full name",
+}
+
 COLLECTIONS = {
+    "allowed_emails": {
+        "label": "Allowed Emails",
+        "collection": allowed_email_collection,
+        "description": "Students with active emails here can access the portal. Admin emails are always allowed.",
+        "title_fields": ["email", "name"],
+        "fields": [
+            {"name": "email", "label": "Allowed email", "type": "email", "required": True},
+            {"name": "name", "label": "Student name", "type": "text"},
+            {"name": "active", "label": "Can access", "type": "boolean", "help": "Turn off instead of deleting when access should be paused."},
+            {"name": "notes", "label": "Notes", "type": "textarea"},
+        ],
+    },
     "users": {
         "label": "Users",
         "collection": user_collection,
@@ -201,6 +226,10 @@ def _prepare_doc(collection_key: str, doc: dict[str, Any], existing: dict[str, A
     prepared.pop("has_password", None)
 
     now = datetime.utcnow()
+    if collection_key == "allowed_emails":
+        if "email" in prepared and isinstance(prepared["email"], str):
+            prepared["email"] = prepared["email"].strip().lower()
+        prepared.setdefault("active", True)
     if collection_key == "users":
         if "email" in prepared and isinstance(prepared["email"], str):
             prepared["email"] = prepared["email"].strip().lower()
@@ -255,3 +284,102 @@ def delete_document(collection_key: str, document_id: str):
     meta = _collection_meta(collection_key)
     result = meta["collection"].delete_one({"_id": ObjectId(document_id)})
     return result.deleted_count == 1
+
+
+def _split_table_row(row: str):
+    return [cell.strip() for cell in re.split(r"[\t,;]", row) if cell.strip()]
+
+
+def _extract_allowed_email_rows(raw_text: str):
+    records = []
+    for row in (raw_text or "").splitlines():
+        cells = _split_table_row(row)
+        if not cells:
+            continue
+
+        row_emails = []
+        for cell in cells:
+            row_emails.extend(match.group(0).lower() for match in EMAIL_RE.finditer(cell))
+        if not row_emails:
+            continue
+
+        name = ""
+        for cell in cells:
+            normalized = cell.strip().lower()
+            if normalized in HEADER_CELLS or EMAIL_RE.search(cell):
+                continue
+            name = cell.strip()
+            break
+
+        for email in row_emails:
+            records.append({"email": email, "name": name})
+
+    if not records and raw_text:
+        records = [{"email": match.group(0).lower(), "name": ""} for match in EMAIL_RE.finditer(raw_text)]
+
+    deduped = []
+    seen = set()
+    duplicate_count = 0
+    for record in records:
+        email = record["email"]
+        if email in seen:
+            duplicate_count += 1
+            continue
+        seen.add(email)
+        deduped.append(record)
+
+    return deduped, duplicate_count
+
+
+def import_allowed_emails(raw_text: str, admin_email: str):
+    records, duplicate_count = _extract_allowed_email_rows(raw_text)
+    if not records:
+        return {
+            "added": 0,
+            "updated": 0,
+            "unchanged": 0,
+            "duplicates": duplicate_count,
+            "total": 0,
+        }
+
+    now = datetime.utcnow()
+    added = 0
+    updated = 0
+    unchanged = 0
+
+    for record in records:
+        changes = {
+            "email": record["email"],
+            "active": True,
+            "updated_at": now,
+            "updated_by": admin_email,
+        }
+        if record.get("name"):
+            changes["name"] = record["name"]
+
+        result = allowed_email_collection.update_one(
+            {"email": record["email"]},
+            {
+                "$set": changes,
+                "$setOnInsert": {
+                    "created_at": now,
+                    "created_by": admin_email,
+                    "source": "bulk_import",
+                },
+            },
+            upsert=True,
+        )
+        if result.upserted_id:
+            added += 1
+        elif result.modified_count:
+            updated += 1
+        else:
+            unchanged += 1
+
+    return {
+        "added": added,
+        "updated": updated,
+        "unchanged": unchanged,
+        "duplicates": duplicate_count,
+        "total": len(records),
+    }

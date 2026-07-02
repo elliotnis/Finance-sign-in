@@ -54,6 +54,14 @@ function Dashboard(){
             const response = await fetch(`${API_URL}/me/role?email=${encodeURIComponent(userEmail)}`);
             if (response.ok) {
                 const data = await response.json();
+                if (data.is_allowed === false) {
+                    localStorage.removeItem('user_id');
+                    localStorage.removeItem('username');
+                    localStorage.removeItem('preferred_name');
+                    localStorage.removeItem('user_email');
+                    navigate('/login');
+                    return;
+                }
                 setIsAdmin(Boolean(data.is_admin));
             }
         } catch (error) {

@@ -1,14 +1,17 @@
 import os
+import re
 
 from .mongo import (
     user_collection, session_collection, registration_collection,
-    reflection_collection, class_collection,
+    reflection_collection, class_collection, allowed_email_collection,
 )
 from datetime import datetime
 from bson import ObjectId
 
 
 # ==================== Admin helpers ====================
+
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 def get_admin_emails():
     """Comma-separated ADMIN_EMAILS env var → set of normalized emails."""
@@ -21,14 +24,32 @@ def is_admin(email):
         return False
     return email.strip().lower() in get_admin_emails()
 
+
+def normalize_email_for_access(email):
+    return (email or "").strip().lower()
+
+
+def is_email_allowed(email):
+    normalized = normalize_email_for_access(email)
+    if not normalized or not EMAIL_RE.match(normalized):
+        return False
+    if is_admin(normalized):
+        return True
+    allowed = allowed_email_collection.find_one({"email": normalized})
+    if not allowed:
+        return False
+    return allowed.get("active", True) is not False
+
+
 def check_email_exists(email):
     """Check if email already exists in database"""
-    return user_collection.find_one({"email": email})
+    key = normalize_email_for_access(email)
+    return user_collection.find_one({"email": key})
 
 def create_user(email, password):
     """Create a new user in database"""
     user = {
-        "email": email,
+        "email": normalize_email_for_access(email),
         "password": password
     }
     result = user_collection.insert_one(user)
@@ -36,7 +57,8 @@ def create_user(email, password):
 
 def verify_user_credentials(email, password):
     """Verify if email and password match exactly"""
-    user = user_collection.find_one({"email": email})
+    key = normalize_email_for_access(email)
+    user = user_collection.find_one({"email": key})
     if not user:
         return None
     stored = user.get("password")

@@ -14,12 +14,13 @@ from .utils import (
     get_user_sessions_for_verification,
     submit_reflection,
     # Admin + classes
-    is_admin,
+    is_admin, is_email_allowed, normalize_email_for_access,
     create_class, list_classes, get_class, delete_class,
     register_for_class, unregister_from_class, get_my_classes,
 )
 from .magic_link import (
     create_magic_link, create_magic_link_for_email, consume_magic_link, MagicLinkError,
+    build_email_address, normalize_email,
 )
 from .email_service import EmailConfigError, EmailSendError
 from .admin_database import (
@@ -28,6 +29,7 @@ from .admin_database import (
     create_document,
     update_document,
     delete_document,
+    import_allowed_emails,
 )
 
     
@@ -53,6 +55,10 @@ class AdminDatabasePayload(BaseModel):
     document: dict
 
 
+class AllowedEmailImportPayload(BaseModel):
+    text: str
+
+
 def require_admin(email: str):
     if not is_admin(email):
         raise HTTPException(
@@ -60,30 +66,43 @@ def require_admin(email: str):
             detail="Only admins can manage database entries",
         )
 
+
+def require_allowed_email(email: str):
+    if not is_email_allowed(email):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This email is not on the allowed access list. Ask an admin to add it.",
+        )
+
+
 @router.post("/signup")
 def signup(user_data: UserSignup):
+    email = normalize_email_for_access(user_data.email)
+    require_allowed_email(email)
 
     # Check if email already exists
-    if check_email_exists(user_data.email):
+    if check_email_exists(email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
     
     # Create new user
-    user_id = create_user(user_data.email, user_data.password)
+    user_id = create_user(email, user_data.password)
     
     return {
         "message": "User created successfully",
-        "email": user_data.email,
+        "email": email,
         "user_id": user_id
     }
 
 @router.post("/login")
 def login(user_data: UserLogin):
+    email = normalize_email_for_access(user_data.email)
+    require_allowed_email(email)
 
     # Verify user credentials
-    user = verify_user_credentials(user_data.email, user_data.password)
+    user = verify_user_credentials(email, user_data.password)
     
     if not user:
         raise HTTPException(
@@ -93,7 +112,7 @@ def login(user_data: UserLogin):
     
     return {
         "message": "Login successful",
-        "email": user_data.email,
+        "email": email,
         "user_id": str(user["_id"])
     }
 
@@ -103,6 +122,7 @@ def login(user_data: UserLogin):
 def request_email_link(payload: EmailLinkRequest):
     """Send a one-time sign-in code to a supported HKUST email address."""
     try:
+        require_allowed_email(build_email_address(payload.username, payload.domain))
         result = create_magic_link(payload.username, payload.domain)
     except MagicLinkError as exc:
         raise HTTPException(
@@ -132,6 +152,7 @@ def request_email_link(payload: EmailLinkRequest):
 def request_trading_email_code(payload: TradingEmailCodeRequest):
     """Send a one-time sign-in code to any valid email for the trading simulation."""
     try:
+        require_allowed_email(normalize_email(payload.email))
         result = create_magic_link_for_email(
             payload.email,
             subject="Your Student Trading Competition sign-in code",
@@ -163,22 +184,26 @@ def request_trading_email_code(payload: TradingEmailCodeRequest):
 @router.get("/auth/password-status")
 def password_status(email: str):
     """Whether this account can set a first password (magic-link only users)."""
-    status = user_password_status(email)
-    if not status:
+    email = normalize_email_for_access(email)
+    require_allowed_email(email)
+    password_info = user_password_status(email)
+    if not password_info:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
     return {
-        "has_password": status["has_password"],
-        "can_set_password": not status["has_password"],
+        "has_password": password_info["has_password"],
+        "can_set_password": not password_info["has_password"],
     }
 
 
 @router.post("/auth/set-password")
 def set_password_endpoint(payload: SetPasswordRequest):
     """Let email-link-only users choose a password so they can use the Password tab."""
-    result = set_password_if_passwordless(payload.email, payload.new_password)
+    email = normalize_email_for_access(payload.email)
+    require_allowed_email(email)
+    result = set_password_if_passwordless(email, payload.new_password)
     if result == "user_not_found":
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -215,9 +240,10 @@ def verify_email_link(payload: EmailLinkVerify):
 
 
 @router.get("/users")
-def get_users():
+def get_users(admin_email: str):
 
     # Get all users for admin purposes
+    require_admin(admin_email)
     users = get_all_users()
     return users
 
@@ -228,8 +254,10 @@ def create_profile(profile_data: ProfileCreate):
     """
     Create a new profile for a user
     """
+    login_email = normalize_email_for_access(profile_data.login_email)
+    require_allowed_email(login_email)
     result = create_user_profile(
-        profile_data.login_email,  # Use login_email to find the user
+        login_email,  # Use login_email to find the user
         profile_data.SID,
         profile_data.full_name,
         profile_data.preferred_name,
@@ -256,7 +284,7 @@ def create_profile(profile_data: ProfileCreate):
     return{
         "success": True,
         "message": "Profile created successfully",
-        "user_email": profile_data.login_email
+        "user_email": login_email
     }
 
 @router.get("/profile/{login_email}", response_model=ProfileResponse)
@@ -264,6 +292,8 @@ def get_profile(login_email: str):
     """
     Get a user's profile by login email
     """
+    login_email = normalize_email_for_access(login_email)
+    require_allowed_email(login_email)
     profile = get_user_profile(login_email)
 
     if profile is None:
@@ -285,6 +315,8 @@ def update_profile(login_email: str, profile_update: ProfileUpdate):
     """
     Update a user's profile
     """
+    login_email = normalize_email_for_access(login_email)
+    require_allowed_email(login_email)
     result = update_user_profile(
         login_email,  # Use login_email to find the user
         profile_update.SID,
@@ -328,6 +360,8 @@ def delete_profile(login_email: str):
     """
     Delete a user's profile
     """
+    login_email = normalize_email_for_access(login_email)
+    require_allowed_email(login_email)
     result = delete_user_profile(login_email)
 
     if result is None:
@@ -351,8 +385,10 @@ def delete_profile(login_email: str):
 @router.post("/tutor/availability")
 def create_tutor_availability_endpoint(availability_data: TutorAvailabilityCreate):
     """Create a new tutor availability slot"""
+    tutor_email = normalize_email_for_access(availability_data.tutor_email)
+    require_allowed_email(tutor_email)
     availability_id = create_tutor_availability(
-        availability_data.tutor_email,
+        tutor_email,
         availability_data.tutor_name,
         availability_data.session_type,
         availability_data.date,
@@ -370,6 +406,8 @@ def create_tutor_availability_endpoint(availability_data: TutorAvailabilityCreat
 @router.get("/tutor/availability/{tutor_email}")
 def get_tutor_availability_endpoint(tutor_email: str, date: str = None, session_type: str = None):
     """Get a tutor's availability slots"""
+    tutor_email = normalize_email_for_access(tutor_email)
+    require_allowed_email(tutor_email)
     availabilities = get_tutor_availability(tutor_email, date, session_type)
     
     if availabilities is None:
@@ -384,6 +422,8 @@ def get_tutor_availability_endpoint(tutor_email: str, date: str = None, session_
 @router.delete("/tutor/availability/{availability_id}")
 def delete_tutor_availability_endpoint(availability_id: str, tutor_email: str):
     """Delete a tutor's availability slot"""
+    tutor_email = normalize_email_for_access(tutor_email)
+    require_allowed_email(tutor_email)
     result = delete_tutor_availability(availability_id, tutor_email)
     
     if result == "Availability slot not found or not owned by this tutor":
@@ -414,6 +454,9 @@ def delete_tutor_availability_endpoint(availability_id: str, tutor_email: str):
 @router.get("/student/calendar", response_model=StudentCalendarView)
 def get_student_calendar(session_type: str = None, date: str = None, student_email: str = None):
     """Get calendar view for students - shows available tutors grouped by time slots"""
+    if student_email:
+        student_email = normalize_email_for_access(student_email)
+        require_allowed_email(student_email)
     calendar_slots = get_student_calendar_view(session_type, date, student_email)
     
     return StudentCalendarView(calendar_slots=calendar_slots)
@@ -421,8 +464,10 @@ def get_student_calendar(session_type: str = None, date: str = None, student_ema
 @router.post("/student/register")
 def register_student_for_session(selection_data: StudentSessionSelection):
     """Register a student for a specific tutor's availability slot"""
+    student_email = normalize_email_for_access(selection_data.student_email)
+    require_allowed_email(student_email)
     result = register_student_for_tutor_slot(
-        selection_data.student_email,
+        student_email,
         selection_data.availability_id,
         selection_data.force_cancel_creator_session
     )
@@ -494,8 +539,10 @@ def register_student_for_session(selection_data: StudentSessionSelection):
 @router.delete("/student/register")
 def cancel_student_registration(selection_data: StudentSessionSelection):
     """Cancel a student's registration for a specific tutor slot"""
+    student_email = normalize_email_for_access(selection_data.student_email)
+    require_allowed_email(student_email)
     result = cancel_student_registration_for_tutor_slot(
-        selection_data.student_email,
+        student_email,
         selection_data.availability_id
     )
     
@@ -522,6 +569,8 @@ def get_session_types():
 @router.get("/my-sessions/{student_email}")
 def get_my_sessions(student_email: str):
     """Get active sessions registered by a student"""
+    student_email = normalize_email_for_access(student_email)
+    require_allowed_email(student_email)
     registrations = get_student_registrations(student_email)
     
     return {
@@ -535,6 +584,8 @@ def get_my_sessions(student_email: str):
 @router.get("/verification/{user_email}")
 def get_verification_sessions(user_email: str):
     """Get all sessions for a user that need verification"""
+    user_email = normalize_email_for_access(user_email)
+    require_allowed_email(user_email)
     sessions = get_user_sessions_for_verification(user_email)
     
     return {
@@ -548,9 +599,11 @@ def get_verification_sessions(user_email: str):
 @router.post("/verification/reflect")
 def submit_session_reflection(reflection_data: ReflectionSubmit):
     """Submit a reflection for a session"""
+    submitted_by = normalize_email_for_access(reflection_data.submitted_by)
+    require_allowed_email(submitted_by)
     result = submit_reflection(
         reflection_data.session_id,
-        reflection_data.submitted_by,
+        submitted_by,
         reflection_data.role,
         reflection_data.other_person_name,
         reflection_data.attitude_rating,
@@ -601,7 +654,8 @@ def submit_session_reflection(reflection_data: ReflectionSubmit):
 @router.get("/me/role")
 def get_my_role(email: str):
     """Tell the frontend whether this email is in the admin allow-list."""
-    return {"email": email, "is_admin": is_admin(email)}
+    email = normalize_email_for_access(email)
+    return {"email": email, "is_admin": is_admin(email), "is_allowed": is_email_allowed(email)}
 
 
 # ==================== Admin Database Manager ====================
@@ -645,6 +699,19 @@ def admin_database_create(collection_key: str, admin_email: str, payload: AdminD
             detail=f"Could not create entry: {exc}",
         )
     return {"success": True, "document": document}
+
+
+@router.post("/admin/database/allowed-emails/import")
+def admin_allowed_email_import(admin_email: str, payload: AllowedEmailImportPayload):
+    require_admin(admin_email)
+    try:
+        result = import_allowed_emails(payload.text, normalize_email_for_access(admin_email))
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Could not import allowed emails: {exc}",
+        )
+    return {"success": True, **result}
 
 
 @router.put("/admin/database/{collection_key}/{document_id}")
@@ -734,6 +801,8 @@ def list_classes_endpoint(date_from: str = None, date_to: str = None):
 
 @router.get("/classes/my/{student_email}")
 def my_classes_endpoint(student_email: str):
+    student_email = normalize_email_for_access(student_email)
+    require_allowed_email(student_email)
     classes = get_my_classes(student_email)
     return {
         "student_email": student_email,
@@ -771,7 +840,9 @@ def delete_class_endpoint(class_id: str, requested_by: str):
 
 @router.post("/classes/{class_id}/register")
 def register_for_class_endpoint(class_id: str, payload: ClassRegister):
-    result = register_for_class(class_id, payload.student_email)
+    student_email = normalize_email_for_access(payload.student_email)
+    require_allowed_email(student_email)
+    result = register_for_class(class_id, student_email)
     if result == "Class not found":
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=result)
     if result == "Class is not active":
@@ -791,7 +862,9 @@ def register_for_class_endpoint(class_id: str, payload: ClassRegister):
 
 @router.delete("/classes/{class_id}/register")
 def unregister_from_class_endpoint(class_id: str, payload: ClassRegister):
-    result = unregister_from_class(class_id, payload.student_email)
+    student_email = normalize_email_for_access(payload.student_email)
+    require_allowed_email(student_email)
+    result = unregister_from_class(class_id, student_email)
     if result == "Class not found":
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=result)
     if result == "Not registered":

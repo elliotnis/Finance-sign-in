@@ -82,6 +82,8 @@ function DatabaseManager() {
   const [formValues, setFormValues] = useState({});
   const [editingDoc, setEditingDoc] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [bulkText, setBulkText] = useState('');
+  const [bulkBusy, setBulkBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
 
@@ -153,7 +155,13 @@ function DatabaseManager() {
       }
       const data = await response.json();
       setDocuments(data.documents || []);
-      setTotal(data.total || 0);
+      const nextTotal = data.total || 0;
+      setTotal(nextTotal);
+      setCollections((current) => (
+        current.map((item) => (
+          item.key === selectedKey ? { ...item, count: nextTotal } : item
+        ))
+      ));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -171,6 +179,8 @@ function DatabaseManager() {
         values[field.name] = adminEmail;
       } else if (field.name === 'status') {
         values[field.name] = 'active';
+      } else if (field.name === 'active') {
+        values[field.name] = true;
       } else {
         values[field.name] = field.type === 'boolean' ? false : '';
       }
@@ -240,6 +250,41 @@ function DatabaseManager() {
       setError(err.message);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function importAllowedEmails(event) {
+    event.preventDefault();
+    if (!bulkText.trim()) {
+      setError('Paste at least one email first.');
+      return;
+    }
+
+    setBulkBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const response = await fetch(
+        `${API_URL}/admin/database/allowed-emails/import?admin_email=${encodeURIComponent(adminEmail)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: bulkText }),
+        }
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.detail || 'Could not import emails.');
+      }
+      setBulkText('');
+      setNotice(
+        `Imported ${data.total} email${data.total === 1 ? '' : 's'}: ${data.added} added, ${data.updated} updated, ${data.unchanged} unchanged.`
+      );
+      await loadDocuments();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBulkBusy(false);
     }
   }
 
@@ -325,6 +370,28 @@ function DatabaseManager() {
                 <div className={`db-message ${error ? 'error' : 'success'}`}>
                   {error || notice}
                 </div>
+              )}
+
+              {selectedKey === 'allowed_emails' && (
+                <section className="db-import-panel">
+                  <div className="db-panel-heading">
+                    <div>
+                      <h3>Paste email table</h3>
+                      <span>Copy rows from Excel or Google Sheets, then import them here.</span>
+                    </div>
+                  </div>
+                  <form className="db-import-form" onSubmit={importAllowedEmails}>
+                    <textarea
+                      value={bulkText}
+                      onChange={(event) => setBulkText(event.target.value)}
+                      placeholder={'student@connect.ust.hk\tStudent Name\nanother@ust.hk\tAnother Student'}
+                    />
+                    <button className="db-primary" disabled={bulkBusy} type="submit">
+                      <i className={`fas ${bulkBusy ? 'fa-spinner fa-spin' : 'fa-file-import'}`}></i>
+                      {bulkBusy ? 'Importing...' : 'Import emails'}
+                    </button>
+                  </form>
+                </section>
               )}
 
               <div className="db-content-grid">
