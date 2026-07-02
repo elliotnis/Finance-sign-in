@@ -16,6 +16,7 @@ try:
     magic_link_collection = db["magic_link_collection"]  # For passwordless email sign-in codes
     class_collection = db["class_collection"]  # For admin-created group classes
     allowed_email_collection = db["allowed_email_collection"]  # Students allowed to access the portal
+    admin_access_collection = db["admin_access_collection"]  # Admins managed from the database page
 
     # Indexes (idempotent — safe to run on every startup).
     # TTL index auto-deletes expired email codes from the collection.
@@ -25,6 +26,8 @@ try:
     class_collection.create_index([("date", 1), ("status", 1)])
     allowed_email_collection.create_index("email", unique=True)
     allowed_email_collection.create_index([("active", 1), ("email", 1)])
+    admin_access_collection.create_index("email", unique=True)
+    admin_access_collection.create_index([("active", 1), ("email", 1)])
 
     print("MongoDB connection successful")
     print("Connected to database:", db.name)

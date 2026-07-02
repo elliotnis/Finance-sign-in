@@ -4,6 +4,7 @@ import re
 from .mongo import (
     user_collection, session_collection, registration_collection,
     reflection_collection, class_collection, allowed_email_collection,
+    admin_access_collection,
 )
 from datetime import datetime
 from bson import ObjectId
@@ -22,7 +23,13 @@ def get_admin_emails():
 def is_admin(email):
     if not email:
         return False
-    return email.strip().lower() in get_admin_emails()
+    normalized = email.strip().lower()
+    if normalized in get_admin_emails():
+        return True
+    admin_access = admin_access_collection.find_one({"email": normalized})
+    if not admin_access:
+        return False
+    return admin_access.get("active", True) is not False
 
 
 def normalize_email_for_access(email):

@@ -11,6 +11,7 @@ from .mongo import (
     reflection_collection,
     class_collection,
     allowed_email_collection,
+    admin_access_collection,
 )
 
 
@@ -35,6 +36,18 @@ COLLECTIONS = {
             {"name": "email", "label": "Allowed email", "type": "email", "required": True},
             {"name": "name", "label": "Student name", "type": "text"},
             {"name": "active", "label": "Can access", "type": "boolean", "help": "Turn off instead of deleting when access should be paused."},
+            {"name": "notes", "label": "Notes", "type": "textarea"},
+        ],
+    },
+    "admin_access": {
+        "label": "Admin Access",
+        "collection": admin_access_collection,
+        "description": "Emails with active admin access can open this database manager and manage portal data.",
+        "title_fields": ["email", "name"],
+        "fields": [
+            {"name": "email", "label": "Admin email", "type": "email", "required": True},
+            {"name": "name", "label": "Name", "type": "text"},
+            {"name": "active", "label": "Can manage database", "type": "boolean", "help": "Turn off to remove admin access without deleting the row."},
             {"name": "notes", "label": "Notes", "type": "textarea"},
         ],
     },
@@ -226,7 +239,7 @@ def _prepare_doc(collection_key: str, doc: dict[str, Any], existing: dict[str, A
     prepared.pop("has_password", None)
 
     now = datetime.utcnow()
-    if collection_key == "allowed_emails":
+    if collection_key in {"allowed_emails", "admin_access"}:
         if "email" in prepared and isinstance(prepared["email"], str):
             prepared["email"] = prepared["email"].strip().lower()
         prepared.setdefault("active", True)
