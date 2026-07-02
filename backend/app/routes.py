@@ -71,7 +71,7 @@ def require_allowed_email(email: str):
     if not is_email_allowed(email):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="This email is not on the allowed access list. Ask an admin to add it.",
+            detail="This account is not registered for access. Ask an admin to add the email first.",
         )
 
 
