@@ -31,6 +31,18 @@ from .admin_database import (
     delete_document,
     import_allowed_emails,
 )
+from .trading import (
+    advance_round,
+    continuous_snapshot,
+    create_team,
+    gamemaster_state,
+    join_team,
+    place_api_order,
+    place_order,
+    reset_game,
+    start_round,
+    team_state,
+)
 
     
 from .schema import (
@@ -59,6 +71,35 @@ class AllowedEmailImportPayload(BaseModel):
     text: str
 
 
+class TradingTeamCreatePayload(BaseModel):
+    team_name: str
+    leader_email: str
+
+
+class TradingTeamJoinPayload(BaseModel):
+    team_code: str
+    email: str
+
+
+class TradingOrderPayload(BaseModel):
+    email: str
+    asset_id: str
+    side: str
+    quantity: float
+    mode: str = "discrete"
+
+
+class TradingAdminPayload(BaseModel):
+    admin_email: str
+
+
+class TradingApiOrderPayload(BaseModel):
+    api_key: str
+    asset_id: str
+    side: str
+    quantity: float
+
+
 def require_admin(email: str):
     if not is_admin(email):
         raise HTTPException(
@@ -73,6 +114,38 @@ def require_allowed_email(email: str):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="This account is not registered for access. Ask an admin to add the email first.",
         )
+
+
+def trading_result_or_error(result):
+    if result == "forbidden":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+    if result == "email_not_allowed":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This email is not registered for access")
+    if result == "already_in_team":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This account is already linked to a team")
+    if result == "team_required":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Join or create a team first")
+    if result == "team_full":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This team already has three members")
+    if result == "not_found":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found")
+    if result == "leader_required":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the team leader can make trading decisions")
+    if result == "round_closed":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This trading round is closed; the team is holding")
+    if result == "invalid_asset":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown or non-tradable asset")
+    if result == "invalid_side":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Order side must be buy or sell")
+    if result == "invalid_quantity":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Quantity must be positive")
+    if result == "insufficient_cash":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough cash for this order")
+    if result == "insufficient_holdings":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough holdings to sell")
+    if result == "invalid_api_key":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid continuous trading API key")
+    return result
 
 
 @router.post("/signup")
@@ -763,6 +836,75 @@ def admin_database_delete(collection_key: str, document_id: str, admin_email: st
             detail="Entry not found",
         )
     return {"success": True, "message": "Entry deleted"}
+
+
+# ==================== Finance Development Trading Portal ====================
+
+@router.get("/trading/state")
+def trading_state_endpoint(email: str):
+    return trading_result_or_error(team_state(email))
+
+
+@router.post("/trading/teams")
+def trading_create_team_endpoint(payload: TradingTeamCreatePayload):
+    return {"success": True, "team": trading_result_or_error(create_team(payload.team_name, payload.leader_email))}
+
+
+@router.post("/trading/teams/join")
+def trading_join_team_endpoint(payload: TradingTeamJoinPayload):
+    return {"success": True, "team": trading_result_or_error(join_team(payload.team_code, payload.email))}
+
+
+@router.post("/trading/orders")
+def trading_order_endpoint(payload: TradingOrderPayload):
+    order = trading_result_or_error(
+        place_order(
+            payload.email,
+            payload.asset_id,
+            payload.side,
+            payload.quantity,
+            payload.mode,
+        )
+    )
+    return {"success": True, "order": order}
+
+
+@router.get("/trading/gamemaster")
+def trading_gamemaster_endpoint(admin_email: str):
+    return trading_result_or_error(gamemaster_state(admin_email))
+
+
+@router.post("/trading/round/start")
+def trading_start_round_endpoint(payload: TradingAdminPayload):
+    return {"success": True, "game": trading_result_or_error(start_round(payload.admin_email))}
+
+
+@router.post("/trading/round/advance")
+def trading_advance_round_endpoint(payload: TradingAdminPayload):
+    return {"success": True, "game": trading_result_or_error(advance_round(payload.admin_email))}
+
+
+@router.post("/trading/round/reset")
+def trading_reset_round_endpoint(payload: TradingAdminPayload):
+    return {"success": True, "game": trading_result_or_error(reset_game(payload.admin_email))}
+
+
+@router.get("/trading/continuous/snapshot")
+def trading_continuous_snapshot_endpoint(api_key: str):
+    return trading_result_or_error(continuous_snapshot(api_key))
+
+
+@router.post("/trading/continuous/order")
+def trading_continuous_order_endpoint(payload: TradingApiOrderPayload):
+    order = trading_result_or_error(
+        place_api_order(
+            payload.api_key,
+            payload.asset_id,
+            payload.side,
+            payload.quantity,
+        )
+    )
+    return {"success": True, "order": order}
 
 
 # ==================== Classes (admin-created group classes) ====================

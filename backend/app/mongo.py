@@ -17,6 +17,9 @@ try:
     class_collection = db["class_collection"]  # For admin-created group classes
     allowed_email_collection = db["allowed_email_collection"]  # Students allowed to access the portal
     admin_access_collection = db["admin_access_collection"]  # Admins managed from the database page
+    trading_team_collection = db["trading_team_collection"]  # Trading competition teams
+    trading_order_collection = db["trading_order_collection"]  # Trading competition orders
+    trading_game_collection = db["trading_game_collection"]  # Trading competition round state
 
     # Indexes (idempotent — safe to run on every startup).
     # TTL index auto-deletes expired email codes from the collection.
@@ -28,6 +31,11 @@ try:
     allowed_email_collection.create_index([("active", 1), ("email", 1)])
     admin_access_collection.create_index("email", unique=True)
     admin_access_collection.create_index([("active", 1), ("email", 1)])
+    trading_team_collection.create_index("team_code", unique=True)
+    trading_team_collection.create_index("api_key", unique=True)
+    trading_team_collection.create_index("members")
+    trading_order_collection.create_index([("team_code", 1), ("period_index", 1)])
+    trading_game_collection.create_index("key", unique=True)
 
     print("MongoDB connection successful")
     print("Connected to database:", db.name)

@@ -10,6 +10,7 @@ import RegisterSession from './components/RegisterSession';
 import ClassesCalendar from './components/ClassesCalendar';
 import Verification from './components/Verification';
 import DatabaseManager from './components/DatabaseManager';
+import FinanceDevelopmentPortal from './components/FinanceDevelopmentPortal';
 import { AuthProvider } from './contexts/authcontext';
 import './App.css'
 import './styles/mobile.css'
@@ -30,6 +31,7 @@ function App() {
         <Route path="/classes" element={<ClassesCalendar />} />
         <Route path="/verification" element={<Verification />} />
         <Route path="/database" element={<DatabaseManager />} />
+        <Route path="/finance-development" element={<FinanceDevelopmentPortal />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
