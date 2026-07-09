@@ -12,6 +12,7 @@ from .mongo import (
     class_collection,
     allowed_email_collection,
     admin_access_collection,
+    trading_allowed_email_collection,
 )
 
 
@@ -24,6 +25,8 @@ HEADER_CELLS = {
     "name",
     "student name",
     "full name",
+    "school",
+    "school name",
 }
 
 COLLECTIONS = {
@@ -36,6 +39,19 @@ COLLECTIONS = {
             {"name": "email", "label": "Allowed email", "type": "email", "required": True},
             {"name": "name", "label": "Student name", "type": "text"},
             {"name": "active", "label": "Can access", "type": "boolean", "help": "Turn off instead of deleting when access should be paused."},
+            {"name": "notes", "label": "Notes", "type": "textarea"},
+        ],
+    },
+    "trading_allowed_emails": {
+        "label": "Youth Financetopia Access",
+        "collection": trading_allowed_email_collection,
+        "description": "High-school participants with active emails here can access Youth Financetopia Challenge. They are not added to the HKUST sign-up portal list.",
+        "title_fields": ["email", "name", "school"],
+        "fields": [
+            {"name": "email", "label": "Participant email", "type": "email", "required": True},
+            {"name": "name", "label": "Participant name", "type": "text"},
+            {"name": "school", "label": "School", "type": "text"},
+            {"name": "active", "label": "Can access challenge", "type": "boolean", "help": "Turn off instead of deleting when access should be paused."},
             {"name": "notes", "label": "Notes", "type": "textarea"},
         ],
     },
@@ -239,7 +255,7 @@ def _prepare_doc(collection_key: str, doc: dict[str, Any], existing: dict[str, A
     prepared.pop("has_password", None)
 
     now = datetime.utcnow()
-    if collection_key in {"allowed_emails", "admin_access"}:
+    if collection_key in {"allowed_emails", "trading_allowed_emails", "admin_access"}:
         if "email" in prepared and isinstance(prepared["email"], str):
             prepared["email"] = prepared["email"].strip().lower()
         prepared.setdefault("active", True)
@@ -317,15 +333,20 @@ def _extract_allowed_email_rows(raw_text: str):
             continue
 
         name = ""
+        school = ""
+        descriptive_cells = []
         for cell in cells:
             normalized = cell.strip().lower()
             if normalized in HEADER_CELLS or EMAIL_RE.search(cell):
                 continue
-            name = cell.strip()
-            break
+            descriptive_cells.append(cell.strip())
+        if descriptive_cells:
+            name = descriptive_cells[0]
+        if len(descriptive_cells) > 1:
+            school = descriptive_cells[1]
 
         for email in row_emails:
-            records.append({"email": email, "name": name})
+            records.append({"email": email, "name": name, "school": school})
 
     if not records and raw_text:
         records = [{"email": match.group(0).lower(), "name": ""} for match in EMAIL_RE.finditer(raw_text)]
@@ -344,7 +365,10 @@ def _extract_allowed_email_rows(raw_text: str):
     return deduped, duplicate_count
 
 
-def import_allowed_emails(raw_text: str, admin_email: str):
+def import_allowed_emails(raw_text: str, admin_email: str, collection_key: str = "allowed_emails"):
+    if collection_key not in {"allowed_emails", "trading_allowed_emails"}:
+        raise KeyError(collection_key)
+
     records, duplicate_count = _extract_allowed_email_rows(raw_text)
     if not records:
         return {
@@ -359,6 +383,7 @@ def import_allowed_emails(raw_text: str, admin_email: str):
     added = 0
     updated = 0
     unchanged = 0
+    collection = COLLECTIONS[collection_key]["collection"]
 
     for record in records:
         changes = {
@@ -369,8 +394,10 @@ def import_allowed_emails(raw_text: str, admin_email: str):
         }
         if record.get("name"):
             changes["name"] = record["name"]
+        if collection_key == "trading_allowed_emails" and record.get("school"):
+            changes["school"] = record["school"]
 
-        result = allowed_email_collection.update_one(
+        result = collection.update_one(
             {"email": record["email"]},
             {
                 "$set": changes,

@@ -90,12 +90,12 @@ const NEWS_FEED = [
 
 const YEARS = [2020, 2021, 2022, 2023, 2024, 2025, 2026];
 const INITIAL_CASH = 10000;
-const STORAGE_KEY = "student-trading-sim-state-v1";
-const ACTIVE_KEY = "student-trading-sim-active-v1";
+const STORAGE_KEY = "youth-financetopia-state-v1";
+const ACTIVE_KEY = "youth-financetopia-active-v1";
 const API_URL = window.TRADING_SIM_API_URL
   || (["localhost", "127.0.0.1"].includes(window.location.hostname)
     ? "http://localhost:8000"
-    : "__TRADING_SIM_API_URL__");
+    : "/api");
 const DEFAULT_USER = {
   cash: INITIAL_CASH,
   transactions: [],

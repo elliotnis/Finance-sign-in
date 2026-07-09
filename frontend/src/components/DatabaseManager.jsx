@@ -91,6 +91,7 @@ function DatabaseManager() {
     () => collections.find((item) => item.key === selectedKey),
     [collections, selectedKey]
   );
+  const isEmailAccessList = selectedKey === 'allowed_emails' || selectedKey === 'trading_allowed_emails';
 
   useEffect(() => {
     if (!localStorage.getItem('user_id')) {
@@ -265,7 +266,7 @@ function DatabaseManager() {
     setNotice('');
     try {
       const response = await fetch(
-        `${API_URL}/admin/database/allowed-emails/import?admin_email=${encodeURIComponent(adminEmail)}`,
+        `${API_URL}/admin/database/${selectedKey}/emails/import?admin_email=${encodeURIComponent(adminEmail)}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -372,19 +373,25 @@ function DatabaseManager() {
                 </div>
               )}
 
-              {selectedKey === 'allowed_emails' && (
+              {isEmailAccessList && (
                 <section className="db-import-panel">
                   <div className="db-panel-heading">
                     <div>
                       <h3>Paste email table</h3>
-                      <span>Copy rows from Excel or Google Sheets, then import them here.</span>
+                      <span>
+                        Copy rows from Excel or Google Sheets, then import them into {selectedCollection.label}.
+                      </span>
                     </div>
                   </div>
                   <form className="db-import-form" onSubmit={importAllowedEmails}>
                     <textarea
                       value={bulkText}
                       onChange={(event) => setBulkText(event.target.value)}
-                      placeholder={'student@connect.ust.hk\tStudent Name\nanother@ust.hk\tAnother Student'}
+                      placeholder={
+                        selectedKey === 'trading_allowed_emails'
+                          ? 'student@example.edu\tStudent Name\tSchool Name\nanother@example.edu\tAnother Student\tSchool Name'
+                          : 'student@connect.ust.hk\tStudent Name\nanother@ust.hk\tAnother Student'
+                      }
                     />
                     <button className="db-primary" disabled={bulkBusy} type="submit">
                       <i className={`fas ${bulkBusy ? 'fa-spinner fa-spin' : 'fa-file-import'}`}></i>

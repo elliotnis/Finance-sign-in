@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/financeDevelopmentPortal.css';
+import '../styles/youthFinancetopiaPortal.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -44,14 +43,19 @@ function Sparkline({ series, color }) {
   );
 }
 
-function FinanceDevelopmentPortal() {
-  const navigate = useNavigate();
-  const userEmail = localStorage.getItem('user_email') || '';
+function YouthFinancetopiaPortal() {
+  const [sessionEmail, setSessionEmail] = useState(localStorage.getItem('user_email') || '');
+  const [sessionId, setSessionId] = useState(localStorage.getItem('user_id') || '');
   const [state, setState] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginCode, setLoginCode] = useState('');
+  const [codeSentTo, setCodeSentTo] = useState('');
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authError, setAuthError] = useState('');
   const [activeTab, setActiveTab] = useState('discrete');
   const [teamName, setTeamName] = useState('');
   const [teamCode, setTeamCode] = useState('');
@@ -69,15 +73,17 @@ function FinanceDevelopmentPortal() {
   const interestRate = currentYear ? state?.interest_rates?.[currentYear] || 0 : 0;
   const isLeader = Boolean(state?.team?.is_leader);
   const isRoundOpen = Boolean(state?.game?.is_round_open && secondsLeft > 0);
+  const userEmail = sessionEmail;
+  const isAuthenticated = Boolean(sessionId && userEmail);
 
   useEffect(() => {
-    if (!localStorage.getItem('user_id')) {
-      navigate('/login');
+    if (!isAuthenticated) {
+      setLoading(false);
       return;
     }
     loadAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]);
+  }, [isAuthenticated, userEmail]);
 
   useEffect(() => {
     setSecondsLeft(state?.game?.seconds_left || 0);
@@ -92,7 +98,7 @@ function FinanceDevelopmentPortal() {
 
   async function loadAll() {
     if (!userEmail) {
-      navigate('/login');
+      setLoading(false);
       return;
     }
     setLoading(true);
@@ -103,7 +109,7 @@ function FinanceDevelopmentPortal() {
         fetch(`${API_URL}/me/role?email=${encodeURIComponent(userEmail)}`),
       ]);
       const stateData = await stateResponse.json().catch(() => ({}));
-      if (!stateResponse.ok) throw new Error(stateData.detail || 'Could not load trading portal.');
+      if (!stateResponse.ok) throw new Error(stateData.detail || 'Could not load Youth Financetopia Challenge.');
       const roleData = roleResponse.ok ? await roleResponse.json() : {};
       setState(stateData);
       setIsAdmin(Boolean(roleData.is_admin));
@@ -115,6 +121,78 @@ function FinanceDevelopmentPortal() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function requestChallengeCode(event) {
+    event.preventDefault();
+    const email = loginEmail.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      setAuthError('Enter a valid participant email.');
+      return;
+    }
+    setAuthBusy(true);
+    setAuthError('');
+    try {
+      const response = await fetch(`${API_URL}/auth/trading/email-code/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.detail || 'Could not send the sign-in code.');
+      setCodeSentTo(data.email || email);
+      setLoginEmail(data.email || email);
+      setLoginCode('');
+    } catch (err) {
+      setAuthError(err.message);
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  async function verifyChallengeCode(event) {
+    event.preventDefault();
+    const code = loginCode.trim();
+    if (!/^\d{6}$/.test(code)) {
+      setAuthError('Enter the 6-digit code from your email.');
+      return;
+    }
+    setAuthBusy(true);
+    setAuthError('');
+    try {
+      const response = await fetch(`${API_URL}/auth/email-link/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.detail || 'This code is invalid or expired.');
+      localStorage.setItem('user_id', data.user_id);
+      localStorage.setItem('user_email', data.email);
+      localStorage.setItem('username', data.email);
+      setSessionId(data.user_id);
+      setSessionEmail(data.email);
+      setCodeSentTo('');
+      setLoginCode('');
+      setLoading(true);
+    } catch (err) {
+      setAuthError(err.message);
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  function signOut() {
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('user_email');
+    localStorage.removeItem('username');
+    setSessionId('');
+    setSessionEmail('');
+    setState(null);
+    setIsAdmin(false);
+    setNotice('');
+    setError('');
+    setLoading(false);
   }
 
   async function postJson(path, body) {
@@ -192,21 +270,38 @@ function FinanceDevelopmentPortal() {
     return (
       <div className="fd-page fd-loading">
         <i className="fas fa-circle-notch fa-spin"></i>
-        <span>Loading finance development desk...</span>
+        <span>Loading Youth Financetopia Challenge...</span>
       </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <ChallengeLogin
+        loginEmail={loginEmail}
+        setLoginEmail={setLoginEmail}
+        loginCode={loginCode}
+        setLoginCode={setLoginCode}
+        codeSentTo={codeSentTo}
+        setCodeSentTo={setCodeSentTo}
+        authBusy={authBusy}
+        authError={authError}
+        requestChallengeCode={requestChallengeCode}
+        verifyChallengeCode={verifyChallengeCode}
+      />
     );
   }
 
   return (
     <div className="fd-page">
       <header className="fd-topbar">
-        <button className="fd-back" onClick={() => navigate('/dashboard')} type="button">
-          <i className="fas fa-arrow-left"></i>
-          Dashboard
+        <button className="fd-back" onClick={signOut} type="button">
+          <i className="fas fa-arrow-right-from-bracket"></i>
+          Sign out
         </button>
         <div className="fd-title-block">
-          <span>FINA development portal</span>
-          <h1>Trading Year Control Room</h1>
+          <span>Youth Financetopia Challenge</span>
+          <h1>Market Control Room</h1>
         </div>
         <div className="fd-session-chip">
           <i className="fas fa-user-shield"></i>
@@ -231,7 +326,7 @@ function FinanceDevelopmentPortal() {
             <small>{isRoundOpen ? 'Decision window open' : 'Holding by default'}</small>
           </div>
 
-          <nav className="fd-nav" aria-label="Finance development sections">
+          <nav className="fd-nav" aria-label="Youth Financetopia Challenge sections">
             {tabs.map(([key, label, icon]) => (
               <button
                 key={key}
@@ -304,6 +399,88 @@ function FinanceDevelopmentPortal() {
           )}
         </section>
       </main>
+    </div>
+  );
+}
+
+function ChallengeLogin({
+  loginEmail,
+  setLoginEmail,
+  loginCode,
+  setLoginCode,
+  codeSentTo,
+  setCodeSentTo,
+  authBusy,
+  authError,
+  requestChallengeCode,
+  verifyChallengeCode,
+}) {
+  return (
+    <div className="fd-page fd-auth-shell">
+      <section className="fd-auth-card">
+        <div className="fd-auth-mark">
+          <span>YOUTH</span>
+          <strong>Financetopia Challenge</strong>
+        </div>
+        <div className="fd-section-heading">
+          <span>Participant access</span>
+          <h2>Sign in to the market room</h2>
+        </div>
+
+        {authError && <div className="fd-message error">{authError}</div>}
+
+        {!codeSentTo ? (
+          <form className="fd-auth-form" onSubmit={requestChallengeCode}>
+            <label>
+              Email
+              <input
+                value={loginEmail}
+                onChange={(event) => setLoginEmail(event.target.value)}
+                type="email"
+                autoComplete="email"
+                placeholder="student@example.edu"
+                required
+              />
+            </label>
+            <button className="fd-primary" disabled={authBusy} type="submit">
+              <i className={`fas ${authBusy ? 'fa-circle-notch fa-spin' : 'fa-envelope'}`}></i>
+              {authBusy ? 'Sending...' : 'Email sign-in code'}
+            </button>
+          </form>
+        ) : (
+          <form className="fd-auth-form" onSubmit={verifyChallengeCode}>
+            <p className="fd-auth-note">
+              Code sent to <strong>{codeSentTo}</strong>
+            </p>
+            <label>
+              6-digit code
+              <input
+                value={loginCode}
+                onChange={(event) => setLoginCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="000000"
+                required
+              />
+            </label>
+            <button className="fd-primary" disabled={authBusy} type="submit">
+              <i className={`fas ${authBusy ? 'fa-circle-notch fa-spin' : 'fa-right-to-bracket'}`}></i>
+              {authBusy ? 'Verifying...' : 'Verify and enter'}
+            </button>
+            <button
+              className="fd-auth-link"
+              disabled={authBusy}
+              onClick={() => {
+                setCodeSentTo('');
+                setLoginCode('');
+              }}
+              type="button"
+            >
+              Use a different email
+            </button>
+          </form>
+        )}
+      </section>
     </div>
   );
 }
@@ -705,4 +882,4 @@ function Leaderboard({ leaderboard }) {
   );
 }
 
-export default FinanceDevelopmentPortal;
+export default YouthFinancetopiaPortal;

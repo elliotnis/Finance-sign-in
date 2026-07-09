@@ -1,6 +1,6 @@
-# Trading Competition Simulation (Standalone)
+# Youth Financetopia Challenge (Standalone)
 
-This is a standalone side project, independent of the sign-up system.
+This is the standalone Youth Financetopia Challenge frontend. It is independent of the sign-up system UI and can be hosted on its own domain for high school students.
 
 ## Run
 
@@ -16,11 +16,6 @@ Open `http://localhost:4173` in your browser.
 For Docker Compose hosting:
 
 - Host URL: `http://localhost:4173` (override with `TRADING_SIM_PORT` in repo `.env`).
-
-If the main frontend is already running, the simulation is also available at:
-
-- Docker frontend: `http://localhost:8080/trading-sim/`
-- Vite dev frontend: `http://localhost:5173/trading-sim/`
 
 ## Features
 

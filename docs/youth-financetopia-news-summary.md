@@ -1,12 +1,12 @@
 ---
-title: "FINA Development Trading Game: Fake Asset News Summary"
+title: "Youth Financetopia Challenge: Fake Asset News Summary"
 subtitle: "2018-2022 training notes"
 date: "2026-07-09"
 ---
 
 # Purpose
 
-This document summarizes the fake-name assets and the market news used in the FINA development trading game. The student-facing game should use the fake asset names only. The real-asset references below are for facilitator context and calibration.
+This document summarizes the fake-name assets and the market news used in the Youth Financetopia Challenge. The student-facing game should use the fake asset names only. The real-asset references below are for facilitator context and calibration.
 
 # Fake Asset Mapping
 

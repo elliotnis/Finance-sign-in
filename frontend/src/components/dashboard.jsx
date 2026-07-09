@@ -302,13 +302,6 @@ function Dashboard(){
             accent: 'red',
             onClick: () => navigate('/verification'),
         },
-        {
-            title: 'Trading Desk',
-            description: 'Run the FINA development trading game.',
-            icon: 'fa-money-bill-trend-up',
-            accent: 'purple',
-            onClick: () => navigate('/finance-development'),
-        },
     ];
 
     if (isAdmin) {

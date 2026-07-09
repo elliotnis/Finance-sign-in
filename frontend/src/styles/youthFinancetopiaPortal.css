@@ -27,6 +27,89 @@
   min-height: 100vh;
 }
 
+.fd-auth-shell {
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+.fd-auth-card {
+  width: min(520px, 100%);
+  border: 2px solid var(--fd-ink);
+  background: var(--fd-sheet);
+  box-shadow: 8px 8px 0 rgba(16, 21, 31, 0.18);
+  padding: clamp(1.2rem, 4vw, 2rem);
+}
+
+.fd-auth-mark {
+  display: inline-grid;
+  gap: 0.2rem;
+  margin-bottom: 1.3rem;
+  padding: 0.65rem 0.85rem;
+  color: #fffaf0;
+  background: #10151f;
+}
+
+.fd-auth-mark span {
+  color: #d9cfbd;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.fd-auth-mark strong {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.45rem;
+  letter-spacing: 0;
+}
+
+.fd-auth-form {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.1rem;
+}
+
+.fd-auth-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--fd-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.fd-auth-form input {
+  width: 100%;
+  min-height: 46px;
+  border: 2px solid var(--fd-ink);
+  background: #fffdf8;
+  color: var(--fd-ink);
+  padding: 0 0.75rem;
+  font: inherit;
+  text-transform: none;
+}
+
+.fd-auth-note {
+  margin: 0;
+  color: var(--fd-muted);
+  line-height: 1.5;
+}
+
+.fd-auth-link {
+  justify-self: start;
+  border: 0;
+  background: transparent;
+  color: var(--fd-blue);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fd-auth-link:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .fd-topbar {
   position: sticky;
   top: 0;

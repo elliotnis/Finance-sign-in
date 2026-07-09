@@ -11,7 +11,7 @@ from .mongo import (
     trading_order_collection,
     trading_team_collection,
 )
-from .utils import is_admin, is_email_allowed, normalize_email_for_access
+from .utils import is_admin, is_trading_email_allowed, normalize_email_for_access
 
 
 INITIAL_CASH = 1_000_000.0
@@ -452,7 +452,7 @@ def advance_round(admin_email: str):
 
 def create_team(team_name: str, leader_email: str):
     leader_email = normalize_email_for_access(leader_email)
-    if not is_email_allowed(leader_email):
+    if not is_trading_email_allowed(leader_email):
         return "email_not_allowed"
     existing = trading_team_collection.find_one({"members": leader_email})
     if existing:
@@ -473,7 +473,7 @@ def create_team(team_name: str, leader_email: str):
 
 def join_team(team_code: str, email: str):
     email = normalize_email_for_access(email)
-    if not is_email_allowed(email):
+    if not is_trading_email_allowed(email):
         return "email_not_allowed"
     if trading_team_collection.find_one({"members": email}):
         return "already_in_team"
@@ -698,7 +698,7 @@ def leaderboard(period_index: int | None = None):
 
 def team_state(email: str):
     email = normalize_email_for_access(email)
-    if not is_email_allowed(email):
+    if not is_trading_email_allowed(email):
         return "email_not_allowed"
     game = public_game_state()
     team = get_team_for_email(email)

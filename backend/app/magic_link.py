@@ -18,7 +18,7 @@ from datetime import datetime, timedelta, timezone
 
 from .email_service import send_email
 from .mongo import magic_link_collection, user_collection
-from .utils import is_email_allowed
+from .utils import is_email_allowed, is_trading_email_allowed
 
 ALLOWED_EMAIL_DOMAINS = ("connect.ust.hk", "ust.hk")
 DEFAULT_EMAIL_DOMAIN = ALLOWED_EMAIL_DOMAINS[0]
@@ -89,6 +89,7 @@ def create_magic_link_for_email(
     raw_email: str,
     subject: str = "Your sign-in code",
     title: str = "Sign-in code",
+    access_scope: str = "portal",
 ) -> dict:
     """Create + email a one-time sign-in code for a full email address."""
     email = normalize_email(raw_email)
@@ -109,6 +110,7 @@ def create_magic_link_for_email(
             "expires_at": expires_at,
             "used": False,
             "used_at": None,
+            "access_scope": access_scope,
         }
     )
 
@@ -136,7 +138,9 @@ def consume_magic_link(code: str) -> dict | None:
             return None
 
     email = record["email"]
-    if not is_email_allowed(email):
+    access_scope = record.get("access_scope", "portal")
+    allowed = is_trading_email_allowed(email) if access_scope == "trading" else is_email_allowed(email)
+    if not allowed:
         return None
 
     magic_link_collection.update_one(

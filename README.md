@@ -18,7 +18,7 @@ Web app (Vite + React) and API (FastAPI). Data is stored in **MongoDB** through 
 |----------|----------|--------|
 | `VITE_API_URL` | No | API base URL **as the browser sees it** (default `http://localhost:8000`). |
 | `FRONTEND_PORT` | No | Host port for the web UI (default `8080`). |
-| `TRADING_SIM_PORT` | No | Host port for the trading simulation frontend (default `4173`). |
+| `TRADING_SIM_PORT` | No | Host port for the Youth Financetopia Challenge standalone frontend (default `4173`). |
 | `CORS_ORIGINS` | No | Comma-separated origins. If **unset**, the API allows `http://localhost:5173`, `http://localhost:8080`, and a few defaults—see `backend/main.py`. |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_FROM` | Yes for magic-link login | Gmail SMTP credentials. `SMTP_PASSWORD` must be a [Gmail App Password](https://myaccount.google.com/apppasswords), **not** your normal password. |
 | `FRONTEND_URL` | Yes for magic-link login | Public URL of the frontend (e.g. `http://localhost:8080`). Used to build the link inside the email. |
@@ -59,8 +59,7 @@ This starts **MongoDB**, the **API**, and the **frontend** (nginx serving the bu
 | Service | URL |
 |--------|-----|
 | Web app | [http://localhost:8080](http://localhost:8080) — override host port with `FRONTEND_PORT` in `.env` |
-| Trading competition via web app | [http://localhost:8080/trading-sim/](http://localhost:8080/trading-sim/) |
-| Trading competition frontend | [http://localhost:4173](http://localhost:4173) — override host port with `TRADING_SIM_PORT` in `.env` |
+| Youth Financetopia Challenge standalone frontend | [http://localhost:4173](http://localhost:4173) — override host port with `TRADING_SIM_PORT` in `.env` |
 | API + Swagger | [http://localhost:8000](http://localhost:8000) |
 | Health | [http://localhost:8000/_health](http://localhost:8000/_health) |
 
@@ -69,6 +68,9 @@ Stop: `Ctrl+C` or `docker compose down`.
 If the UI is opened from another host/port, set `VITE_API_URL` to the API base URL the **browser** must use, and add that UI origin via `CORS_ORIGINS` on the backend if needed.
 
 For VPS deployment with MongoDB hosted on the VPS, use the included Compose database service. To migrate existing hosted data into the VPS Docker volume, see [docs/migrate-atlas-to-vps-mongo.md](docs/migrate-atlas-to-vps-mongo.md).
+
+To split the HKUST sign-up portal and Youth Financetopia Challenge onto separate public domains, see [docs/domain-separation-drupal.md](docs/domain-separation-drupal.md).
+Their access lists are separate in the database manager: use `Allowed Emails` for the sign-up portal and `Youth Financetopia Access` for the high-school challenge.
 
 ---
 
@@ -99,9 +101,8 @@ npm run dev
 | Service | URL |
 |--------|-----|
 | Web app (Vite) | [http://localhost:5173](http://localhost:5173) |
-| Trading competition via Vite | [http://localhost:5173/trading-sim/](http://localhost:5173/trading-sim/) |
 | API | [http://localhost:8000](http://localhost:8000) |
-| Trading competition frontend | [http://localhost:4173](http://localhost:4173) |
+| Youth Financetopia Challenge standalone frontend | [http://localhost:4173](http://localhost:4173) |
 
 Optional: create `frontend/.env` with `VITE_API_URL=http://localhost:8000` if you need a non-default API URL.
 

@@ -14,7 +14,7 @@ from .utils import (
     get_user_sessions_for_verification,
     submit_reflection,
     # Admin + classes
-    is_admin, is_email_allowed, normalize_email_for_access,
+    is_admin, is_email_allowed, is_trading_email_allowed, normalize_email_for_access,
     create_class, list_classes, get_class, delete_class,
     register_for_class, unregister_from_class, get_my_classes,
 )
@@ -116,11 +116,19 @@ def require_allowed_email(email: str):
         )
 
 
+def require_trading_allowed_email(email: str):
+    if not is_trading_email_allowed(email):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This account is not registered for Youth Financetopia Challenge access. Ask an admin to add the email first.",
+        )
+
+
 def trading_result_or_error(result):
     if result == "forbidden":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
     if result == "email_not_allowed":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This email is not registered for access")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This email is not registered for Youth Financetopia Challenge access")
     if result == "already_in_team":
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This account is already linked to a team")
     if result == "team_required":
@@ -223,13 +231,14 @@ def request_email_link(payload: EmailLinkRequest):
 
 @router.post("/auth/trading/email-code/request")
 def request_trading_email_code(payload: TradingEmailCodeRequest):
-    """Send a one-time sign-in code to any valid email for the trading simulation."""
+    """Send a one-time sign-in code for Youth Financetopia Challenge."""
     try:
-        require_allowed_email(normalize_email(payload.email))
+        require_trading_allowed_email(normalize_email(payload.email))
         result = create_magic_link_for_email(
             payload.email,
-            subject="Your Student Trading Competition sign-in code",
-            title="Student Trading Competition",
+            subject="Your Youth Financetopia Challenge sign-in code",
+            title="Youth Financetopia Challenge",
+            access_scope="trading",
         )
     except MagicLinkError as exc:
         raise HTTPException(
@@ -783,6 +792,28 @@ def admin_allowed_email_import(admin_email: str, payload: AllowedEmailImportPayl
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Could not import allowed emails: {exc}",
+        )
+    return {"success": True, **result}
+
+
+@router.post("/admin/database/{collection_key}/emails/import")
+def admin_email_access_import(collection_key: str, admin_email: str, payload: AllowedEmailImportPayload):
+    require_admin(admin_email)
+    try:
+        result = import_allowed_emails(
+            payload.text,
+            normalize_email_for_access(admin_email),
+            collection_key=collection_key,
+        )
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Unknown email access list",
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Could not import emails: {exc}",
         )
     return {"success": True, **result}
 

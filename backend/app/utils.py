@@ -4,7 +4,7 @@ import re
 from .mongo import (
     user_collection, session_collection, registration_collection,
     reflection_collection, class_collection, allowed_email_collection,
-    admin_access_collection,
+    admin_access_collection, trading_allowed_email_collection,
 )
 from datetime import datetime
 from bson import ObjectId
@@ -43,6 +43,18 @@ def is_email_allowed(email):
     if is_admin(normalized):
         return True
     allowed = allowed_email_collection.find_one({"email": normalized})
+    if not allowed:
+        return False
+    return allowed.get("active", True) is not False
+
+
+def is_trading_email_allowed(email):
+    normalized = normalize_email_for_access(email)
+    if not normalized or not EMAIL_RE.match(normalized):
+        return False
+    if is_admin(normalized):
+        return True
+    allowed = trading_allowed_email_collection.find_one({"email": normalized})
     if not allowed:
         return False
     return allowed.get("active", True) is not False

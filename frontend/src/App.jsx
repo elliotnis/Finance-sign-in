@@ -10,7 +10,7 @@ import RegisterSession from './components/RegisterSession';
 import ClassesCalendar from './components/ClassesCalendar';
 import Verification from './components/Verification';
 import DatabaseManager from './components/DatabaseManager';
-import FinanceDevelopmentPortal from './components/FinanceDevelopmentPortal';
+import YouthFinancetopiaPortal from './components/YouthFinancetopiaPortal';
 import BookingsCalendar from './components/BookingsCalendar';
 import { AuthProvider } from './contexts/authcontext';
 import './App.css'
@@ -33,7 +33,7 @@ function App() {
         <Route path="/classes" element={<ClassesCalendar />} />
         <Route path="/verification" element={<Verification />} />
         <Route path="/database" element={<DatabaseManager />} />
-        <Route path="/finance-development" element={<FinanceDevelopmentPortal />} />
+        <Route path="/youth-financetopia" element={<YouthFinancetopiaPortal />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

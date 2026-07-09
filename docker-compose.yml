@@ -52,6 +52,8 @@ services:
       context: ./trading-competition-sim
       dockerfile: Dockerfile
     restart: unless-stopped
+    depends_on:
+      - backend
     ports:
       - "${TRADING_SIM_PORT:-4173}:80"
 
