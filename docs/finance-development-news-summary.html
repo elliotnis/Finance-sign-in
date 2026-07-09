@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-07-09" />
+  <title>FINA Development Trading Game: Fake Asset News Summary</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">FINA Development Trading Game: Fake Asset News
+Summary</h1>
+<p class="subtitle">2018-2022 training notes</p>
+<p class="date">2026-07-09</p>
+</header>
+<h1 id="purpose">Purpose</h1>
+<p>This document summarizes the fake-name assets and the market news
+used in the FINA development trading game. The student-facing game
+should use the fake asset names only. The real-asset references below
+are for facilitator context and calibration.</p>
+<h1 id="fake-asset-mapping">Fake Asset Mapping</h1>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Student-facing name</th>
+<th>Real-world trace</th>
+<th>Type</th>
+<th>Game role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stock A</td>
+<td>Meta Platforms / Facebook</td>
+<td>Equity</td>
+<td>Advertising, privacy, social-platform growth, and rate-sensitivity
+proxy</td>
+</tr>
+<tr>
+<td>Stock B</td>
+<td>Occidental Petroleum</td>
+<td>Equity</td>
+<td>Leveraged energy equity and balance-sheet stress proxy</td>
+</tr>
+<tr>
+<td>Stock C</td>
+<td>Eli Lilly</td>
+<td>Equity</td>
+<td>Defensive healthcare and drug-catalyst proxy</td>
+</tr>
+<tr>
+<td>Metal D</td>
+<td>Gold</td>
+<td>Commodity</td>
+<td>Safe-haven metal, real-yield, dollar, and war-risk proxy</td>
+</tr>
+<tr>
+<td>Energy E</td>
+<td>Crude oil, mainly WTI</td>
+<td>Commodity</td>
+<td>Oil supply, demand, storage, sanctions, and war-premium proxy</td>
+</tr>
+<tr>
+<td>FX Pair F</td>
+<td>EUR/USD</td>
+<td>FX</td>
+<td>Dollar cycle and rate-differential proxy</td>
+</tr>
+<tr>
+<td>Fear Gauge G</td>
+<td>VIX volatility index</td>
+<td>Indicator</td>
+<td>Market stress indicator; visible but not directly tradable</td>
+</tr>
+</tbody>
+</table>
+<p>The game prices are simplified quarterly proxy traces for 2018-2022.
+They are based on real historical direction and magnitude, but they are
+rounded for gameplay and are not exact official market closes.</p>
+<h1 id="facilitator-notes">Facilitator Notes</h1>
+<ul>
+<li>Students should not be told the real-world mapping during the game
+unless the activity is designed as a debrief.</li>
+<li>Rumors are intentionally fictionalized. They are designed to create
+uncertainty and discussion, not to represent verified news.</li>
+<li>Some assets do not receive a news card every year. That is
+intentional; students should learn that incomplete information is part
+of decision-making.</li>
+<li>Fear Gauge G is an indicator. It can help teams interpret stress
+regimes but is not directly tradable.</li>
+</ul>
+<h1 id="annual-news-summary">Annual News Summary</h1>
+<h2 id="section">2018</h2>
+<h3 id="stock-a">Stock A</h3>
+<p><strong>News signal:</strong> A privacy scandal and slower user
+growth hurt the social-platform proxy while the wider market sold off
+late in the year.</p>
+<p><strong>Rumor:</strong> Regulators may force an expensive product
+redesign.</p>
+<p><strong>Trading interpretation:</strong> Growth quality is under
+question. Teams should think about regulatory risk, ad-model fragility,
+and whether the selloff creates value or signals deeper damage.</p>
+<h3 id="stock-b">Stock B</h3>
+<p><strong>News signal:</strong> Energy-linked equities rallied with
+crude early, then weakened sharply as oversupply fears returned in
+Q4.</p>
+<p><strong>Rumor:</strong> Management may be looking for a large
+acquisition.</p>
+<p><strong>Trading interpretation:</strong> The asset is exposed to both
+commodity price swings and corporate balance-sheet risk. A takeover or
+acquisition story can increase upside but also raises leverage
+concerns.</p>
+<h3 id="stock-c">Stock C</h3>
+<p><strong>News signal:</strong> The healthcare proxy advanced steadily
+as its core drug franchises expanded.</p>
+<p><strong>Rumor:</strong> Clinical-trial watchers think the pipeline is
+deeper than the market assumes.</p>
+<p><strong>Trading interpretation:</strong> This is a defensive
+compounder with potential catalyst upside. Teams should compare steady
+growth against richer valuation risk.</p>
+<h3 id="metal-d">Metal D</h3>
+<p><strong>News signal:</strong> Higher rates and a stronger dollar
+pressured the safe-haven metal before a year-end rebound.</p>
+<p><strong>Rumor:</strong> The late rebound may be only short
+covering.</p>
+<p><strong>Trading interpretation:</strong> Metal D is sensitive to real
+yields and dollar strength. It can protect portfolios during stress, but
+rallies may fade if macro pressure remains.</p>
+<h3 id="energy-e">Energy E</h3>
+<p><strong>News signal:</strong> Supply concerns pushed energy higher
+before Q4 oversupply fears caused a sharp reversal.</p>
+<p><strong>Rumor:</strong> Inventories may be building faster than
+headlines suggest.</p>
+<p><strong>Trading interpretation:</strong> Energy E can reverse quickly
+when the market shifts from shortage fear to surplus fear. Inventory
+data matters.</p>
+<h2 id="section-1">2019</h2>
+<h3 id="stock-a-1">Stock A</h3>
+<p><strong>News signal:</strong> The social-platform proxy recovered as
+advertising demand stabilized despite recurring political pressure.</p>
+<p><strong>Rumor:</strong> Product-growth data may be improving in
+smaller markets.</p>
+<p><strong>Trading interpretation:</strong> The prior-year damage may
+have been overdone if engagement and ad demand recover. Political risk
+remains a valuation drag.</p>
+<h3 id="stock-b-1">Stock B</h3>
+<p><strong>News signal:</strong> A debt-heavy acquisition plan damaged
+confidence in the energy proxy.</p>
+<p><strong>Rumor:</strong> Credit desks think the dividend may become
+harder to defend.</p>
+<p><strong>Trading interpretation:</strong> The key risk is leverage.
+Even if energy prices hold up, debt, dividends, and acquisition
+integration can dominate returns.</p>
+<h3 id="stock-c-1">Stock C</h3>
+<p><strong>News signal:</strong> The healthcare proxy absorbed political
+drug-pricing pressure while buying a precision-medicine asset.</p>
+<p><strong>Rumor:</strong> Specialists think the acquisition may be
+strategically cheap if trials convert.</p>
+<p><strong>Trading interpretation:</strong> Policy risk competes with
+pipeline optionality. Teams should decide whether innovation can offset
+pricing pressure.</p>
+<h3 id="metal-d-1">Metal D</h3>
+<p><strong>News signal:</strong> Central-bank easing and trade-war
+uncertainty supported a strong metal rally.</p>
+<p><strong>Rumor:</strong> Real-money funds may be rebuilding safe-haven
+allocations.</p>
+<p><strong>Trading interpretation:</strong> Falling rates and
+uncertainty can support Metal D. Momentum may persist if macro fear and
+easier policy continue.</p>
+<h3 id="fx-pair-f">FX Pair F</h3>
+<p><strong>News signal:</strong> Rate cuts and trade-war uncertainty
+pulled the currency pair through a choppy range.</p>
+<p><strong>Rumor:</strong> Macro traders are fading relief rallies until
+trade language changes.</p>
+<p><strong>Trading interpretation:</strong> FX Pair F is a macro
+confidence trade. Teams should watch relative central-bank policy and
+trade headlines.</p>
+<h2 id="section-2">2020</h2>
+<h3 id="stock-a-2">Stock A</h3>
+<p><strong>News signal:</strong> The platform proxy fell in the COVID
+crash but rebounded with online advertising and e-commerce demand.</p>
+<p><strong>Rumor:</strong> Lockdown engagement may have spiked
+sharply.</p>
+<p><strong>Trading interpretation:</strong> Initial panic may create
+opportunity if digital behavior accelerates. Teams should separate
+temporary ad weakness from structural engagement gains.</p>
+<h3 id="stock-b-2">Stock B</h3>
+<p><strong>News signal:</strong> The energy proxy nearly broke under
+COVID demand destruction, negative oil, and acquisition debt.</p>
+<p><strong>Rumor:</strong> Lenders may demand asset sales.</p>
+<p><strong>Trading interpretation:</strong> This is a stress scenario.
+The asset may have high rebound potential, but survival and liquidity
+risk are central.</p>
+<h3 id="stock-c-2">Stock C</h3>
+<p><strong>News signal:</strong> The healthcare proxy behaved
+defensively and gained attention from an emergency-use treatment.</p>
+<p><strong>Rumor:</strong> One late-stage readout could change the
+growth story.</p>
+<p><strong>Trading interpretation:</strong> Defensive earnings plus
+medical catalysts can be valuable in a crisis. Teams should still
+evaluate trial uncertainty.</p>
+<h3 id="metal-d-2">Metal D</h3>
+<p><strong>News signal:</strong> Safe-haven metal briefly sold off for
+cash, then surged on stimulus and risk hedging.</p>
+<p><strong>Rumor:</strong> Macro investors are buying metal as a
+stimulus hedge.</p>
+<p><strong>Trading interpretation:</strong> In liquidity shocks, even
+safe havens can fall first. After policy support arrives, inflation and
+risk hedges can rally.</p>
+<h3 id="energy-e-1">Energy E</h3>
+<p><strong>News signal:</strong> Energy collapsed as demand disappeared
+and storage filled, then recovered after supply cuts.</p>
+<p><strong>Rumor:</strong> Physical storage constraints may be worse
+than screen prices imply.</p>
+<p><strong>Trading interpretation:</strong> Physical-market mechanics
+matter. Storage, demand destruction, and supply cuts can create extreme
+price moves.</p>
+<h2 id="section-3">2021</h2>
+<h3 id="stock-a-3">Stock A</h3>
+<p><strong>News signal:</strong> The platform proxy reached a high
+before growth and identity-shift concerns appeared.</p>
+<p><strong>Rumor:</strong> A major rebrand could distract
+management.</p>
+<p><strong>Trading interpretation:</strong> Momentum is strong, but
+strategic pivots can create execution risk. Teams should ask whether
+growth is peaking.</p>
+<h3 id="stock-b-3">Stock B</h3>
+<p><strong>News signal:</strong> The energy proxy improved as reopening
+demand lifted crude.</p>
+<p><strong>Rumor:</strong> Value investors are quietly revisiting the
+balance-sheet story.</p>
+<p><strong>Trading interpretation:</strong> Reopening can repair
+distressed energy names quickly. The best returns may come when leverage
+risk starts to decline.</p>
+<h3 id="stock-c-3">Stock C</h3>
+<p><strong>News signal:</strong> Two major drug narratives lifted the
+healthcare proxy despite a risk-on market.</p>
+<p><strong>Rumor:</strong> Specialist doctors are discussing unusually
+strong trial data.</p>
+<p><strong>Trading interpretation:</strong> Product-specific catalysts
+can outperform macro style rotations. Teams should weigh catalyst
+strength against already-rising prices.</p>
+<h3 id="fear-gauge-g">Fear Gauge G</h3>
+<p><strong>News signal:</strong> Volatility faded from 2020 extremes but
+spiked around meme-stock and variant shocks.</p>
+<p><strong>Rumor:</strong> Retail call volume may be distorting risk
+readings.</p>
+<p><strong>Trading interpretation:</strong> Lower average volatility
+does not mean low event risk. Fear Gauge G helps teams identify stress
+pockets.</p>
+<h3 id="fx-pair-f-1">FX Pair F</h3>
+<p><strong>News signal:</strong> The currency pair weakened gradually as
+rate expectations diverged.</p>
+<p><strong>Rumor:</strong> Macro funds are positioning for a stronger
+dollar cycle.</p>
+<p><strong>Trading interpretation:</strong> Relative policy expectations
+can drive FX trends. Teams should watch whether the market is pricing
+earlier or faster rate hikes.</p>
+<h2 id="section-4">2022</h2>
+<h3 id="stock-a-4">Stock A</h3>
+<p><strong>News signal:</strong> The platform proxy collapsed under
+privacy changes, slowing users, heavy investment, and higher rates.</p>
+<p><strong>Rumor:</strong> Ad buyers say measurement issues may be worse
+than management admits.</p>
+<p><strong>Trading interpretation:</strong> Multiple compression and
+business-model concerns can reinforce each other. Teams should be
+careful with averaging down purely because the price has fallen.</p>
+<h3 id="stock-b-4">Stock B</h3>
+<p><strong>News signal:</strong> The energy proxy became a standout
+winner as war-risk premiums and investor accumulation lifted
+sentiment.</p>
+<p><strong>Rumor:</strong> A famous capital allocator may still be
+buying dips.</p>
+<p><strong>Trading interpretation:</strong> Energy equities can
+outperform dramatically when commodity prices, capital discipline, and
+investor sponsorship align.</p>
+<h3 id="stock-c-4">Stock C</h3>
+<p><strong>News signal:</strong> The healthcare proxy rose against the
+bear market on obesity-treatment expectations.</p>
+<p><strong>Rumor:</strong> Channel checks suggest demand could exceed
+production capacity.</p>
+<p><strong>Trading interpretation:</strong> Strong product-demand
+narratives can create defensive growth. Supply capacity may become as
+important as demand.</p>
+<h3 id="metal-d-3">Metal D</h3>
+<p><strong>News signal:</strong> Metal spiked on war risk, then fell
+under aggressive rate hikes and dollar strength before recovering.</p>
+<p><strong>Rumor:</strong> Gold desks say the move may be a round trip,
+not a clean trend.</p>
+<p><strong>Trading interpretation:</strong> War risk can lift safe
+havens, but higher real rates and dollar strength can overpower the
+trade.</p>
+<h3 id="energy-e-2">Energy E</h3>
+<p><strong>News signal:</strong> Energy jumped after war began, then
+faded as recession risk and dollar strength weighed.</p>
+<p><strong>Rumor:</strong> Headline prices may hide sharp regional
+stress.</p>
+<p><strong>Trading interpretation:</strong> Energy can rally on
+geopolitical shock but later fade if demand concerns rise. Teams should
+distinguish spot panic from sustained trend.</p>
+<h1 id="discussion-prompts">Discussion Prompts</h1>
+<ol type="1">
+<li>Which assets are mostly macro-driven, and which are mostly company-
+or product-driven?</li>
+<li>Which rumor would you trust least, and why?</li>
+<li>How would a team hedge a portfolio that is heavily exposed to Stock
+B and Energy E?</li>
+<li>When does Fear Gauge G provide useful information even though it is
+not tradable?</li>
+<li>Which year rewards contrarian buying, and which year punishes
+it?</li>
+</ol>
+<h1 id="student-facing-rule-reminder">Student-Facing Rule Reminder</h1>
+<p>The game should present fake names only. The facilitator can use the
+real mapping during setup, calibration, or debrief, but revealing it
+during gameplay can make the exercise too easy.</p>
+</body>
+</html>
