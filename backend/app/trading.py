@@ -308,29 +308,6 @@ NEWS_BY_YEAR = {
 }
 
 
-MIKI_EMAIL_DRAFT = """Subject: Sign-in setup for the FINA portal and trading system
-
-Hi Miki,
-
-Could you help prepare the email sign-in process for two systems?
-
-1. FINA sign-in system
-- Students should use their HKUST email to receive a one-time sign-in code.
-- Only emails added by admins in the Allowed Emails list should be able to request a code or create an account.
-- If a student is not on the list, the system should tell them the account is not registered for access and should not send an email.
-
-2. Trading competition system
-- Students should also sign in with an email code.
-- Admins can place students into teams of up to three people.
-- Each team has one team leader. Only the team leader can submit buy/sell decisions.
-- The gamemaster can view all teams, holdings, cash, and performance.
-
-Please confirm the sender email address, SMTP/app-password setup, and the email wording you want students to receive.
-
-Best,
-FINA portal team"""
-
-
 def _asset_price_map(asset: dict[str, Any]) -> dict[str, float]:
     return {PERIODS[i]["id"]: float(price) for i, price in enumerate(asset["prices"])}
 
@@ -737,7 +714,6 @@ def team_state(email: str):
         "interest_rates": INTEREST_RATES,
         "initial_cash": INITIAL_CASH,
         "team_size_limit": TEAM_SIZE_LIMIT,
-        "miki_email_draft": MIKI_EMAIL_DRAFT,
         "continuous_api": {
             "snapshot": "GET /api/trading/continuous/snapshot?api_key=YOUR_KEY",
             "order": "POST /api/trading/continuous/order",

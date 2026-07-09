@@ -52,8 +52,7 @@
 .fd-api-board,
 .fd-gm-panel,
 .fd-history-panel,
-.fd-leaderboard,
-.fd-email-panel {
+.fd-leaderboard {
   border: 2px solid var(--fd-ink);
   background: var(--fd-sheet);
   box-shadow: 5px 5px 0 rgba(16, 21, 31, 0.16);
@@ -363,8 +362,7 @@
 .fd-api-board,
 .fd-gm-panel,
 .fd-history-panel,
-.fd-leaderboard,
-.fd-email-panel {
+.fd-leaderboard {
   padding: 1rem;
 }
 
@@ -599,7 +597,6 @@
 
 .fd-code-block code,
 .fd-code-block pre,
-.fd-email-panel pre,
 .fd-key-panel strong {
   display: block;
   background: #10151f;
@@ -647,17 +644,6 @@
 .fd-history-cell strong {
   display: block;
   margin: 0.45rem 0 0.15rem;
-}
-
-.fd-email-panel {
-  display: grid;
-  gap: 1rem;
-}
-
-.fd-email-panel pre {
-  margin: 0;
-  max-height: 520px;
-  overflow: auto;
 }
 
 @keyframes fd-enter {

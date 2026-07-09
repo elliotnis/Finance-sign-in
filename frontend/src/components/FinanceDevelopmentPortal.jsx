@@ -181,20 +181,10 @@ function FinanceDevelopmentPortal() {
     }
   }
 
-  async function copyEmailDraft() {
-    try {
-      await navigator.clipboard.writeText(state?.miki_email_draft || '');
-      setNotice('Email draft copied.');
-    } catch {
-      setError('Could not copy automatically.');
-    }
-  }
-
   const tabs = [
     ['discrete', 'Discrete Desk', 'fa-clock'],
     ['continuous', 'Continuous API', 'fa-code'],
     ['performance', 'Performance', 'fa-chart-line'],
-    ['email', 'Miki Email', 'fa-envelope'],
   ];
   if (isAdmin) tabs.splice(3, 0, ['gamemaster', 'Gamemaster', 'fa-chess-king']);
 
@@ -311,10 +301,6 @@ function FinanceDevelopmentPortal() {
 
           {activeTab === 'performance' && (
             <PerformanceDesk portfolio={state?.portfolio} leaderboard={state?.leaderboard || []} assets={state?.assets || []} />
-          )}
-
-          {activeTab === 'email' && (
-            <EmailDraft text={state?.miki_email_draft || ''} copyEmailDraft={copyEmailDraft} />
           )}
         </section>
       </main>
@@ -715,22 +701,6 @@ function Leaderboard({ leaderboard }) {
           </tbody>
         </table>
       </div>
-    </section>
-  );
-}
-
-function EmailDraft({ text, copyEmailDraft }) {
-  return (
-    <section className="fd-email-panel">
-      <div className="fd-section-heading">
-        <span>Email draft</span>
-        <h2>Message for Miki</h2>
-      </div>
-      <pre>{text}</pre>
-      <button className="fd-primary" type="button" onClick={copyEmailDraft}>
-        <i className="fas fa-copy"></i>
-        Copy draft
-      </button>
     </section>
   );
 }
