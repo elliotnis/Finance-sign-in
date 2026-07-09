@@ -52,7 +52,7 @@ function FinanceDevelopmentPortal() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [activeTab, setActiveTab] = useState('calendar');
+  const [activeTab, setActiveTab] = useState('discrete');
   const [teamName, setTeamName] = useState('');
   const [teamCode, setTeamCode] = useState('');
   const [orderAsset, setOrderAsset] = useState('stock_a');
@@ -191,7 +191,6 @@ function FinanceDevelopmentPortal() {
   }
 
   const tabs = [
-    ['calendar', 'Calendar', 'fa-calendar-days'],
     ['discrete', 'Discrete Desk', 'fa-clock'],
     ['continuous', 'Continuous API', 'fa-code'],
     ['performance', 'Performance', 'fa-chart-line'],
@@ -269,10 +268,6 @@ function FinanceDevelopmentPortal() {
 
         <section className="fd-workspace">
           <RoundStrip periods={state?.periods || []} currentIndex={state?.game?.current_period_index || 0} />
-
-          {activeTab === 'calendar' && (
-            <CalendarView calendar={state?.annual_calendar || []} news={state?.news || []} assets={state?.assets || []} />
-          )}
 
           {activeTab === 'discrete' && (
             <DiscreteDesk
@@ -399,55 +394,6 @@ function RoundStrip({ periods, currentIndex }) {
   );
 }
 
-function CalendarView({ calendar, news, assets }) {
-  return (
-    <div className="fd-stack">
-      <section className="fd-year-board">
-        <div className="fd-section-heading">
-          <span>Year overview</span>
-          <h2>Development calendar</h2>
-        </div>
-        <div className="fd-month-grid">
-          {calendar.map((item, index) => (
-            <article key={item.month} className="fd-month" style={{ '--delay': `${index * 28}ms` }}>
-              <strong>{item.month}</strong>
-              <span>{item.focus}</span>
-              <p>{item.deliverable}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="fd-news-board">
-        <div className="fd-section-heading">
-          <span>Market tape</span>
-          <h2>Signals and rumors</h2>
-        </div>
-        <div className="fd-news-grid">
-          {news.slice(-10).reverse().map((item) => (
-            <article key={`${item.year}-${item.asset_id}-${item.summary}`} className="fd-news-item">
-              <div>
-                <span>{item.year}</span>
-                <strong>{item.asset_name}</strong>
-              </div>
-              <p>{item.summary}</p>
-              <em>{item.rumor}</em>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="fd-asset-roster">
-        <div className="fd-section-heading">
-          <span>Fake names</span>
-          <h2>Tradable universe</h2>
-        </div>
-        <AssetGrid assets={assets} />
-      </section>
-    </div>
-  );
-}
-
 function AssetGrid({ assets }) {
   return (
     <div className="fd-asset-grid">
@@ -537,8 +483,39 @@ function DiscreteDesk({
         </div>
       </section>
 
+      <MarketTape news={state?.news || []} />
+      <section className="fd-asset-roster">
+        <div className="fd-section-heading">
+          <span>Fake names</span>
+          <h2>Tradable universe</h2>
+        </div>
+        <AssetGrid assets={state?.assets || []} />
+      </section>
       <PortfolioPanel portfolio={state?.portfolio} assets={state?.assets || []} />
     </div>
+  );
+}
+
+function MarketTape({ news }) {
+  return (
+    <section className="fd-news-board">
+      <div className="fd-section-heading">
+        <span>Market tape</span>
+        <h2>Signals and rumors</h2>
+      </div>
+      <div className="fd-news-grid">
+        {news.slice(-10).reverse().map((item) => (
+          <article key={`${item.year}-${item.asset_id}-${item.summary}`} className="fd-news-item">
+            <div>
+              <span>{item.year}</span>
+              <strong>{item.asset_name}</strong>
+            </div>
+            <p>{item.summary}</p>
+            <em>{item.rumor}</em>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 

@@ -45,7 +45,6 @@
 .fd-session-chip,
 .fd-nav button,
 .fd-team-panel,
-.fd-year-board,
 .fd-news-board,
 .fd-asset-roster,
 .fd-trade-desk,
@@ -357,7 +356,6 @@
   gap: 1rem;
 }
 
-.fd-year-board,
 .fd-news-board,
 .fd-asset-roster,
 .fd-trade-desk,
@@ -378,34 +376,6 @@
   font-size: clamp(1.35rem, 2.4vw, 2rem);
 }
 
-.fd-month-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.6rem;
-}
-
-.fd-month {
-  min-height: 148px;
-  display: grid;
-  align-content: start;
-  gap: 0.45rem;
-  padding: 0.8rem;
-  border: 2px solid var(--fd-ink);
-  background: #fffdf8;
-  animation: fd-enter 260ms ease-out both;
-  animation-delay: var(--delay);
-}
-
-.fd-month strong {
-  font-family: "Newsreader", Georgia, serif;
-  font-size: 1.5rem;
-}
-
-.fd-month span {
-  font-weight: 700;
-}
-
-.fd-month p,
 .fd-news-item p,
 .fd-asset-card p,
 .fd-price-slab p,
@@ -719,8 +689,7 @@
   .fd-desk-grid,
   .fd-api-grid,
   .fd-news-grid,
-  .fd-asset-grid,
-  .fd-month-grid {
+  .fd-asset-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -736,7 +705,6 @@
   .fd-api-grid,
   .fd-news-grid,
   .fd-asset-grid,
-  .fd-month-grid,
   .fd-metrics,
   .fd-order-ticket.inline {
     grid-template-columns: 1fr;

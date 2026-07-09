@@ -19,7 +19,6 @@ function Dashboard(){
 
     useEffect(() => {
         const user_id = localStorage.getItem('user_id');
-        const username = localStorage.getItem('username');
         const preferred_name = localStorage.getItem('preferred_name');
         
         // Clean up if preferred_name is actually an email
@@ -167,6 +166,13 @@ function Dashboard(){
             icon: 'fa-book-open',
             accent: 'teal',
             onClick: handleMySessionsClick,
+        },
+        {
+            title: 'My Calendar',
+            description: 'See your tutoring and class bookings by month.',
+            icon: 'fa-calendar-days',
+            accent: 'blue',
+            onClick: () => navigate('/calendar'),
         },
         {
             title: 'Verification',

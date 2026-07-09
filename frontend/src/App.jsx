@@ -11,6 +11,7 @@ import ClassesCalendar from './components/ClassesCalendar';
 import Verification from './components/Verification';
 import DatabaseManager from './components/DatabaseManager';
 import FinanceDevelopmentPortal from './components/FinanceDevelopmentPortal';
+import BookingsCalendar from './components/BookingsCalendar';
 import { AuthProvider } from './contexts/authcontext';
 import './App.css'
 import './styles/mobile.css'
@@ -28,6 +29,7 @@ function App() {
         <Route path="/sessions" element={< MySessions />} />
         <Route path="/tutor-calendar" element={<TutorCalendar />} />
         <Route path="/register-session" element={<RegisterSession />} />
+        <Route path="/calendar" element={<BookingsCalendar />} />
         <Route path="/classes" element={<ClassesCalendar />} />
         <Route path="/verification" element={<Verification />} />
         <Route path="/database" element={<DatabaseManager />} />

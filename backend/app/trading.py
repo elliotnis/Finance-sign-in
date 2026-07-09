@@ -44,22 +44,6 @@ PERIODS = [
 ]
 
 
-ANNUAL_CALENDAR = [
-    {"month": "Jan", "focus": "Team formation", "deliverable": "Team code, leader, API key"},
-    {"month": "Feb", "focus": "Market orientation", "deliverable": "Fake asset map and rules brief"},
-    {"month": "Mar", "focus": "Round practice", "deliverable": "3-minute decision drill"},
-    {"month": "Apr", "focus": "Discrete trading", "deliverable": "Quarterly buy/sell decisions"},
-    {"month": "May", "focus": "News analysis", "deliverable": "Rumor versus signal memo"},
-    {"month": "Jun", "focus": "FX and cash", "deliverable": "Cash interest and currency notes"},
-    {"month": "Jul", "focus": "Portfolio review", "deliverable": "Mid-year team leaderboard"},
-    {"month": "Aug", "focus": "Risk controls", "deliverable": "Position concentration check"},
-    {"month": "Sep", "focus": "Continuous API", "deliverable": "Algorithm order endpoint test"},
-    {"month": "Oct", "focus": "Bear market stress", "deliverable": "Drawdown discussion"},
-    {"month": "Nov", "focus": "Final rebalance", "deliverable": "Last-cycle investment memo"},
-    {"month": "Dec", "focus": "Performance review", "deliverable": "Year-end ranking and reflection"},
-]
-
-
 INTEREST_RATES = {
     2018: 0.020,
     2019: 0.015,
@@ -748,7 +732,6 @@ def team_state(email: str):
         "portfolio": portfolio,
         "assets": _asset_payload(game["current_period_index"]),
         "periods": PERIODS,
-        "annual_calendar": ANNUAL_CALENDAR,
         "news": _news_payload(game["current_period_index"]),
         "leaderboard": leaderboard(game["current_period_index"]),
         "interest_rates": INTEREST_RATES,
