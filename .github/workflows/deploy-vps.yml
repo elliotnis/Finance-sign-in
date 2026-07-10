@@ -39,43 +39,35 @@ jobs:
   deploy:
     name: Deploy to FNZ231
     needs: test
-    runs-on: ubuntu-latest
+    # This repository-scoped runner is installed on FNZ231. It connects
+    # outbound to GitHub, so the server's restricted SSH firewall stays closed.
+    runs-on: [self-hosted, linux, x64, fnz231-deploy]
     env:
-      DEPLOY_HOST: ${{ vars.VPS_HOST || '143.89.175.90' }}
-      DEPLOY_USER: ${{ vars.VPS_USER || 'adm1' }}
       DEPLOY_PATH: ${{ vars.VPS_DEPLOY_PATH || '/home/adm1/sign-up-system' }}
       DEPLOY_BRANCH: ${{ github.ref_name }}
     steps:
       - name: Update the Compose stack
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ env.DEPLOY_HOST }}
-          username: ${{ env.DEPLOY_USER }}
-          password: ${{ secrets.VPS_SSH_PASSWORD }}
-          port: ${{ vars.VPS_SSH_PORT || '22' }}
-          fingerprint: SHA256:DOPUMf1tOYfppzDSrKC/jdcTO8EVu20Adi0Zn31Rrvw
-          envs: DEPLOY_PATH,DEPLOY_BRANCH
-          script_stop: true
-          script: |
-            set -eu
-            cd "$DEPLOY_PATH"
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$DEPLOY_PATH"
 
-            # Keep server-only configuration (.env) and Mongo data intact while
-            # making tracked application files match the deployed branch.
-            git fetch --prune origin "$DEPLOY_BRANCH"
-            git checkout --force "origin/$DEPLOY_BRANCH"
+          # Keep server-only configuration (.env) and Mongo data intact while
+          # making tracked application files match the deployed branch.
+          git fetch --prune origin "$DEPLOY_BRANCH"
+          git checkout --force "origin/$DEPLOY_BRANCH"
 
-            docker compose up -d --build --remove-orphans
+          docker compose up -d --build --remove-orphans
 
-            # Fail the deployment if the public web page or proxied API is not up.
-            for attempt in $(seq 1 30); do
-              if curl --fail --silent --show-error http://127.0.0.1/ >/dev/null \
-                && curl --fail --silent --show-error http://127.0.0.1/api/docs >/dev/null; then
-                exit 0
-              fi
-              sleep 2
-            done
+          # Fail the deployment if the public web page or proxied API is not up.
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error http://127.0.0.1/ >/dev/null \
+              && curl --fail --silent --show-error http://127.0.0.1/api/docs >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
 
-            docker compose ps
-            echo "Deployment health checks did not pass." >&2
-            exit 1
+          docker compose ps
+          echo "Deployment health checks did not pass." >&2
+          exit 1

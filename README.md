@@ -110,7 +110,7 @@ Optional: create `frontend/.env` with `VITE_API_URL=http://localhost:8000` if yo
 
 ## Deploy to FNZ231 (CI/CD)
 
-Pushes to **`main`** or **`master`** test the app and deploy the Docker Compose stack to FNZ231 via GitHub Actions. Add the `VPS_SSH_PASSWORD` GitHub Actions secret, then see **[docs/deploy-vps.md](docs/deploy-vps.md)** for the optional variables and deployment behaviour.
+Pushes to **`main`** or **`master`** test the app and deploy the Docker Compose stack to FNZ231 via its repository-scoped self-hosted GitHub Actions runner. See **[docs/deploy-vps.md](docs/deploy-vps.md)** for the optional variable and deployment behaviour.
 
 ## Verify (optional, before push)
 
