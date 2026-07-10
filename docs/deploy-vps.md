@@ -22,6 +22,6 @@ FNZ231 already meets these requirements: Docker Engine, Docker Compose v2, a clo
 2. The FNZ231 runner picks up the deploy job through its outbound GitHub connection and fetches the pushed branch in the existing server clone.
 3. It force-checks out `origin/main` or `origin/master` in that clone. This resets **tracked application files** only; `.env` and Docker volumes are not removed.
 4. `docker compose up -d --build --remove-orphans` rebuilds and restarts the stack.
-5. The workflow waits for `http://127.0.0.1/` and `http://127.0.0.1/api/docs`; a failure makes the GitHub Actions run fail.
+5. The workflow waits for `http://127.0.0.1/` and `http://127.0.0.1/api/_health`; a failure makes the GitHub Actions run fail.
 
 The server keeps its inbound SSH firewall restricted to the existing internal/VPN ranges; GitHub Actions does not need inbound SSH access.
