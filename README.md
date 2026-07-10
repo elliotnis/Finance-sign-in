@@ -108,9 +108,9 @@ Optional: create `frontend/.env` with `VITE_API_URL=http://localhost:8000` if yo
 
 ---
 
-## Deploy to GCP (CI/CD)
+## Deploy to FNZ231 (CI/CD)
 
-Pushes to **`main`** or **`master`** can deploy the API and web UI to **Google Cloud Run** via GitHub Actions. Configure GCP, Workload Identity Federation, and GitHub variables/secrets as described in **[docs/deploy-gcp.md](docs/deploy-gcp.md)**.
+Pushes to **`main`** or **`master`** test the app and deploy the Docker Compose stack to FNZ231 via GitHub Actions. Add the `VPS_SSH_PASSWORD` GitHub Actions secret, then see **[docs/deploy-vps.md](docs/deploy-vps.md)** for the optional variables and deployment behaviour.
 
 ## Verify (optional, before push)
 

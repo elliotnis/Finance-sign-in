@@ -1,0 +1,81 @@
+name: Test and deploy to FNZ231
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-fnz231-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Frontend install + build
+        working-directory: frontend
+        run: npm ci && npm run build
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Backend deps + syntax check
+        working-directory: backend
+        run: |
+          python -m pip install -r app/requirements.txt
+          python -m compileall -q .
+
+  deploy:
+    name: Deploy to FNZ231
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOST: ${{ vars.VPS_HOST || '143.89.175.90' }}
+      DEPLOY_USER: ${{ vars.VPS_USER || 'adm1' }}
+      DEPLOY_PATH: ${{ vars.VPS_DEPLOY_PATH || '/home/adm1/sign-up-system' }}
+      DEPLOY_BRANCH: ${{ github.ref_name }}
+    steps:
+      - name: Update the Compose stack
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ env.DEPLOY_HOST }}
+          username: ${{ env.DEPLOY_USER }}
+          password: ${{ secrets.VPS_SSH_PASSWORD }}
+          port: ${{ vars.VPS_SSH_PORT || '22' }}
+          fingerprint: SHA256:DOPUMf1tOYfppzDSrKC/jdcTO8EVu20Adi0Zn31Rrvw
+          envs: DEPLOY_PATH,DEPLOY_BRANCH
+          script_stop: true
+          script: |
+            set -eu
+            cd "$DEPLOY_PATH"
+
+            # Keep server-only configuration (.env) and Mongo data intact while
+            # making tracked application files match the deployed branch.
+            git fetch --prune origin "$DEPLOY_BRANCH"
+            git checkout --force "origin/$DEPLOY_BRANCH"
+
+            docker compose up -d --build --remove-orphans
+
+            # Fail the deployment if the public web page or proxied API is not up.
+            for attempt in $(seq 1 30); do
+              if curl --fail --silent --show-error http://127.0.0.1/ >/dev/null \
+                && curl --fail --silent --show-error http://127.0.0.1/api/docs >/dev/null; then
+                exit 0
+              fi
+              sleep 2
+            done
+
+            docker compose ps
+            echo "Deployment health checks did not pass." >&2
+            exit 1
