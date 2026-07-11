@@ -152,6 +152,16 @@ function RegisterSession() {
         return slot ? slot.available_tutors : [];
     };
 
+    const getHostNames = (tutors) => tutors
+        .map((tutor) => tutor.tutor_name?.trim() || tutor.tutor_email?.split('@')[0] || 'Tutor')
+        .filter(Boolean);
+
+    const getHostSummary = (tutors) => {
+        const hostNames = getHostNames(tutors);
+        if (hostNames.length <= 2) return hostNames.join(', ');
+        return `${hostNames.slice(0, 2).join(', ')} +${hostNames.length - 2}`;
+    };
+
     // Handle slot click - show tutors modal
     const handleSlotClick = (date, timeSlot, tutors) => {
         if (tutors.length === 0 || isPastDate(date)) {
@@ -346,6 +356,7 @@ function RegisterSession() {
                                                 const tutors = getAvailableTutors(date, timeSlot);
                                                 const hasTutors = tutors.length > 0;
                                                 const isPast = isPastDate(date);
+                                                const hostNames = getHostNames(tutors);
                                                 
                                                 return (
                                                     <div 
@@ -362,7 +373,13 @@ function RegisterSession() {
                                                                     opacity: Math.min(0.55 + (tutors.length * 0.12), 1)
                                                                 }}
                                                             >
-                                                                <div className="slot-time">{timeSlot.split('-')[0]}</div>
+                                                                <div className="slot-host-label">
+                                                                    <i className="fas fa-user" aria-hidden="true"></i>
+                                                                    Hosted by
+                                                                </div>
+                                                                <div className="slot-host-names" title={hostNames.join(', ')}>
+                                                                    {getHostSummary(tutors)}
+                                                                </div>
                                                                 <div className="slot-count">{tutors.length} tutor{tutors.length > 1 ? 's' : ''}</div>
                                                             </div>
                                                         ) : (
@@ -388,7 +405,7 @@ function RegisterSession() {
             {showConfirmModal && selectedSlot && (
                 <div className="modal-overlay">
                     <div className="modal-content tutor-selection-modal">
-                        <h3>Available Tutors</h3>
+                        <h3>Choose a Session Host</h3>
                         <div className="modal-info">
                             <p><strong>Date:</strong> {selectedSlot.date}</p>
                             <p><strong>Time:</strong> {selectedSlot.timeSlot}</p>
@@ -396,11 +413,12 @@ function RegisterSession() {
                         </div>
                         
                         <div className="tutors-list">
-                            <p className="select-instruction">Select a tutor to register:</p>
+                            <p className="select-instruction">Select the person hosting your session:</p>
                             {selectedSlot.tutors.map(tutor => (
                                 <div key={tutor.id} className="tutor-card">
                                     <div className="tutor-info">
-                                        <h4>{tutor.tutor_name}</h4>
+                                        <p className="tutor-host-label">Hosted by</p>
+                                        <h4>{tutor.tutor_name || tutor.tutor_email}</h4>
                                         <p className="tutor-location"> {tutor.location}</p>
                                         {tutor.description && (
                                             <p className="tutor-description"> {tutor.description}</p>
