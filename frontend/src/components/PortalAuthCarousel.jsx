@@ -4,20 +4,20 @@ const AUTO_ADVANCE_MS = 3000;
 
 const SLIDES = [
   {
-    src: 'https://bm.hkust.edu.hk/sites/default/files/2023-09/img_Finance.jpg',
+    src: 'https://bm.hkust.edu.hk/sites/default/files/inline-images/FINA-1.png',
     position: 'center center',
+  },
+  {
+    src: 'https://bm.hkust.edu.hk/sites/default/files/inline-images/38%20-%20Copy.jpg',
+    position: 'center 55%',
   },
   {
     src: 'https://bm.hkust.edu.hk/sites/default/files/inline-images/Advancing-Financial-Literacy-2.png',
     position: 'center center',
   },
   {
-    src: 'https://hkust.edu.hk/sites/default/files/styles/hkust_standard_page_header/public/2025-08/Visit%20HKUST.jpg?itok=VFTxjKWp',
-    position: 'center center',
-  },
-  {
-    src: 'https://hkust.edu.hk/sites/default/files/styles/hkust_image_text_block/public/2026-06/DSC_8082-1-2.jpg?itok=eYu5ZFIC',
-    position: 'center center',
+    src: 'https://bm.hkust.edu.hk/sites/default/files/inline-images/Setting-Sail-for-the-GBA-1.png',
+    position: 'center 55%',
   },
 ];
 
@@ -40,7 +40,7 @@ function PortalAuthCarousel() {
           key={slide.src}
           src={slide.src}
           alt=""
-          fetchPriority={index === 0 ? 'high' : 'low'}
+          fetchPriority={index === 0 ? 'high' : 'auto'}
           style={{ objectPosition: slide.position }}
         />
       ))}
