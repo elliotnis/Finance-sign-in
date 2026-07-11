@@ -9,11 +9,6 @@ const PLAYER_SESSION_EMAIL_KEY = 'yf_player_session_email';
 const GAMEMASTER_SESSION_TOKEN_KEY = 'yf_gamemaster_session_token';
 const GAMEMASTER_SESSION_EMAIL_KEY = 'yf_gamemaster_session_email';
 
-function challengeEventsUrl() {
-  const apiBase = API_URL.startsWith('http') ? API_URL : `${window.location.origin}${API_URL}`;
-  return `${apiBase.replace(/^http/, 'ws')}/trading/events`;
-}
-
 function money(value, digits = 0) {
   const amount = Number(value || 0);
   return amount.toLocaleString('en-US', {
@@ -177,31 +172,48 @@ function YouthFinancetopiaPortal() {
 
   useEffect(() => {
     if (!isAuthenticated) return undefined;
-    let socket;
+    const controller = new AbortController();
     let reconnectTimer;
-    const connect = () => {
-      socket = new WebSocket(challengeEventsUrl());
-      socket.onopen = () => socket.send(JSON.stringify({ token: sessionToken }));
-      socket.onmessage = (event) => {
-        const payload = JSON.parse(event.data);
-        if (payload.type !== 'round' || !payload.game) return;
-        setSecondsLeft(payload.game.seconds_left || 0);
-        setState((current) => {
-          const previousGame = current?.game;
-          const roundChanged = previousGame && (
-            previousGame.current_period_index !== payload.game.current_period_index
-            || previousGame.is_round_open !== payload.game.is_round_open
-          );
-          if (roundChanged) loadAll({ quiet: true });
-          return current ? { ...current, game: payload.game } : current;
+    const connect = async () => {
+      try {
+        const response = await fetch(`${API_URL}/trading/events`, {
+          headers: { Authorization: `Bearer ${sessionToken}` },
+          signal: controller.signal,
         });
-      };
-      socket.onclose = () => { reconnectTimer = window.setTimeout(connect, 3000); };
+        if (!response.ok || !response.body) throw new Error('Live updates unavailable');
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (!controller.signal.aborted) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const messages = buffer.split('\n\n');
+          buffer = messages.pop() || '';
+          messages.forEach((message) => {
+            const dataLine = message.split('\n').find((line) => line.startsWith('data: '));
+            if (!dataLine) return;
+            const game = JSON.parse(dataLine.slice(6));
+            setSecondsLeft(game.seconds_left || 0);
+            setState((current) => {
+              const previousGame = current?.game;
+              const roundChanged = previousGame && (
+                previousGame.current_period_index !== game.current_period_index
+                || previousGame.is_round_open !== game.is_round_open
+              );
+              if (roundChanged) loadAll({ quiet: true });
+              return current ? { ...current, game } : current;
+            });
+          });
+        }
+      } catch {
+        if (!controller.signal.aborted) reconnectTimer = window.setTimeout(connect, 3000);
+      }
     };
     connect();
     return () => {
       window.clearTimeout(reconnectTimer);
-      socket?.close();
+      controller.abort();
     };
   }, [isAuthenticated, loadAll, sessionToken]);
 

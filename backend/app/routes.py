@@ -1,7 +1,9 @@
 import asyncio
+import json
 from typing import Literal
 
-from fastapi import APIRouter, Depends, Header, HTTPException, WebSocket, WebSocketDisconnect, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from .utils import (
     check_email_exists, create_user, verify_user_credentials, get_all_users,
@@ -1069,26 +1071,22 @@ def trading_state_endpoint(email: str = Depends(require_player_trading_session))
     return trading_result_or_error(team_state(email))
 
 
-@router.websocket("/trading/events")
-async def trading_events_endpoint(websocket: WebSocket):
-    """Push round/timer changes to participant browsers without manual sync."""
-    await websocket.accept()
-    try:
-        credentials = await websocket.receive_json()
-        token = credentials.get("token", "") if isinstance(credentials, dict) else ""
-        email = authenticate_trading_session(f"Bearer {token}", expected_audience="player")
-        if not email:
-            await websocket.close(code=1008)
-            return
+@router.get("/trading/events")
+async def trading_events_endpoint(email: str = Depends(require_player_trading_session)):
+    """Authenticated server-sent round/timer updates for participant browsers."""
+    async def event_stream():
         while True:
             state = team_state(email)
             if isinstance(state, str):
-                await websocket.close(code=1008)
                 return
-            await websocket.send_json({"type": "round", "game": state["game"]})
+            yield f"event: round\ndata: {json.dumps(state['game'])}\n\n"
             await asyncio.sleep(1)
-    except WebSocketDisconnect:
-        return
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @router.post("/trading/teams")
