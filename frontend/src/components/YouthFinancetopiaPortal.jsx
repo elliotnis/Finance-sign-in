@@ -859,14 +859,19 @@ function MarketMission({
 
       <section className="yf-market-board">
         <SectionHeading eyebrow="PRICE BOARD" title="What the market has shown so far" note="Charts stop at the current quarter - future prices stay hidden." />
-        <AssetGrid assets={state?.assets || []} />
-        <DecisionBoard
+        <AssetGrid
+          assets={state?.assets || []}
           team={state?.team}
           portfolio={state?.portfolio}
-          assets={state?.assets || []}
           decisions={decisions}
           submittedDecisions={state?.submitted_decisions || []}
           updateDecision={updateDecision}
+          isLeader={isLeader}
+          isRoundOpen={isRoundOpen}
+        />
+        <DecisionSubmitBar
+          team={state?.team}
+          submittedDecisions={state?.submitted_decisions || []}
           submitDecisionBoard={submitDecisionBoard}
           unsubmitDecisionBoard={unsubmitDecisionBoard}
           decisionBusy={decisionBusy}
@@ -970,7 +975,10 @@ function MarketTape({ news, currentPeriodId, assets, evidenceIds, toggleEvidence
   );
 }
 
-function AssetGrid({ assets }) {
+function AssetGrid({ assets, team, portfolio, decisions, submittedDecisions, updateDecision, isLeader, isRoundOpen }) {
+  const submittedByAsset = new Map(submittedDecisions.map((decision) => [decision.asset_id, decision]));
+  const submitted = submittedDecisions.length > 0;
+  const locked = !team || !isLeader || !isRoundOpen || submitted;
   return (
     <div className="yf-asset-grid">
       {assets.map((asset) => {
@@ -989,7 +997,20 @@ function AssetGrid({ assets }) {
               <strong>{asset.kind === 'FX' ? number(asset.price, 4) : money(asset.price, asset.price < 10 ? 4 : 0)}</strong>
             </div>
             {asset.tradable ? (
-              <div className="yf-asset-ready"><i className="fa-solid fa-sliders" /> Set a decision below</div>
+              <div className="yf-card-decision">
+                {(() => {
+                  const decision = submittedByAsset.get(asset.id) || decisions[asset.id] || { side: 'hold', quantity: '' };
+                  const owned = Number(portfolio?.holdings?.find((item) => item.asset_id === asset.id)?.quantity || 0);
+                  return <>
+                    <div className="yf-card-side-toggle" role="group" aria-label={`Decision for ${asset.fake_name}`}>
+                      {['sell', 'hold', 'buy'].map((side) => <button key={side} type="button" disabled={locked} className={`${side} ${decision.side === side ? 'active' : ''}`} onClick={() => updateDecision(asset.id, { side, quantity: side === 'hold' ? '' : decision.quantity })}>{side}</button>)}
+                    </div>
+                    <label>Amount
+                      <input disabled={locked || decision.side === 'hold'} type="number" min="0.0001" step="0.0001" value={decision.quantity} onChange={(event) => updateDecision(asset.id, { quantity: event.target.value })} placeholder={decision.side === 'sell' ? `${number(owned, 4)} owned` : 'Units'} />
+                    </label>
+                  </>;
+                })()}
+              </div>
             ) : (
               <div className="yf-indicator-note"><i className="fa-solid fa-eye" /> Watch only - not tradable</div>
             )}
@@ -1000,13 +1021,9 @@ function AssetGrid({ assets }) {
   );
 }
 
-function DecisionBoard({
+function DecisionSubmitBar({
   team,
-  portfolio,
-  assets,
-  decisions,
   submittedDecisions,
-  updateDecision,
   submitDecisionBoard,
   unsubmitDecisionBoard,
   decisionBusy,
@@ -1020,28 +1037,12 @@ function DecisionBoard({
   else if (!isLeader) disabledReason = 'Only your team captain can submit. You can still help build the decision.';
   else if (!isRoundOpen) disabledReason = 'Trading is closed. Prepare your view while the host gets the next round ready.';
   else if (submitted) disabledReason = 'Your board is locked. Unsubmit it before the timer ends to make changes.';
-  const submittedByAsset = new Map(submittedDecisions.map((decision) => [decision.asset_id, decision]));
 
   return (
-    <section className={`yf-decision-board ${submitted ? 'submitted' : ''}`}>
-      <div className="yf-decision-board-head">
-        <div><span>CAPTAIN&apos;S DECISION BOARD</span><h3>Choose a side for every stock.</h3></div>
-        <b>{submitted ? 'LOCKED' : 'DRAFT'}</b>
-      </div>
-      <p>Red sells on the left, grey holds in the middle, and green buys on the right. Enter an amount only for a buy or sell.</p>
-      <div className="yf-decision-rows">
-        {assets.filter((asset) => asset.tradable).map((asset) => {
-          const locked = submittedByAsset.get(asset.id);
-          const decision = locked || decisions[asset.id] || { side: 'hold', quantity: '' };
-          const owned = Number(portfolio?.holdings?.find((item) => item.asset_id === asset.id)?.quantity || 0);
-          return <article key={asset.id} className="yf-decision-row" style={{ '--asset-color': asset.color }}>
-            <div className="yf-decision-stock"><i /><div><b>{asset.fake_name}</b><small>{asset.kind} · {money(asset.price, asset.price < 10 ? 4 : 0)}</small></div></div>
-            <div className="yf-decision-switch" role="group" aria-label={`Decision for ${asset.fake_name}`}>
-              {['sell', 'hold', 'buy'].map((side) => <button key={side} type="button" disabled={disabled} className={`${side} ${decision.side === side ? 'active' : ''}`} onClick={() => updateDecision(asset.id, { side, quantity: side === 'hold' ? '' : decision.quantity })}>{side}</button>)}
-            </div>
-            <label>Amount <input disabled={disabled || decision.side === 'hold'} type="number" min="0.0001" step="0.0001" value={decision.quantity} onChange={(event) => updateDecision(asset.id, { quantity: event.target.value })} placeholder={decision.side === 'sell' ? `${number(owned, 4)} owned` : 'Units'} /></label>
-          </article>;
-        })}
+    <section className={`yf-decision-submit-bar ${submitted ? 'submitted' : ''}`}>
+      <div>
+        <b>{submitted ? 'DECISIONS LOCKED' : 'READY TO SUBMIT?'}</b>
+        <span>{submitted ? 'Unsubmit before the timer ends to edit the stock cards.' : 'Your choices above lock once submitted.'}</span>
       </div>
       <div className="yf-decision-board-actions">
         {submitted ? <button type="button" className="yf-secondary" disabled={!isRoundOpen || !isLeader || decisionBusy} onClick={unsubmitDecisionBoard}>{decisionBusy ? 'Unlocking...' : 'Unsubmit & change'}</button> : <button type="button" className="yf-primary" disabled={disabled || decisionBusy} onClick={submitDecisionBoard}>{decisionBusy ? 'Submitting...' : 'Submit team decisions'} <i className="fa-solid fa-lock" /></button>}

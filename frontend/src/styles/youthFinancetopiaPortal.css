@@ -1452,6 +1452,48 @@
   background: var(--yf-ink);
 }
 
+.yf-card-decision {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.6rem;
+}
+
+.yf-card-side-toggle {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.yf-card-side-toggle button {
+  border: 1px solid var(--yf-ink);
+  background: var(--yf-white);
+  padding: 0.42rem 0.2rem;
+  font-size: 0.63rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.yf-card-side-toggle button:first-child { border-radius: 7px 0 0 7px; }
+.yf-card-side-toggle button:last-child { border-radius: 0 7px 7px 0; }
+.yf-card-side-toggle .sell.active { color: var(--yf-white); background: var(--yf-red); }
+.yf-card-side-toggle .hold.active { color: var(--yf-white); background: #89918f; }
+.yf-card-side-toggle .buy.active { color: var(--yf-white); background: var(--yf-green); }
+.yf-card-decision label { display: grid; gap: 0.18rem; color: var(--yf-muted); font-size: 0.59rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.yf-card-decision input { width: 100%; border: 1px solid var(--yf-ink); border-radius: 6px; background: var(--yf-cream); padding: 0.45rem; }
+
+.yf-decision-submit-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--yf-line);
+  padding-top: 1rem;
+}
+.yf-decision-submit-bar > div:first-child { display: grid; gap: .15rem; }
+.yf-decision-submit-bar span { color: var(--yf-muted); font-size: .72rem; }
+.yf-decision-submit-bar .yf-decision-board-actions { margin: 0; min-width: 230px; }
+
 .yf-indicator-note {
   display: flex;
   gap: 0.45rem;
