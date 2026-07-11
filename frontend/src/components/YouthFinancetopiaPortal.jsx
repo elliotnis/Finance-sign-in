@@ -9,6 +9,11 @@ const PLAYER_SESSION_EMAIL_KEY = 'yf_player_session_email';
 const GAMEMASTER_SESSION_TOKEN_KEY = 'yf_gamemaster_session_token';
 const GAMEMASTER_SESSION_EMAIL_KEY = 'yf_gamemaster_session_email';
 
+function challengeEventsUrl() {
+  const apiBase = API_URL.startsWith('http') ? API_URL : `${window.location.origin}${API_URL}`;
+  return `${apiBase.replace(/^http/, 'ws')}/trading/events`;
+}
+
 function money(value, digits = 0) {
   const amount = Number(value || 0);
   return amount.toLocaleString('en-US', {
@@ -75,7 +80,6 @@ function YouthFinancetopiaPortal() {
   const [sessionEmail, setSessionEmail] = useState(localStorage.getItem(PLAYER_SESSION_EMAIL_KEY) || '');
   const [state, setState] = useState(null);
   const [loading, setLoading] = useState(Boolean(sessionToken));
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [loginEmail, setLoginEmail] = useState('');
@@ -112,7 +116,6 @@ function YouthFinancetopiaPortal() {
     setState(null);
     setActiveTab('market');
     setLoading(false);
-    setRefreshing(false);
     setActionBusy('');
     if (message) setAuthError(message);
   }, []);
@@ -137,8 +140,7 @@ function YouthFinancetopiaPortal() {
 
   const loadAll = useCallback(async ({ quiet = false } = {}) => {
     if (!sessionToken) return;
-    if (quiet) setRefreshing(true);
-    else setLoading(true);
+    if (!quiet) setLoading(true);
     try {
       const [stateData, sessionData] = await Promise.all([
         apiRequest('/trading/state'),
@@ -161,7 +163,6 @@ function YouthFinancetopiaPortal() {
       if (sessionToken) setError(err.message);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }, [apiRequest, sessionToken]);
 
@@ -176,18 +177,33 @@ function YouthFinancetopiaPortal() {
 
   useEffect(() => {
     if (!isAuthenticated) return undefined;
-    const poll = window.setInterval(() => {
-      if (document.visibilityState === 'visible') loadAll({ quiet: true });
-    }, 8000);
-    return () => window.clearInterval(poll);
-  }, [isAuthenticated, loadAll]);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setSecondsLeft((current) => Math.max(0, current - 1));
-    }, 1000);
-    return () => window.clearInterval(timer);
-  }, []);
+    let socket;
+    let reconnectTimer;
+    const connect = () => {
+      socket = new WebSocket(challengeEventsUrl());
+      socket.onopen = () => socket.send(JSON.stringify({ token: sessionToken }));
+      socket.onmessage = (event) => {
+        const payload = JSON.parse(event.data);
+        if (payload.type !== 'round' || !payload.game) return;
+        setSecondsLeft(payload.game.seconds_left || 0);
+        setState((current) => {
+          const previousGame = current?.game;
+          const roundChanged = previousGame && (
+            previousGame.current_period_index !== payload.game.current_period_index
+            || previousGame.is_round_open !== payload.game.is_round_open
+          );
+          if (roundChanged) loadAll({ quiet: true });
+          return current ? { ...current, game: payload.game } : current;
+        });
+      };
+      socket.onclose = () => { reconnectTimer = window.setTimeout(connect, 3000); };
+    };
+    connect();
+    return () => {
+      window.clearTimeout(reconnectTimer);
+      socket?.close();
+    };
+  }, [isAuthenticated, loadAll, sessionToken]);
 
   useEffect(() => {
     setNotebookReady(false);
@@ -476,8 +492,6 @@ function YouthFinancetopiaPortal() {
         game={state?.game}
         secondsLeft={secondsLeft}
         isRoundOpen={isRoundOpen}
-        refreshing={refreshing}
-        onRefresh={() => loadAll({ quiet: true })}
       />
 
       <main className="yf-shell">
@@ -693,10 +707,10 @@ function RoundHero({ game, secondsLeft, isRoundOpen, refreshing, onRefresh }) {
         <strong>{String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:{String(secondsLeft % 60).padStart(2, '0')}</strong>
         <div><span style={{ width: `${progress}%` }} /></div>
       </div>
-      <button className="yf-refresh" type="button" onClick={onRefresh} disabled={refreshing}>
+      {onRefresh && <button className="yf-refresh" type="button" onClick={onRefresh} disabled={refreshing}>
         <i className={`fa-solid fa-rotate ${refreshing ? 'fa-spin' : ''}`} />
         {refreshing ? 'Syncing' : 'Sync now'}
-      </button>
+      </button>}
     </section>
   );
 }
