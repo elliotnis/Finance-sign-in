@@ -27,6 +27,7 @@ Web app (Vite + React) and API (FastAPI). Data is stored in **MongoDB** through 
 | `TRADING_SESSION_TTL_HOURS` | No (default 12) | Lifetime of the challenge's server-issued bearer session, clamped to 1-72 hours. |
 | `ADMIN_EMAILS` | Yes for admin tools | Comma-separated normal-portal admin emails. These accounts can use classes and data tools. |
 | `GAMEMASTER_EMAILS` | Yes for the challenge control room | Comma-separated Youth Financetopia gamemaster emails. This role is separate from `ADMIN_EMAILS`. |
+| `TRADING_PARTICIPANT_EMAILS` | No | Comma-separated Youth Financetopia participant emails. An email may be in both this list and `GAMEMASTER_EMAILS`; the selected sign-in route still creates a role-specific session. |
 
 **Local backend only:** copy [`backend/.env.example`](backend/.env.example) to `backend/.env` and run the database service with Docker Compose. The same `SMTP_*`, `FRONTEND_URL`, `MAGIC_LINK_TTL_MINUTES`, `MAGIC_LINK_REQUEST_COOLDOWN_SECONDS`, `TRADING_SESSION_TTL_HOURS`, `ADMIN_EMAILS`, and `GAMEMASTER_EMAILS` variables apply for non-Docker dev.
 

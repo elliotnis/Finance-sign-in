@@ -127,7 +127,7 @@ def require_trading_player_email(email: str):
     if not is_trading_player_email_allowed(email):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="This email is not registered for participant access. Gamemasters must use the separate gamemaster sign-in.",
+            detail="This email is not registered for Youth Financetopia participant access.",
         )
 
 
