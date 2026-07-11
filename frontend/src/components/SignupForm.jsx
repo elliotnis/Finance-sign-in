@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import PortalAuthShell from './PortalAuthShell';
 import '../styles/auth.css';
 
 function SignupForm() {
@@ -61,16 +62,16 @@ function SignupForm() {
   };
 
   return (
-    <div className="container">
+    <PortalAuthShell currentStage="access">
       <form className="login-form" onSubmit={handleSubmit}>
         <div className="logo-container">
           <div className="logo-text">
             <h1>HKUST</h1>
-            <span>Finance Department Portal</span>
+            <span>Finance student services</span>
           </div>
         </div>
 
-        <h2>Create New Account</h2>
+        <h2>Create your student access</h2>
         {error && <p className="error-message">{error}</p>}
 
         <div className="input-group">
@@ -103,13 +104,13 @@ function SignupForm() {
           ></i>
         </div>
 
-        <button type="submit" className="login-btn">Sign Up</button>
+        <button type="submit" className="login-btn">Create account</button>
 
         <div className="signup-link">
           Already have an account? <Link to="/login">Sign In</Link>
         </div>
       </form>
-    </div>
+    </PortalAuthShell>
   );
 }
 

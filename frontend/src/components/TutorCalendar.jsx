@@ -79,8 +79,6 @@ function TutorCalendar() {
 
     useEffect(() => {
         const user_id = localStorage.getItem('user_id');
-        const username = localStorage.getItem('username');
-        
         if (!user_id) {
             navigate('/login');
             return;
@@ -171,14 +169,6 @@ function TutorCalendar() {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`; // YYYY-MM-DD format
-    };
-
-    const formatDisplayDate = (date) => {
-        return date.toLocaleDateString('en-US', { 
-            weekday: 'short', 
-            month: 'short', 
-            day: 'numeric' 
-        });
     };
 
     const getMonthYear = (date) => {

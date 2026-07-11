@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
+import PortalAuthShell from './PortalAuthShell';
 import '../styles/auth.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -27,16 +28,16 @@ function LoginForm() {
   const returnTo = getSafeReturnTo(location);
 
   return (
-    <div className="container">
+    <PortalAuthShell currentStage="access">
       <div className="login-form">
         <div className="logo-container">
           <div className="logo-text">
             <h1>HKUST</h1>
-            <span>Finance Department Portal</span>
+            <span>Finance student services</span>
           </div>
         </div>
 
-        <h2>FINA/QFIN Student Portal</h2>
+        <h2>Sign in to your student desk</h2>
 
         <div className="login-mode-tabs" role="tablist">
           <button
@@ -65,7 +66,7 @@ function LoginForm() {
           <EmailLinkLogin navigate={navigate} returnTo={returnTo} />
         )}
 
-        <div className="divider"><span>Quick Links</span></div>
+        <div className="divider"><span>Department links</span></div>
 
         <div className="department-links">
           <a href="https://fina.hkust.edu.hk/" target="_blank" rel="noopener noreferrer">FINA Department</a>
@@ -79,7 +80,7 @@ function LoginForm() {
           Don't have an account? <Link to="/signup">Sign Up</Link>
         </div>
       </div>
-    </div>
+    </PortalAuthShell>
   );
 }
 
@@ -342,7 +343,7 @@ function EmailLinkLogin({ navigate, returnTo }) {
       const response = await fetch(`${API_URL}/auth/email-link/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: cleanedCode }),
+        body: JSON.stringify({ email: sentTo, code: cleanedCode }),
       });
       const data = await response.json();
       if (!response.ok) {

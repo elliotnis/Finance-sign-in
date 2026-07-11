@@ -1,28 +1,21 @@
-# Youth Financetopia Challenge (Standalone)
+# Youth Financetopia Challenge compatibility gateway
 
-This is the standalone Youth Financetopia Challenge frontend. It is independent of the sign-up system UI and can be hosted on its own domain for high school students.
+The canonical challenge is the React app at `/youth-financetopia`. It uses the
+shared backend for teams, portfolios, timed rounds, and server-verified host
+permissions.
 
-## Run
+The container on port `4173` serves the dedicated Youth-only frontend. Its nginx
+configuration redirects `/` to the participant route and proxies only challenge
+routes plus built assets; normal sign-up portal routes return `404`. The old
+browser-local simulation files stay in this folder only as historical source and
+are not served by the container.
 
-From the repo root:
+From the repository root:
 
 ```bash
-cd trading-competition-sim
-python -m http.server 4173
+docker compose up --build
 ```
 
-Open `http://localhost:4173` in your browser.
-
-For Docker Compose hosting:
-
-- Host URL: `http://localhost:4173` (override with `TRADING_SIM_PORT` in repo `.env`).
-
-## Features
-
-- Email-code login (demo OTP stored locally).
-- Market dashboard with multiple stocks and current prices by year.
-- Year-based trading: orders can be placed only in the active simulation year at its opening.
-- Buy shares by **amount** and **year**.
-- Position table with unrealized PnL.
-- Portfolio summary and PnL line chart.
-- News dashboard that updates by simulation year.
+- Participant portal: `http://localhost:4173/youth-financetopia`
+- Gamemaster console: `http://localhost:4173/youth-financetopia/gamemaster`
+- Root URL: `http://localhost:4173` (redirects to the participant portal)

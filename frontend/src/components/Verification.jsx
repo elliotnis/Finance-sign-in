@@ -27,7 +27,7 @@ function Verification() {
         } else {
             navigate('/login');
         }
-    }, [user, navigate]);
+    }, [user, navigate]); // eslint-disable-line react-hooks/exhaustive-deps -- the request is keyed by the signed-in user
 
     const fetchVerificationSessions = async () => {
         try {
@@ -120,7 +120,7 @@ function Verification() {
                 const errorData = await response.json();
                 alert(`Failed to submit reflection: ${errorData.detail}`);
             }
-        } catch (error) {
+        } catch {
             console.error('Error submitting reflection:', error);
             alert('Error submitting reflection. Please try again.');
         } finally {
@@ -136,7 +136,7 @@ function Verification() {
                 month: 'long',
                 day: 'numeric'
             });
-        } catch (error) {
+        } catch {
             return dateString;
         }
     };
@@ -152,7 +152,7 @@ function Verification() {
                 return `${displayHour}:${minutes} ${ampm}`;
             };
             return `${formatTime(start)} - ${formatTime(end)}`;
-        } catch (error) {
+        } catch {
             return timeSlot;
         }
     };
@@ -411,4 +411,3 @@ function Verification() {
 }
 
 export default Verification;
-

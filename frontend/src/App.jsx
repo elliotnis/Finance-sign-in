@@ -10,13 +10,29 @@ import RegisterSession from './components/RegisterSession';
 import ClassesCalendar from './components/ClassesCalendar';
 import Verification from './components/Verification';
 import DatabaseManager from './components/DatabaseManager';
-import YouthFinancetopiaPortal from './components/YouthFinancetopiaPortal';
+import YouthFinancetopiaPortal, { YouthFinancetopiaGamemasterPortal } from './components/YouthFinancetopiaPortal';
 import BookingsCalendar from './components/BookingsCalendar';
 import { AuthProvider } from './contexts/authcontext';
 import './App.css'
 import './styles/mobile.css'
+import './styles/portalDesign.css'
 
-function App() {
+const isYouthFinancetopiaBuild = import.meta.env.VITE_APP_AUDIENCE === 'youth-financetopia';
+
+function YouthFinancetopiaApp() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/youth-financetopia" element={<YouthFinancetopiaPortal />} />
+        <Route path="/youth-financetopia/player" element={<YouthFinancetopiaPortal />} />
+        <Route path="/youth-financetopia/gamemaster" element={<YouthFinancetopiaGamemasterPortal />} />
+        <Route path="*" element={<Navigate to="/youth-financetopia" replace />} />
+      </Routes>
+    </Router>
+  );
+}
+
+function StudentPortalApp() {
   return (
   <AuthProvider>
     <Router>
@@ -33,12 +49,16 @@ function App() {
         <Route path="/classes" element={<ClassesCalendar />} />
         <Route path="/verification" element={<Verification />} />
         <Route path="/database" element={<DatabaseManager />} />
-        <Route path="/youth-financetopia" element={<YouthFinancetopiaPortal />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   </AuthProvider>
   )
+}
+
+function App() {
+  return isYouthFinancetopiaBuild ? <YouthFinancetopiaApp /> : <StudentPortalApp />;
 }
 
 export default App

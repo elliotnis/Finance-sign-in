@@ -27,8 +27,12 @@ services:
       SMTP_FROM: ${SMTP_FROM:-}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
       MAGIC_LINK_TTL_MINUTES: ${MAGIC_LINK_TTL_MINUTES:-15}
+      MAGIC_LINK_REQUEST_COOLDOWN_SECONDS: ${MAGIC_LINK_REQUEST_COOLDOWN_SECONDS:-60}
+      TRADING_SESSION_TTL_HOURS: ${TRADING_SESSION_TTL_HOURS:-12}
       # Admins allowed to create/cancel classes (comma-separated emails)
       ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      # Dedicated event hosts; normal portal admins do not inherit this role.
+      GAMEMASTER_EMAILS: ${GAMEMASTER_EMAILS:-}
     depends_on:
       mongo:
         condition: service_healthy
@@ -47,6 +51,17 @@ services:
     ports:
       - "${FRONTEND_PORT:-8080}:80"
 
+  youth-financetopia-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        VITE_APP_AUDIENCE: youth-financetopia
+    restart: unless-stopped
+    depends_on:
+      - backend
+
   trading-competition-sim:
     build:
       context: ./trading-competition-sim
@@ -54,6 +69,7 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+      - youth-financetopia-frontend
     ports:
       - "${TRADING_SIM_PORT:-4173}:80"
 

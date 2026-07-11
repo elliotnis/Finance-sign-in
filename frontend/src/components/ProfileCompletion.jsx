@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
+import PortalAuthShell from './PortalAuthShell';
 import '../styles/auth.css';
 
 function getSafeReturnTo(locationState) {
@@ -105,17 +106,17 @@ function ProfileCompletion() {
   };
 
   return (
-    <div className="container">
+    <PortalAuthShell currentStage="profile">
       <form className="login-form" onSubmit={handleSubmit}>
         <div className="logo-container">
           <div className="logo-text">
             <h1>HKUST</h1>
-            <span>Finance Department Portal</span>
+            <span>Finance student services</span>
           </div>
         </div>
 
-        <h2>Complete Your Profile</h2>
-        <p className="subtitle">Please fill in your details to complete your account setup</p>
+        <h2>Build your student record</h2>
+        <p className="subtitle">Add the details tutors and admins need before you enter the portal.</p>
         
         {error && <p className="error-message">{error}</p>}
 
@@ -212,14 +213,14 @@ function ProfileCompletion() {
         </div>
 
         <button type="submit" className="login-btn" disabled={loading}>
-          {loading ? 'Creating Profile...' : 'Complete Profile'}
+          {loading ? 'Creating profile...' : 'Enter portal'}
         </button>
 
         <div className="signup-link">
           <small>All fields are required to access the platform</small>
         </div>
       </form>
-    </div>
+    </PortalAuthShell>
   );
 }
 

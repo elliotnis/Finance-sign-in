@@ -16,10 +16,15 @@ class EmailLinkRequest(BaseModel):
     domain: Optional[str] = None  # connect.ust.hk by default; ust.hk also allowed
 
 class EmailLinkVerify(BaseModel):
+    email: str
     code: str
 
 class TradingEmailCodeRequest(BaseModel):
     email: str
+
+class TradingEmailCodeVerify(BaseModel):
+    email: str
+    code: str
 
 class SetPasswordRequest(BaseModel):
     email: str

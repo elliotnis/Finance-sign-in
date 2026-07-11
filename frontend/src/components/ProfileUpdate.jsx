@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
+import PortalAuthShell from './PortalAuthShell';
 import '../styles/auth.css';
 
 function ProfileUpdate() {
@@ -39,7 +40,7 @@ function ProfileUpdate() {
     }
     fetchCurrentProfile();
     fetchPasswordStatus();
-  }, [userEmail, navigate]);
+  }, [userEmail, navigate]); // eslint-disable-line react-hooks/exhaustive-deps -- both fetch helpers are keyed by userEmail
 
   const fetchPasswordStatus = async () => {
     if (!userEmail) return;
@@ -85,7 +86,7 @@ function ProfileUpdate() {
         setError('Profile not found. Please complete your profile first.');
         setTimeout(() => navigate('/complete-profile'), 2000);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to fetch profile data');
     } finally {
       setFetchingProfile(false);
@@ -226,33 +227,33 @@ function ProfileUpdate() {
 
   if (fetchingProfile) {
     return (
-      <div className="container">
+      <PortalAuthShell currentStage="profile">
         <div className="login-form">
           <div className="logo-container">
             <div className="logo-text">
               <h1>HKUST</h1>
-              <span>Finance Department Portal</span>
+              <span>Finance student services</span>
             </div>
           </div>
-          <h2>Loading Profile...</h2>
+          <h2>Loading profile...</h2>
         </div>
-      </div>
+      </PortalAuthShell>
     );
   }
 
   return (
-    <div className="container">
+    <PortalAuthShell currentStage="profile">
       <div className="login-form">
       <form onSubmit={handleSubmit}>
         <div className="logo-container">
           <div className="logo-text">
             <h1>HKUST</h1>
-            <span>Finance Department Portal</span>
+            <span>Finance student services</span>
           </div>
         </div>
 
-        <h2>Update Your Profile</h2>
-        <p className="subtitle">Modify your profile information below</p>
+        <h2>Update your student record</h2>
+        <p className="subtitle">Keep your contact details, programme information, and profile photo current.</p>
         
         {error && <p className="error-message">{error}</p>}
         {success && <p className="success-message">{success}</p>}
@@ -475,7 +476,7 @@ function ProfileUpdate() {
         </button>
       </div>
       </div>
-    </div>
+    </PortalAuthShell>
   );
 }
 

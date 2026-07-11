@@ -20,7 +20,7 @@ function SessionsPage() {
             console.log('No user email found, not fetching sessions');
             setLoading(false);
         }
-    }, [user]);
+    }, [user]); // eslint-disable-line react-hooks/exhaustive-deps -- fetch runs when the signed-in user changes
 
     const fetchMySessions = async () => {
         try {
@@ -84,7 +84,7 @@ function SessionsPage() {
                 month: 'long',
                 day: 'numeric'
             });
-        } catch (error) {
+        } catch {
             return dateString; // Return original if formatting fails
         }
     };
@@ -101,7 +101,7 @@ function SessionsPage() {
                 return `${displayHour}:${minutes} ${ampm}`;
             };
             return `${formatTime(start)} - ${formatTime(end)}`;
-        } catch (error) {
+        } catch {
             return timeSlot; // Return original if formatting fails
         }
     };
