@@ -61,12 +61,12 @@ INTEREST_RATES = {
 ASSETS = [
     {
         "id": "stock_a",
-        "fake_name": "Stock A",
+        "fake_name": "Meta Platforms",
         "kind": "Equity",
         "tradable": True,
         "unit": "share",
         "color": "#1f6feb",
-        "profile": "Fast-growing consumer business that depends on attention, business spending, and public trust.",
+        "profile": "Formerly Facebook: a global social-media and digital-advertising company shaped by engagement, ad demand, privacy rules, and platform investment.",
         "prices": [
             160, 194, 164, 131,
             166, 193, 178, 205,
@@ -77,12 +77,12 @@ ASSETS = [
     },
     {
         "id": "stock_b",
-        "fake_name": "Stock B",
+        "fake_name": "Occidental Petroleum",
         "kind": "Equity",
         "tradable": True,
         "unit": "share",
         "color": "#ce7e00",
-        "profile": "Capital-intensive producer whose results depend on selling prices, debt, and management choices.",
+        "profile": "US oil-and-gas producer whose returns depend on crude prices, production discipline, debt, and capital allocation.",
         "prices": [
             65, 83, 82, 61,
             66, 51, 44, 41,
@@ -93,12 +93,12 @@ ASSETS = [
     },
     {
         "id": "stock_c",
-        "fake_name": "Stock C",
+        "fake_name": "Eli Lilly",
         "kind": "Equity",
         "tradable": True,
         "unit": "share",
         "color": "#7c3aed",
-        "profile": "Research-led defensive business balancing dependable sales with uncertain product trials.",
+        "profile": "US pharmaceutical company with established medicines and high-stakes research pipelines, including diabetes and obesity treatments.",
         "prices": [
             85, 92, 107, 116,
             125, 111, 110, 131,
@@ -109,12 +109,12 @@ ASSETS = [
     },
     {
         "id": "metal_d",
-        "fake_name": "Metal D",
+        "fake_name": "Gold",
         "kind": "Commodity",
         "tradable": True,
         "unit": "oz",
         "color": "#b88a00",
-        "profile": "Physical store of value shaped by interest rates, currencies, liquidity, and demand for protection.",
+        "profile": "Gold priced in US dollars per troy ounce; a defensive asset shaped by real yields, the US dollar, central-bank demand, and risk appetite.",
         "prices": [
             1320, 1250, 1190, 1282,
             1292, 1409, 1472, 1517,
@@ -125,12 +125,12 @@ ASSETS = [
     },
     {
         "id": "energy_e",
-        "fake_name": "Energy E",
+        "fake_name": "WTI Crude Oil",
         "kind": "Commodity",
         "tradable": True,
         "unit": "barrel",
         "color": "#0f766e",
-        "profile": "Global real-world input driven by transport demand, production choices, storage, and trade routes.",
+        "profile": "West Texas Intermediate crude oil priced per barrel, driven by global mobility, OPEC+ supply policy, inventories, and geopolitical risk.",
         "prices": [
             65, 74, 76, 42,
             60, 58, 56, 61,
@@ -141,12 +141,12 @@ ASSETS = [
     },
     {
         "id": "fx_f",
-        "fake_name": "FX Pair F",
+        "fake_name": "EUR / USD",
         "kind": "FX",
         "tradable": True,
         "unit": "lot",
         "color": "#0b7285",
-        "profile": "Pair of major currencies that reacts to relative interest rates, growth expectations, and stress.",
+        "profile": "Euro versus US dollar exchange rate, driven by relative central-bank policy, growth expectations, trade, and market stress.",
         "prices": [
             1.23, 1.17, 1.16, 1.15,
             1.14, 1.13, 1.10, 1.12,
@@ -157,12 +157,12 @@ ASSETS = [
     },
     {
         "id": "fear_g",
-        "fake_name": "Fear Gauge G",
+        "fake_name": "CBOE VIX",
         "kind": "Indicator",
         "tradable": False,
         "unit": "index",
         "color": "#dc2626",
-        "profile": "Volatility indicator for market stress; visible to teams but not directly tradable.",
+        "profile": "The CBOE Volatility Index: an options-implied measure of expected S&P 500 volatility, shown as a market-stress signal only.",
         "prices": [
             37, 16, 22, 36,
             15, 18, 21, 14,
@@ -385,7 +385,7 @@ NEWS_EVENTS = [
         "period_id": "2019Q2",
         "asset_id": "stock_c",
         "headline": "Pricing debate reaches healthcare",
-        "brief": "Politicians are discussing medicine affordability while Stock C invests in a smaller research business.",
+            "brief": "Politicians are discussing medicine affordability while a major drugmaker invests in a smaller research business.",
         "rumor": "Researchers believe the acquired science may be worth more than the purchase price.",
         "question": "How do policy risk and innovation pull value in opposite directions?",
     },
@@ -403,7 +403,7 @@ NEWS_EVENTS = [
         "period_id": "2019Q4",
         "asset_id": "stock_b",
         "headline": "Big deal, bigger balance sheet",
-        "brief": "Stock B has committed to a major acquisition. Investors now have to judge the extra production against the extra debt.",
+            "brief": "An oil producer has committed to a major acquisition. Investors now have to judge the extra production against the extra debt.",
         "rumor": "Credit desks are questioning whether the dividend can stay untouched.",
         "question": "What could go right - and what must go right?",
     },
@@ -457,7 +457,7 @@ NEWS_EVENTS = [
         "period_id": "2021Q1",
         "asset_id": "stock_b",
         "headline": "Reopening lifts fuel expectations",
-        "brief": "Mobility is improving and producers are still cautious about adding supply. Stock B is using stronger cash flow to repair its finances.",
+            "brief": "Mobility is improving and producers are still cautious about adding supply. One producer is using stronger cash flow to repair its finances.",
         "rumor": "Value investors are quietly revisiting companies they avoided last year.",
         "question": "How quickly can better conditions repair a weak balance sheet?",
     },
@@ -475,7 +475,7 @@ NEWS_EVENTS = [
         "period_id": "2021Q3",
         "asset_id": "stock_c",
         "headline": "Two research programs approach key updates",
-        "brief": "Stock C has more than one late-stage program that could affect its future growth story.",
+            "brief": "A drugmaker has more than one late-stage program that could affect its future growth story.",
         "rumor": "Specialist discussions describe one dataset as unusually strong.",
         "question": "How much confidence belongs in a story before full data arrives?",
     },
@@ -484,7 +484,7 @@ NEWS_EVENTS = [
         "period_id": "2021Q4",
         "asset_id": "stock_a",
         "headline": "A new identity comes with a large bill",
-        "brief": "Stock A is redirecting investment toward a long-term platform idea while near-term growth becomes less certain.",
+            "brief": "A consumer internet company is redirecting investment toward a long-term platform idea while near-term growth becomes less certain.",
         "rumor": "The rebrand may be distracting leaders from the existing advertising engine.",
         "question": "When is long-term investment a strength, and when is it a warning?",
     },
@@ -502,7 +502,7 @@ NEWS_EVENTS = [
         "period_id": "2022Q1",
         "asset_id": "stock_b",
         "headline": "Stronger prices transform the debt story",
-        "brief": "Stock B is generating far more cash as the energy market tightens, giving management new choices about debt and shareholder returns.",
+            "brief": "An oil producer is generating far more cash as the energy market tightens, giving management new choices about debt and shareholder returns.",
         "rumor": "A famous long-term investor may still be adding to a position.",
         "question": "How should improved cash flow change the way you view old debt?",
     },
@@ -538,7 +538,7 @@ NEWS_EVENTS = [
         "period_id": "2022Q4",
         "asset_id": "fx_f",
         "headline": "Rate gaps pull currencies apart",
-        "brief": "One central bank is tightening faster while energy costs put different pressure on the two economies behind FX Pair F.",
+            "brief": "One central bank is tightening faster while energy costs put different pressure on the two economies in a major currency pair.",
         "rumor": "Positioning may be crowded after a long move in the same direction.",
         "question": "Does a strong trend become safer or riskier when everyone sees it?",
     },
@@ -871,9 +871,10 @@ def period_price(asset_id: str, period_index: int) -> float:
 def continuous_price(asset_id: str, period_index: int | None = None) -> float:
     if period_index is None:
         period_index = public_game_state()["current_period_index"]
-    base = period_price(asset_id, period_index)
-    phase = (_now().timestamp() / 17.0) + (list(ASSET_LOOKUP).index(asset_id) * 0.8)
-    return round(base * (1 + math.sin(phase) * 0.006), 4)
+    # Student-facing marks are quarter-close values. They intentionally do not
+    # tick during a live decision window; the next mark arrives only when the
+    # gamemaster advances the quarter.
+    return period_price(asset_id, period_index)
 
 
 def simulate_portfolio(team_code: str, through_period_index: int | None = None):
@@ -1150,7 +1151,7 @@ def _asset_payload(period_index: int):
             "color": asset["color"],
             "profile": asset["profile"],
             "price": period_price(asset["id"], period_index),
-            "continuous_price": continuous_price(asset["id"], period_index),
+            "continuous_price": period_price(asset["id"], period_index),
             "series": [
                 {"period_id": PERIODS[i]["id"], "label": PERIODS[i]["label"], "price": float(price)}
                 for i, price in enumerate(asset["prices"][: period_index + 1])
@@ -1166,16 +1167,13 @@ def _news_payload(period_index: int):
     for item in NEWS_EVENTS:
         if item["period_id"] not in visible_period_ids:
             continue
-        asset = ASSET_LOOKUP.get(item["asset_id"])
         period = next(p for p in PERIODS if p["id"] == item["period_id"])
         items.append(
             {
-                **item,
+                **{key: value for key, value in item.items() if key != "asset_id"},
                 "year": period["year"],
                 "quarter": period["quarter"],
                 "period_label": period["label"],
-                "asset_name": asset["fake_name"] if asset else "Market",
-                "asset_color": asset["color"] if asset else "#10151f",
             }
         )
     return items

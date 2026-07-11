@@ -852,7 +852,6 @@ function MarketMission({
       <MarketTape
         news={state?.news || []}
         currentPeriodId={state?.game?.current_period?.id}
-        assets={state?.assets || []}
         evidenceIds={evidenceIds}
         toggleEvidence={toggleEvidence}
       />
@@ -892,14 +891,14 @@ function SectionHeading({ eyebrow, title, note }) {
   );
 }
 
-function MarketTape({ news, currentPeriodId, assets, evidenceIds, toggleEvidence }) {
+function MarketTape({ news, currentPeriodId, evidenceIds, toggleEvidence }) {
   const [filter, setFilter] = useState('latest');
   const [expanded, setExpanded] = useState([]);
   const [rumors, setRumors] = useState([]);
   const filteredNews = news.filter((item) => {
     if (filter === 'latest') return item.period_id === currentPeriodId;
     if (filter === 'all') return true;
-    return item.asset_id === filter;
+    return true;
   }).slice().reverse();
 
   function toggle(listSetter, id) {
@@ -922,11 +921,6 @@ function MarketTape({ news, currentPeriodId, assets, evidenceIds, toggleEvidence
       <div className="yf-filter-row" aria-label="Filter market briefings">
         <button type="button" className={filter === 'latest' ? 'active' : ''} onClick={() => setFilter('latest')}>New this quarter</button>
         <button type="button" className={filter === 'all' ? 'active' : ''} onClick={() => setFilter('all')}>All unlocked</button>
-        {assets.filter((asset) => news.some((item) => item.asset_id === asset.id)).map((asset) => (
-          <button key={asset.id} type="button" className={filter === asset.id ? 'active' : ''} onClick={() => setFilter(asset.id)}>
-            {asset.fake_name}
-          </button>
-        ))}
       </div>
       {filteredNews.length ? (
         <div className="yf-news-grid">
@@ -935,11 +929,11 @@ function MarketTape({ news, currentPeriodId, assets, evidenceIds, toggleEvidence
             const rumorOpen = rumors.includes(item.id);
             const isPinned = evidenceIds.includes(item.id);
             return (
-              <article className={`yf-news-card ${isOpen ? 'open' : ''}`} key={item.id} style={{ '--asset-color': item.asset_color, '--delay': `${index * 55}ms` }}>
+              <article className={`yf-news-card ${isOpen ? 'open' : ''}`} key={item.id} style={{ '--delay': `${index * 55}ms` }}>
                 <button className="yf-news-card-toggle" type="button" onClick={() => toggle(setExpanded, item.id)} aria-expanded={isOpen}>
                   <span className="yf-news-index">{String(index + 1).padStart(2, '0')}</span>
                   <span className="yf-news-card-title">
-                    <small>{item.period_label} / {item.asset_name}</small>
+                    <small>{item.period_label} / MARKET CLUE</small>
                     <strong>{item.headline}</strong>
                   </span>
                   <i className={`fa-solid fa-${isOpen ? 'minus' : 'plus'}`} />
