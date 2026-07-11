@@ -61,13 +61,22 @@ textarea {
   grid-template-rows: auto 1fr auto auto;
   gap: 2rem;
   padding: clamp(1.5rem, 5vw, 4.5rem);
-  background:
-    linear-gradient(140deg, rgba(0, 59, 122, 0.94), rgba(25, 116, 92, 0.88)),
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 18px);
+  background: var(--portal-blue);
   border-right: 3px solid var(--portal-ink);
   box-shadow: inset -20px 0 0 rgba(255, 250, 240, 0.08);
   color: var(--portal-sheet);
   overflow: hidden;
+}
+
+.portal-auth-aside::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(105deg, rgba(0, 31, 71, 0.94) 0%, rgba(0, 47, 99, 0.86) 45%, rgba(9, 82, 83, 0.72) 100%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px 18px);
 }
 
 .portal-auth-aside::after {
@@ -80,7 +89,142 @@ textarea {
     0 18px 0 rgba(255, 250, 240, 0.22),
     0 36px 0 rgba(255, 250, 240, 0.12);
   transform: rotate(-8deg);
-  z-index: -1;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.portal-auth-aside > :not(.portal-auth-carousel-media) {
+  position: relative;
+  z-index: 2;
+}
+
+.portal-auth-carousel-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--portal-blue);
+}
+
+.portal-auth-carousel-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity 1200ms ease-in-out;
+  will-change: opacity, transform;
+}
+
+.portal-auth-carousel-slide.active {
+  opacity: 1;
+  animation: portal-carousel-drift 7s ease-out both;
+}
+
+.portal-auth-carousel-controls {
+  position: absolute !important;
+  top: clamp(1.5rem, 5vw, 4.5rem);
+  right: clamp(1.5rem, 5vw, 4.5rem);
+  z-index: 3 !important;
+  display: grid;
+  justify-items: end;
+  gap: 0.5rem;
+  color: var(--portal-sheet);
+}
+
+.portal-auth-carousel-caption {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  max-width: 240px;
+  margin: 0;
+  color: rgba(255, 250, 240, 0.88);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  line-height: 1.35;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.portal-auth-carousel-caption span {
+  color: #ffe1a3;
+  white-space: nowrap;
+}
+
+.portal-auth-carousel-actions,
+.portal-auth-carousel-dots {
+  display: flex;
+  align-items: center;
+}
+
+.portal-auth-carousel-actions {
+  gap: 0.55rem;
+}
+
+.portal-auth-carousel-dots {
+  gap: 0.35rem;
+}
+
+.portal-auth-carousel-dots button,
+.portal-auth-carousel-toggle {
+  min-height: 28px;
+  border: 1px solid rgba(255, 250, 240, 0.48);
+  background: rgba(0, 25, 62, 0.36);
+  color: var(--portal-sheet);
+  backdrop-filter: blur(8px);
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.portal-auth-carousel-dots button {
+  width: 28px;
+  min-width: 28px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.portal-auth-carousel-dots button::after {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  margin: auto;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.portal-auth-carousel-dots button.active {
+  border-color: #ffe1a3;
+  background: #ffe1a3;
+  color: var(--portal-blue);
+}
+
+.portal-auth-carousel-toggle {
+  padding: 0 0.65rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.portal-auth-carousel-dots button:hover,
+.portal-auth-carousel-toggle:hover {
+  border-color: var(--portal-sheet);
+  background: rgba(255, 250, 240, 0.2);
+  transform: translateY(-1px);
+}
+
+.portal-auth-carousel-dots button.active:hover {
+  background: #ffe1a3;
+}
+
+.portal-auth-carousel-dots button:focus-visible,
+.portal-auth-carousel-toggle:focus-visible {
+  outline: 3px solid #ffe1a3;
+  outline-offset: 3px;
 }
 
 .portal-auth-brand {
@@ -414,19 +558,44 @@ textarea {
   color: var(--portal-muted);
 }
 
-.otp-inputs {
-  grid-template-columns: repeat(6, minmax(34px, 48px));
+.portal-auth-main .otp-inputs {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(0.4rem, 1.4vw, 0.65rem);
   justify-content: start;
-  width: 100%;
+  width: min(100%, 420px);
+  margin: 0.65rem 0 0;
 }
 
-.otp-inputs input.otp-input {
+.portal-auth-main .otp-inputs input.otp-input {
   width: 100%;
-  height: 48px;
+  min-width: 0;
+  min-height: 46px;
+  height: auto;
+  aspect-ratio: 1;
+  padding: 0;
   border: 2px solid var(--portal-ink);
-  border-radius: 8px;
+  border-radius: 10px;
   background: #fffdf8;
   color: var(--portal-ink);
+  caret-color: var(--portal-blue);
+  font-size: 1.25rem !important;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-align: center;
+}
+
+.portal-auth-main .otp-inputs input.otp-input.has-value {
+  border-color: rgba(0, 59, 122, 0.68);
+  background: #f0f5fd;
+}
+
+.portal-auth-main .otp-inputs input.otp-input:focus {
+  border-color: var(--portal-blue);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(199, 149, 43, 0.24);
+  transform: none;
 }
 
 .login-btn,
@@ -1217,6 +1386,15 @@ textarea {
   }
 }
 
+@keyframes portal-carousel-drift {
+  from {
+    transform: scale(1.02);
+  }
+  to {
+    transform: scale(1.1);
+  }
+}
+
 @media (max-width: 980px) {
   .container {
     grid-template-columns: 1fr;
@@ -1227,9 +1405,15 @@ textarea {
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-rows: auto auto;
     gap: 1.25rem 2rem;
-    padding: 1.25rem;
+    padding: 1.25rem 1.25rem 4rem;
     border-right: 0;
     border-bottom: 3px solid var(--portal-ink);
+  }
+
+  .portal-auth-carousel-controls {
+    top: auto;
+    right: 1.25rem;
+    bottom: 1rem;
   }
 
   .portal-auth-statement {
@@ -1289,6 +1473,17 @@ textarea {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
     gap: 0.9rem;
+    padding-bottom: 4.4rem;
+  }
+
+  .portal-auth-carousel-controls {
+    right: 1rem;
+    bottom: 0.85rem;
+  }
+
+  .portal-auth-carousel-caption {
+    max-width: 190px;
+    font-size: 0.62rem;
   }
 
   .portal-auth-statement h1 {
@@ -1330,6 +1525,16 @@ textarea {
     font-size: 0.78rem;
     line-height: 1.15;
     white-space: normal;
+  }
+
+  .portal-auth-main .otp-inputs {
+    gap: 0.45rem;
+    width: 100%;
+  }
+
+  .portal-auth-main .otp-inputs input.otp-input {
+    min-height: 44px;
+    font-size: 1.1rem !important;
   }
 
   .input-group,
@@ -1417,6 +1622,12 @@ textarea {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .portal-auth-carousel-slide,
+  .portal-auth-carousel-slide.active {
+    animation: none !important;
+    transition: none !important;
+  }
+
   .portal-auth-shell *,
   .dashboard-container *,
   .booking-page *,

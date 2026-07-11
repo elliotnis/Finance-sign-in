@@ -363,46 +363,71 @@ function EmailLinkLogin({ navigate, returnTo }) {
     setError('');
   };
 
+  const focusCodeInput = (index) => {
+    requestAnimationFrame(() => {
+      codeInputsRef.current[index]?.focus();
+    });
+  };
+
   const handleCodeChange = (index, value) => {
-    const digit = value.replace(/\D/g, '').slice(-1);
+    const digits = value.replace(/\D/g, '').slice(0, 6 - index);
     const updated = [...codeDigits];
-    updated[index] = digit;
+
+    if (!digits) {
+      updated[index] = '';
+      setCodeDigits(updated);
+      return;
+    }
+
+    digits.split('').forEach((digit, offset) => {
+      updated[index + offset] = digit;
+    });
     setCodeDigits(updated);
 
-    if (digit && index < 5 && codeInputsRef.current[index + 1]) {
-      codeInputsRef.current[index + 1].focus();
+    const nextIndex = index + digits.length;
+    if (nextIndex < 6) {
+      focusCodeInput(nextIndex);
     }
   };
 
   const handleCodeKeyDown = (index, event) => {
     if (event.key === 'Backspace' && !codeDigits[index] && index > 0) {
-      codeInputsRef.current[index - 1]?.focus();
+      event.preventDefault();
+      setCodeDigits((currentDigits) => {
+        const updated = [...currentDigits];
+        updated[index - 1] = '';
+        return updated;
+      });
+      focusCodeInput(index - 1);
+      return;
     }
     if (event.key === 'ArrowLeft' && index > 0) {
-      codeInputsRef.current[index - 1]?.focus();
+      event.preventDefault();
+      focusCodeInput(index - 1);
     }
     if (event.key === 'ArrowRight' && index < 5) {
-      codeInputsRef.current[index + 1]?.focus();
+      event.preventDefault();
+      focusCodeInput(index + 1);
     }
   };
 
-  const handleCodePaste = (event) => {
-    const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+  const handleCodePaste = (event, startIndex) => {
+    const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6 - startIndex);
     if (!pasted) {
       return;
     }
 
     event.preventDefault();
-    const updated = Array(6).fill('');
+    const updated = [...codeDigits];
+    for (let index = startIndex; index < 6; index += 1) {
+      updated[index] = '';
+    }
     for (let i = 0; i < pasted.length; i += 1) {
-      updated[i] = pasted[i];
+      updated[startIndex + i] = pasted[i];
     }
     setCodeDigits(updated);
 
-    const nextIndex = Math.min(pasted.length, 5);
-    requestAnimationFrame(() => {
-      codeInputsRef.current[nextIndex]?.focus();
-    });
+    focusCodeInput(Math.min(startIndex + pasted.length, 5));
   };
 
   if (sentTo) {
@@ -432,8 +457,8 @@ function EmailLinkLogin({ navigate, returnTo }) {
           )}
 
           <div className="input-group">
-            <label htmlFor="email-code">6-digit code</label>
-            <div className="otp-inputs" onPaste={handleCodePaste}>
+            <label id="email-code-label">6-digit code</label>
+            <div className="otp-inputs" role="group" aria-labelledby="email-code-label">
               {codeDigits.map((digit, index) => (
                 <input
                   key={index}
@@ -442,12 +467,15 @@ function EmailLinkLogin({ navigate, returnTo }) {
                   }}
                   type="text"
                   inputMode="numeric"
-                  maxLength={1}
+                  pattern="[0-9]*"
                   value={digit}
                   onChange={(event) => handleCodeChange(index, event.target.value)}
                   onKeyDown={(event) => handleCodeKeyDown(index, event)}
-                  className="otp-input"
-                  autoComplete="one-time-code"
+                  onPaste={(event) => handleCodePaste(event, index)}
+                  onFocus={(event) => event.currentTarget.select()}
+                  className={`otp-input${digit ? ' has-value' : ''}`}
+                  autoComplete={index === 0 ? 'one-time-code' : 'off'}
+                  enterKeyHint={index === 5 ? 'done' : 'next'}
                   aria-label={`Code digit ${index + 1}`}
                   required
                   disabled={loading}

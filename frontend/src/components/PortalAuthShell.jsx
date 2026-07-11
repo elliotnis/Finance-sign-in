@@ -1,3 +1,5 @@
+import PortalAuthCarousel from './PortalAuthCarousel';
+
 const STAGES = [
   { key: 'access', number: '01', label: 'Access' },
   { key: 'profile', number: '02', label: 'Student record' },
@@ -10,6 +12,8 @@ function PortalAuthShell({ currentStage = 'access', children }) {
   return (
     <div className="container portal-auth-shell">
       <aside className="portal-auth-aside">
+        <PortalAuthCarousel />
+
         <div className="portal-auth-brand">
           <img
             className="portal-auth-brand-logo"
