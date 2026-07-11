@@ -11,11 +11,11 @@ function PortalAuthShell({ currentStage = 'access', children }) {
     <div className="container portal-auth-shell">
       <aside className="portal-auth-aside">
         <div className="portal-auth-brand">
-          <span className="portal-auth-brand-mark">F</span>
-          <span>
-            <strong>HKUST</strong>
-            <small>Finance student services</small>
-          </span>
+          <img
+            className="portal-auth-brand-logo"
+            src="https://bm.hkust.edu.hk/themes/custom/sbm/images/logo-sbm-white.svg"
+            alt="HKUST Business School"
+          />
         </div>
 
         <div className="portal-auth-statement">

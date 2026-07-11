@@ -86,30 +86,12 @@ textarea {
 .portal-auth-brand {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
 }
 
-.portal-auth-brand-mark {
-  width: 46px;
-  height: 46px;
-  display: grid;
-  place-items: center;
-  border: 2px solid rgba(255, 250, 240, 0.78);
-  border-radius: 8px;
-  background: rgba(255, 250, 240, 0.12);
-  font-family: "Newsreader", Georgia, serif;
-  font-size: 1.7rem;
-  font-weight: 700;
-}
-
-.portal-auth-brand > span:last-child {
-  display: grid;
-  gap: 0.08rem;
-}
-
-.portal-auth-brand strong {
-  font-size: 1rem;
-  letter-spacing: 0.12em;
+.portal-auth-brand-logo {
+  display: block;
+  width: min(100%, 172px);
+  height: auto;
 }
 
 .portal-auth-brand small,
