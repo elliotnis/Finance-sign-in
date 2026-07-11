@@ -33,22 +33,6 @@ function RegisterSession() {
         return sessionColors[Math.abs(hash) % sessionColors.length];
     };
 
-    // Function to get short display name for session type
-    const getSessionDisplayName = (sessionType) => {
-        const typeMap = {
-            'Course Tutoring': 'TUTORING',
-            'Case Competition Preparation': 'CASE',
-            'Profile Coaching Sessions': 'COACHING',
-            'Market News sharing': 'NEWS',
-            'FINA free chat': 'CHAT',
-            'Course selection': 'COURSE',
-            'Books sharing': 'BOOKS',
-            'Internship sharing': 'INTERN',
-            'Others': 'OTHERS'
-        };
-        return typeMap[sessionType] || sessionType.split(' ')[0].toUpperCase();
-    };
-
     // Time slots from 9 AM to 11 PM
     const timeSlots = [
         '09:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-13:00',
@@ -74,7 +58,7 @@ function RegisterSession() {
         if (selectedSessionType) {
             fetchAvailableSlots();
         }
-    }, [selectedSessionType, currentWeek]);
+    }, [selectedSessionType, currentWeek]); // eslint-disable-line react-hooks/exhaustive-deps -- the request is keyed by these selections
 
     const fetchSessionTypes = async () => {
         try {
@@ -526,4 +510,3 @@ function RegisterSession() {
 }
 
 export default RegisterSession;
-

@@ -5,6 +5,7 @@ from .mongo import (
     user_collection, session_collection, registration_collection,
     reflection_collection, class_collection, allowed_email_collection,
     admin_access_collection, trading_allowed_email_collection,
+    trading_gamemaster_access_collection,
 )
 from datetime import datetime
 from bson import ObjectId
@@ -20,6 +21,12 @@ def get_admin_emails():
     return {e.strip().lower() for e in raw.split(",") if e.strip()}
 
 
+def get_gamemaster_emails():
+    """Comma-separated GAMEMASTER_EMAILS env var → normalized host emails."""
+    raw = os.getenv("GAMEMASTER_EMAILS", "")
+    return {e.strip().lower() for e in raw.split(",") if e.strip()}
+
+
 def is_admin(email):
     if not email:
         return False
@@ -30,6 +37,24 @@ def is_admin(email):
     if not admin_access:
         return False
     return admin_access.get("active", True) is not False
+
+
+def is_gamemaster(email):
+    """Whether an email can operate Youth Financetopia round controls.
+
+    This role intentionally does not inherit normal portal-admin access. The
+    ordinary portal admin APIs use a different access list and must not grant
+    event-control privileges by default.
+    """
+    normalized = normalize_email_for_access(email)
+    if not normalized or not EMAIL_RE.match(normalized):
+        return False
+    if normalized in get_gamemaster_emails():
+        return True
+    access = trading_gamemaster_access_collection.find_one({"email": normalized})
+    if not access:
+        return False
+    return access.get("active", True) is not False
 
 
 def normalize_email_for_access(email):
@@ -52,8 +77,24 @@ def is_trading_email_allowed(email):
     normalized = normalize_email_for_access(email)
     if not normalized or not EMAIL_RE.match(normalized):
         return False
-    if is_admin(normalized):
+    if is_gamemaster(normalized):
         return True
+    allowed = trading_allowed_email_collection.find_one({"email": normalized})
+    if not allowed:
+        return False
+    return allowed.get("active", True) is not False
+
+
+def is_trading_player_email_allowed(email):
+    """Whether an email can enter the participant side of the challenge.
+
+    Gamemasters deliberately use their own sign-in route and session audience.
+    This prevents a gamemaster login from becoming a participant session with
+    hidden host controls.
+    """
+    normalized = normalize_email_for_access(email)
+    if not normalized or not EMAIL_RE.match(normalized) or is_gamemaster(normalized):
+        return False
     allowed = trading_allowed_email_collection.find_one({"email": normalized})
     if not allowed:
         return False

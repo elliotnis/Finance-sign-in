@@ -1,254 +1,473 @@
 ---
-title: "Youth Financetopia Challenge: Fake Asset News Summary"
-subtitle: "2018-2022 training notes"
-date: "2026-07-09"
+title: "Youth Financetopia Challenge: Newsroom and Facilitator Guide"
+subtitle: "Quarter-by-quarter cards, teaching notes and authoritative sources"
+date: "2026-07-10"
 ---
 
-# Purpose
+# Facilitator-only guide
 
-This document summarizes the fake-name assets and the market news used in the Youth Financetopia Challenge. The student-facing game should use the fake asset names only. The real-asset references below are for facilitator context and calibration.
+> **Contains asset mappings and debrief prompts. Do not publish this file on the student-facing site.**
 
-# Fake Asset Mapping
+This is a classroom simulation, not investment advice. Prices are simplified and rounded teaching traces. The card timeline compresses real themes into a fictional 2018-2022 game sequence. Rumors are invented, and cards are not dated historical reporting or recommendations.
 
-| Student-facing name | Real-world trace | Type | Game role |
-| --- | --- | --- | --- |
-| Stock A | Meta Platforms / Facebook | Equity | Advertising, privacy, social-platform growth, and rate-sensitivity proxy |
-| Stock B | Occidental Petroleum | Equity | Leveraged energy equity and balance-sheet stress proxy |
-| Stock C | Eli Lilly | Equity | Defensive healthcare and drug-catalyst proxy |
-| Metal D | Gold | Commodity | Safe-haven metal, real-yield, dollar, and war-risk proxy |
-| Energy E | Crude oil, mainly WTI | Commodity | Oil supply, demand, storage, sanctions, and war-premium proxy |
-| FX Pair F | EUR/USD | FX | Dollar cycle and rate-differential proxy |
-| Fear Gauge G | VIX volatility index | Indicator | Market stress indicator; visible but not directly tradable |
+The React challenge releases cards quarter by quarter and clips every chart to the current period. Students see fake names only. The host controls the timer and round progression through a server-verified gamemaster session.
 
-The game prices are simplified quarterly proxy traces for 2018-2022. They are based on real historical direction and magnitude, but they are rounded for gameplay and are not exact official market closes.
+# Fake asset map
 
-# Facilitator Notes
+| Game name | Real-world trace | Teaching role |
+| --- | --- | --- |
+| Stock A | Meta Platforms / Facebook | Advertising, privacy, platform growth and rate sensitivity |
+| Stock B | Occidental Petroleum | Commodity exposure, acquisition leverage and balance-sheet repair |
+| Stock C | Eli Lilly | Defensive sales, research catalysts and manufacturing execution |
+| Metal D | Gold | Safe-haven demand, real yields, dollar strength and liquidity |
+| Energy E | Crude oil, mainly WTI | Demand, supply, storage, sanctions and trade routes |
+| FX Pair F | EUR/USD | Relative policy, growth expectations and dollar cycles |
+| Fear Gauge G | Cboe VIX | Broad-market expected volatility from SPX options |
 
-- Students should not be told the real-world mapping during the game unless the activity is designed as a debrief.
-- Rumors are intentionally fictionalized. They are designed to create uncertainty and discussion, not to represent verified news.
-- Some assets do not receive a news card every year. That is intentional; students should learn that incomplete information is part of decision-making.
-- Fear Gauge G is an indicator. It can help teams interpret stress regimes but is not directly tradable.
+## Accuracy notes
 
-# Annual News Summary
+- **Fear Gauge G:** The VIX is based on S&P 500 index option prices. Single-stock or meme-stock option activity does not directly enter its calculation. Real VIX products exist, but the gauge is not tradable in this simulation.
+- **FX Pair F:** The proxy follows EUR/USD quote direction. Higher means euro strength and dollar weakness; lower means dollar strength.
+- **Medical history:** The 2020 treatment card describes information known at the time. FDA later revoked authorization for bamlanivimab when used alone; the card is not current medical guidance.
+
+# Classroom flow
+
+1. Open confirmed briefs and ask teams to paraphrase the fact.
+2. Use the question to surface competing explanations.
+3. Reveal fictional desk chatter only after students label it unverified.
+4. Have teams pin evidence, state a view and confidence, and write one sentence.
+5. The captain reviews quantity, price and estimated cash before confirming.
+
+# Quarter cards
 
 ## 2018
 
-### Stock A
+### 2018 Q1 / Stock A
 
-**News signal:** A privacy scandal and slower user growth hurt the social-platform proxy while the wider market sold off late in the year.
+**Headline:** Questions grow around customer data
 
-**Rumor:** Regulators may force an expensive product redesign.
+**Confirmed brief:** Lawmakers want clearer answers about how a large consumer network handles personal information. Advertisers have not changed their plans yet.
 
-**Trading interpretation:** Growth quality is under question. Teams should think about regulatory risk, ad-model fragility, and whether the selloff creates value or signals deeper damage.
+**Fictional rumor:** A costly product redesign may be discussed behind closed doors.
 
-### Stock B
+**Ask the room:** Is this a short-term headline, or could it change the business model?
 
-**News signal:** Energy-linked equities rallied with crude early, then weakened sharply as oversupply fears returned in Q4.
+**Debrief lens:** Separate user attention from advertiser economics, then add regulation and discount-rate risk.
 
-**Rumor:** Management may be looking for a large acquisition.
+**Source IDs:** S01, S02
 
-**Trading interpretation:** The asset is exposed to both commodity price swings and corporate balance-sheet risk. A takeover or acquisition story can increase upside but also raises leverage concerns.
+### 2018 Q1 / Stock C
 
-### Stock C
+**Headline:** A steady business hints at another trial update
 
-**News signal:** The healthcare proxy advanced steadily as its core drug franchises expanded.
+**Confirmed brief:** Core medicine sales remain dependable while researchers prepare a new pipeline presentation.
 
-**Rumor:** Clinical-trial watchers think the pipeline is deeper than the market assumes.
+**Fictional rumor:** Specialists think the pipeline may be broader than investors expect.
 
-**Trading interpretation:** This is a defensive compounder with potential catalyst upside. Teams should compare steady growth against richer valuation risk.
+**Ask the room:** How much should a possible future result matter today?
 
-### Metal D
+**Debrief lens:** Distinguish dependable core sales from uncertain trial, approval and capacity outcomes.
 
-**News signal:** Higher rates and a stronger dollar pressured the safe-haven metal before a year-end rebound.
+**Source IDs:** S12
 
-**Rumor:** The late rebound may be only short covering.
+### 2018 Q2 / Energy E
 
-**Trading interpretation:** Metal D is sensitive to real yields and dollar strength. It can protect portfolios during stress, but rallies may fade if macro pressure remains.
+**Headline:** Supply looks tight - for now
 
-### Energy E
+**Confirmed brief:** Export disruptions are supporting energy prices, but weekly inventory declines are becoming less consistent.
 
-**News signal:** Supply concerns pushed energy higher before Q4 oversupply fears caused a sharp reversal.
+**Fictional rumor:** Some shipping desks say hidden stockpiles are building.
 
-**Rumor:** Inventories may be building faster than headlines suggest.
+**Ask the room:** Which matters more: today's shortage or tomorrow's inventory?
 
-**Trading interpretation:** Energy E can reverse quickly when the market shifts from shortage fear to surplus fear. Inventory data matters.
+**Debrief lens:** Trace the physical chain: demand, production response, storage and regional transport limits.
+
+**Source IDs:** S19, S33
+
+### 2018 Q3 / Stock B
+
+**Headline:** Board studies a large expansion
+
+**Confirmed brief:** An energy producer is exploring a deal that could increase output and also increase debt.
+
+**Fictional rumor:** Management may announce something larger than the market expects.
+
+**Ask the room:** When does growth become too expensive?
+
+**Debrief lens:** Ask whether stronger commodity cash flow is enough to compensate for leverage and execution risk.
+
+**Source IDs:** S08
+
+### 2018 Q4 / Metal D
+
+**Headline:** Safe-haven demand meets a strong currency
+
+**Confirmed brief:** Investors are nervous after a broad selloff, while higher yields and a firm US dollar remain headwinds for defensive metal.
+
+**Fictional rumor:** The latest bounce may be traders closing old bets rather than starting new ones.
+
+**Ask the room:** Can an asset be defensive and still face macro pressure?
+
+**Debrief lens:** Compare safe-haven demand with the opportunity cost created by yields and dollar strength.
+
+**Source IDs:** S19, S23
 
 ## 2019
 
-### Stock A
+### 2019 Q1 / Stock A
 
-**News signal:** The social-platform proxy recovered as advertising demand stabilized despite recurring political pressure.
+**Headline:** Advertisers return, scrutiny remains
 
-**Rumor:** Product-growth data may be improving in smaller markets.
+**Confirmed brief:** Marketing demand is stabilizing after a difficult year, but policy questions have not disappeared.
 
-**Trading interpretation:** The prior-year damage may have been overdone if engagement and ad demand recover. Political risk remains a valuation drag.
+**Fictional rumor:** Engagement may be improving fastest in smaller markets.
 
-### Stock B
+**Ask the room:** Does improving demand outweigh a risk that is still unresolved?
 
-**News signal:** A debt-heavy acquisition plan damaged confidence in the energy proxy.
+**Debrief lens:** Separate user attention from advertiser economics, then add regulation and discount-rate risk.
 
-**Rumor:** Credit desks think the dividend may become harder to defend.
+**Source IDs:** S03
 
-**Trading interpretation:** The key risk is leverage. Even if energy prices hold up, debt, dividends, and acquisition integration can dominate returns.
+### 2019 Q1 / FX Pair F
 
-### Stock C
+**Headline:** Central banks signal different paths
 
-**News signal:** The healthcare proxy absorbed political drug-pricing pressure while buying a precision-medicine asset.
+**Confirmed brief:** Traders are comparing which central bank may ease policy first as global growth expectations soften.
 
-**Rumor:** Specialists think the acquisition may be strategically cheap if trials convert.
+**Fictional rumor:** Macro funds are preparing to sell every short-lived relief rally.
 
-**Trading interpretation:** Policy risk competes with pipeline optionality. Teams should decide whether innovation can offset pricing pressure.
+**Ask the room:** Which side of the pair has the stronger policy support?
 
-### Metal D
+**Debrief lens:** A higher proxy means euro strength and dollar weakness; compare policy and growth on both sides.
 
-**News signal:** Central-bank easing and trade-war uncertainty supported a strong metal rally.
+**Source IDs:** S20, S21, S22, S32
 
-**Rumor:** Real-money funds may be rebuilding safe-haven allocations.
+### 2019 Q2 / Stock C
 
-**Trading interpretation:** Falling rates and uncertainty can support Metal D. Momentum may persist if macro fear and easier policy continue.
+**Headline:** Pricing debate reaches healthcare
 
-### FX Pair F
+**Confirmed brief:** Politicians are discussing medicine affordability while Stock C invests in a smaller research business.
 
-**News signal:** Rate cuts and trade-war uncertainty pulled the currency pair through a choppy range.
+**Fictional rumor:** Researchers believe the acquired science may be worth more than the purchase price.
 
-**Rumor:** Macro traders are fading relief rallies until trade language changes.
+**Ask the room:** How do policy risk and innovation pull value in opposite directions?
 
-**Trading interpretation:** FX Pair F is a macro confidence trade. Teams should watch relative central-bank policy and trade headlines.
+**Debrief lens:** Distinguish dependable core sales from uncertain trial, approval and capacity outcomes.
+
+**Source IDs:** S13
+
+### 2019 Q3 / Metal D
+
+**Headline:** Rate cuts return to the conversation
+
+**Confirmed brief:** Trade uncertainty is rising and policy makers are becoming more willing to support growth.
+
+**Fictional rumor:** Large long-term funds may be rebuilding defensive positions.
+
+**Ask the room:** Would easier policy change the opportunity cost of holding metal?
+
+**Debrief lens:** Compare safe-haven demand with the opportunity cost created by yields and dollar strength.
+
+**Source IDs:** S21, S22, S23
+
+### 2019 Q4 / Stock B
+
+**Headline:** Big deal, bigger balance sheet
+
+**Confirmed brief:** Stock B has committed to a major acquisition. Investors now have to judge the extra production against the extra debt.
+
+**Fictional rumor:** Credit desks are questioning whether the dividend can stay untouched.
+
+**Ask the room:** What could go right - and what must go right?
+
+**Debrief lens:** Ask whether stronger commodity cash flow is enough to compensate for leverage and execution risk.
+
+**Source IDs:** S08
 
 ## 2020
 
-### Stock A
+### 2020 Q1 / Energy E
 
-**News signal:** The platform proxy fell in the COVID crash but rebounded with online advertising and e-commerce demand.
+**Headline:** Travel stops and storage fills
 
-**Rumor:** Lockdown engagement may have spiked sharply.
+**Confirmed brief:** A global health emergency is cutting transport demand much faster than producers can reduce supply.
 
-**Trading interpretation:** Initial panic may create opportunity if digital behavior accelerates. Teams should separate temporary ad weakness from structural engagement gains.
+**Fictional rumor:** Physical traders say available storage is disappearing faster than public data suggests.
 
-### Stock B
+**Ask the room:** What happens when a physical product has nowhere to go?
 
-**News signal:** The energy proxy nearly broke under COVID demand destruction, negative oil, and acquisition debt.
+**Debrief lens:** Trace the physical chain: demand, production response, storage and regional transport limits.
 
-**Rumor:** Lenders may demand asset sales.
+**Source IDs:** S25, S33
 
-**Trading interpretation:** This is a stress scenario. The asset may have high rebound potential, but survival and liquidity risk are central.
+### 2020 Q1 / Fear Gauge G
 
-### Stock C
+**Headline:** Stress gauge flashes red
 
-**News signal:** The healthcare proxy behaved defensively and gained attention from an emergency-use treatment.
+**Confirmed brief:** Option prices show investors paying unusually high amounts for protection as uncertainty spreads across markets.
 
-**Rumor:** One late-stage readout could change the growth story.
+**Fictional rumor:** Some desks are selling even their safest assets just to raise cash.
 
-**Trading interpretation:** Defensive earnings plus medical catalysts can be valuable in a crisis. Teams should still evaluate trial uncertainty.
+**Ask the room:** Does extreme fear warn of more danger, or signal forced selling?
 
-### Metal D
+**Debrief lens:** This broad-market gauge comes from SPX options. Single-stock chaos can coexist with a calm VIX.
 
-**News signal:** Safe-haven metal briefly sold off for cash, then surged on stimulus and risk hedging.
+**Source IDs:** S28, S34
 
-**Rumor:** Macro investors are buying metal as a stimulus hedge.
+### 2020 Q2 / Metal D
 
-**Trading interpretation:** In liquidity shocks, even safe havens can fall first. After policy support arrives, inflation and risk hedges can rally.
+**Headline:** Emergency support changes the macro picture
 
-### Energy E
+**Confirmed brief:** Central banks and governments are launching unusually large support programs after a rush for cash.
 
-**News signal:** Energy collapsed as demand disappeared and storage filled, then recovered after supply cuts.
+**Fictional rumor:** New buyers are treating defensive metal as insurance against the policy response.
 
-**Rumor:** Physical storage constraints may be worse than screen prices imply.
+**Ask the room:** Could the same policy calm markets and create a new long-term risk?
 
-**Trading interpretation:** Physical-market mechanics matter. Storage, demand destruction, and supply cuts can create extreme price moves.
+**Debrief lens:** Compare safe-haven demand with the opportunity cost created by yields and dollar strength.
+
+**Source IDs:** S24
+
+### 2020 Q3 / Stock A
+
+**Headline:** Online activity jumps, advertising stays uneven
+
+**Confirmed brief:** People are spending more time on digital services, but many small advertisers remain under pressure.
+
+**Fictional rumor:** Internal usage figures may be stronger than the company has shared publicly.
+
+**Ask the room:** Which is more important for this business: attention or advertiser budgets?
+
+**Debrief lens:** Separate user attention from advertiser economics, then add regulation and discount-rate risk.
+
+**Source IDs:** S04
+
+### 2020 Q4 / Stock C
+
+**Headline:** Treatment data draws attention
+
+**Confirmed brief:** A healthcare company reports encouraging emergency-treatment evidence while its core business remains stable.
+
+**Fictional rumor:** Another late-stage trial could become the larger story.
+
+**Ask the room:** How should a one-off catalyst be compared with the core business?
+
+**Debrief lens:** Distinguish dependable core sales from uncertain trial, approval and capacity outcomes.
+
+**Source IDs:** S14, S15
 
 ## 2021
 
-### Stock A
+### 2021 Q1 / Stock B
 
-**News signal:** The platform proxy reached a high before growth and identity-shift concerns appeared.
+**Headline:** Reopening lifts fuel expectations
 
-**Rumor:** A major rebrand could distract management.
+**Confirmed brief:** Mobility is improving and producers are still cautious about adding supply. Stock B is using stronger cash flow to repair its finances.
 
-**Trading interpretation:** Momentum is strong, but strategic pivots can create execution risk. Teams should ask whether growth is peaking.
+**Fictional rumor:** Value investors are quietly revisiting companies they avoided last year.
 
-### Stock B
+**Ask the room:** How quickly can better conditions repair a weak balance sheet?
 
-**News signal:** The energy proxy improved as reopening demand lifted crude.
+**Debrief lens:** Ask whether stronger commodity cash flow is enough to compensate for leverage and execution risk.
 
-**Rumor:** Value investors are quietly revisiting the balance-sheet story.
+**Source IDs:** S10, S26
 
-**Trading interpretation:** Reopening can repair distressed energy names quickly. The best returns may come when leverage risk starts to decline.
+### 2021 Q2 / Fear Gauge G
 
-### Stock C
+**Headline:** Calmer index, noisy corners
 
-**News signal:** Two major drug narratives lifted the healthcare proxy despite a risk-on market.
+**Confirmed brief:** The broad-market stress gauge is lower, even while a few individual companies are moving wildly.
 
-**Rumor:** Specialist doctors are discussing unusually strong trial data.
+**Fictional rumor:** Some traders warn that a calm headline index can hide risk concentrated in single stocks.
 
-**Trading interpretation:** Product-specific catalysts can outperform macro style rotations. Teams should weigh catalyst strength against already-rising prices.
+**Ask the room:** Can a market look calm while parts of it are unstable?
 
-### Fear Gauge G
+**Debrief lens:** This broad-market gauge comes from SPX options. Single-stock chaos can coexist with a calm VIX.
 
-**News signal:** Volatility faded from 2020 extremes but spiked around meme-stock and variant shocks.
+**Source IDs:** S27, S28
 
-**Rumor:** Retail call volume may be distorting risk readings.
+### 2021 Q3 / Stock C
 
-**Trading interpretation:** Lower average volatility does not mean low event risk. Fear Gauge G helps teams identify stress pockets.
+**Headline:** Two research programs approach key updates
 
-### FX Pair F
+**Confirmed brief:** Stock C has more than one late-stage program that could affect its future growth story.
 
-**News signal:** The currency pair weakened gradually as rate expectations diverged.
+**Fictional rumor:** Specialist discussions describe one dataset as unusually strong.
 
-**Rumor:** Macro funds are positioning for a stronger dollar cycle.
+**Ask the room:** How much confidence belongs in a story before full data arrives?
 
-**Trading interpretation:** Relative policy expectations can drive FX trends. Teams should watch whether the market is pricing earlier or faster rate hikes.
+**Debrief lens:** Distinguish dependable core sales from uncertain trial, approval and capacity outcomes.
+
+**Source IDs:** S16, S17
+
+### 2021 Q4 / Stock A
+
+**Headline:** A new identity comes with a large bill
+
+**Confirmed brief:** Stock A is redirecting investment toward a long-term platform idea while near-term growth becomes less certain.
+
+**Fictional rumor:** The rebrand may be distracting leaders from the existing advertising engine.
+
+**Ask the room:** When is long-term investment a strength, and when is it a warning?
+
+**Debrief lens:** Separate user attention from advertiser economics, then add regulation and discount-rate risk.
+
+**Source IDs:** S05, S06
 
 ## 2022
 
-### Stock A
+### 2022 Q1 / Energy E
 
-**News signal:** The platform proxy collapsed under privacy changes, slowing users, heavy investment, and higher rates.
+**Headline:** Conflict threatens a major supply route
 
-**Rumor:** Ad buyers say measurement issues may be worse than management admits.
+**Confirmed brief:** Sanctions and transport uncertainty are forcing buyers to rethink where energy will come from.
 
-**Trading interpretation:** Multiple compression and business-model concerns can reinforce each other. Teams should be careful with averaging down purely because the price has fallen.
+**Fictional rumor:** Regional shortages may be more severe than the global benchmark suggests.
 
-### Stock B
+**Ask the room:** Is the shock temporary, or will trade routes change for longer?
 
-**News signal:** The energy proxy became a standout winner as war-risk premiums and investor accumulation lifted sentiment.
+**Debrief lens:** Trace the physical chain: demand, production response, storage and regional transport limits.
 
-**Rumor:** A famous capital allocator may still be buying dips.
+**Source IDs:** S30
 
-**Trading interpretation:** Energy equities can outperform dramatically when commodity prices, capital discipline, and investor sponsorship align.
+### 2022 Q1 / Stock B
 
-### Stock C
+**Headline:** Stronger prices transform the debt story
 
-**News signal:** The healthcare proxy rose against the bear market on obesity-treatment expectations.
+**Confirmed brief:** Stock B is generating far more cash as the energy market tightens, giving management new choices about debt and shareholder returns.
 
-**Rumor:** Channel checks suggest demand could exceed production capacity.
+**Fictional rumor:** A famous long-term investor may still be adding to a position.
 
-**Trading interpretation:** Strong product-demand narratives can create defensive growth. Supply capacity may become as important as demand.
+**Ask the room:** How should improved cash flow change the way you view old debt?
 
-### Metal D
+**Debrief lens:** Ask whether stronger commodity cash flow is enough to compensate for leverage and execution risk.
 
-**News signal:** Metal spiked on war risk, then fell under aggressive rate hikes and dollar strength before recovering.
+**Source IDs:** S11
 
-**Rumor:** Gold desks say the move may be a round trip, not a clean trend.
+### 2022 Q2 / Metal D
 
-**Trading interpretation:** War risk can lift safe havens, but higher real rates and dollar strength can overpower the trade.
+**Headline:** War risk meets aggressive rate hikes
 
-### Energy E
+**Confirmed brief:** Demand for protection remains, while faster policy tightening and a stronger dollar raise the cost of holding defensive metal.
 
-**News signal:** Energy jumped after war began, then faded as recession risk and dollar strength weighed.
+**Fictional rumor:** Some desks expect a round trip rather than a clean trend.
 
-**Rumor:** Headline prices may hide sharp regional stress.
+**Ask the room:** Which force is likely to last longer?
 
-**Trading interpretation:** Energy can rally on geopolitical shock but later fade if demand concerns rise. Teams should distinguish spot panic from sustained trend.
+**Debrief lens:** Compare safe-haven demand with the opportunity cost created by yields and dollar strength.
 
-# Discussion Prompts
+**Source IDs:** S29, S31
 
-1. Which assets are mostly macro-driven, and which are mostly company- or product-driven?
-2. Which rumor would you trust least, and why?
-3. How would a team hedge a portfolio that is heavily exposed to Stock B and Energy E?
-4. When does Fear Gauge G provide useful information even though it is not tradable?
-5. Which year rewards contrarian buying, and which year punishes it?
+### 2022 Q3 / Stock C
 
-# Student-Facing Rule Reminder
+**Headline:** A new treatment could face a supply problem
 
-The game should present fake names only. The facilitator can use the real mapping during setup, calibration, or debrief, but revealing it during gameplay can make the exercise too easy.
+**Confirmed brief:** Demand expectations for an obesity treatment are rising so quickly that manufacturing capacity is becoming part of the debate.
+
+**Fictional rumor:** Early channel checks suggest demand could run ahead of production.
+
+**Ask the room:** Can very strong demand still create an execution risk?
+
+**Debrief lens:** Distinguish dependable core sales from uncertain trial, approval and capacity outcomes.
+
+**Source IDs:** S18
+
+### 2022 Q4 / Stock A
+
+**Headline:** Advertisers question measurement
+
+**Confirmed brief:** Privacy changes make digital ads harder to measure just as higher rates make distant profits less valuable.
+
+**Fictional rumor:** Some buyers say the measurement problem is worse than public guidance implies.
+
+**Ask the room:** Are these two separate risks, or can they reinforce each other?
+
+**Debrief lens:** Separate user attention from advertiser economics, then add regulation and discount-rate risk.
+
+**Source IDs:** S06, S07
+
+### 2022 Q4 / FX Pair F
+
+**Headline:** Rate gaps pull currencies apart
+
+**Confirmed brief:** One central bank is tightening faster while energy costs put different pressure on the two economies behind FX Pair F.
+
+**Fictional rumor:** Positioning may be crowded after a long move in the same direction.
+
+**Ask the room:** Does a strong trend become safer or riskier when everyone sees it?
+
+**Debrief lens:** A higher proxy means euro strength and dollar weakness; compare policy and growth on both sides.
+
+**Source IDs:** S29, S32
+
+# Debrief prompts
+
+1. Which statement was a fact, a rumor, or your own inference?
+2. What single clue changed your mind most?
+3. Was your confidence supported by independent evidence?
+4. Would you make the same choice again with the same information?
+5. What would a real analyst still need to know?
+
+# Plain-language glossary
+
+- **Catalyst:** An event that could change expectations or price.
+- **Hedge:** A position intended to reduce another risk.
+- **Leverage:** Debt or borrowing that can magnify gains and losses.
+- **Liquidity:** How easily an asset can be traded without a large price change.
+- **Rate differential:** The gap between interest rates in two economies.
+- **Real yield:** An interest rate after accounting for expected inflation.
+- **Short covering:** Buying that closes an earlier bet on a falling price.
+- **Volatility:** How widely and quickly prices move.
+
+# Source appendix
+
+Source links were checked on 2026-07-10. They anchor historical themes and simplified calibration; card wording remains a fictionalized synthesis.
+
+## Stock A
+
+- **S01** [Statement on reported concerns about Facebook privacy practices](https://www.ftc.gov/news-events/news/press-releases/2018/03/statement-acting-director-ftcs-bureau-consumer-protection-regarding-reported-concerns-about-facebook) - Federal Trade Commission, 2018-03-26.
+- **S02** [Facebook reports second quarter 2018 results](https://investor.fb.com/files/doc_financials/2018/Q2/Facebook-Reports-Second-Quarter-2018-Results.pdf) - Facebook, 2018-07-25.
+- **S03** [Facebook reports fourth quarter and full year 2019 results](https://investor.atmeta.com/investor-news/press-release-details/2020/Facebook-Reports-Fourth-Quarter-and-Full-Year-2019-Results/default.aspx) - Meta Investor Relations, 2020-01-29.
+- **S04** [Facebook reports fourth quarter and full year 2020 results](https://investor.atmeta.com/investor-news/press-release-details/2021/Facebook-Reports-Fourth-Quarter-and-Full-Year-2020-Results/default.aspx) - Meta Investor Relations, 2021-01-27.
+- **S05** [Introducing Meta: a social technology company](https://about.fb.com/news/2021/10/facebook-company-is-now-meta/) - Meta, 2021-10-28.
+- **S06** [Meta reports fourth quarter and full year 2021 results](https://investor.atmeta.com/investor-news/press-release-details/2022/Meta-Reports-Fourth-Quarter-and-Full-Year-2021-Results/default.aspx) - Meta Investor Relations, 2022-02-02.
+- **S07** [Meta reports fourth quarter and full year 2022 results](https://investor.atmeta.com/investor-news/press-release-details/2023/Meta-Reports-Fourth-Quarter-and-Full-Year-2022-Results/default.aspx) - Meta Investor Relations, 2023-02-01.
+
+## Stock B
+
+- **S08** [Occidental completes acquisition of Anadarko](https://www.sec.gov/Archives/edgar/data/797468/000095015719000864/ex99-1.htm) - U.S. Securities and Exchange Commission archive, 2019-08-08.
+- **S09** [Occidental announces fourth quarter and full year 2020 results](https://www.oxy.com/siteassets/documents/investors/quarterly-earnings/OXY4Q20EarningsRelease.pdf) - Occidental Petroleum, 2021-02-22.
+- **S10** [Occidental announces fourth quarter 2021 results](https://www.oxy.com/siteassets/documents/investors/quarterly-earnings/oxy4q21earningspressrelease_financials2.pdf) - Occidental Petroleum, 2022-02-24.
+- **S11** [Occidental announces fourth quarter 2022 results](https://www.oxy.com/news/news-releases/occidental-announces-4th-quarter-2022-results/) - Occidental Petroleum, 2023-02-27.
+
+## Stock C
+
+- **S12** [Lilly reports fourth quarter and full year 2018 financial results](https://investor.lilly.com/news-releases/news-release-details/lilly-reports-strong-fourth-quarter-and-full-year-2018-financial) - Eli Lilly, 2019-02-06.
+- **S13** [Lilly to acquire Loxo Oncology](https://investor.lilly.com/node/40136) - Eli Lilly, 2019-01-07.
+- **S14** [FDA authorizes monoclonal antibody treatment for COVID-19](https://www.fda.gov/news-events/press-announcements/coronavirus-covid-19-update-fda-authorizes-monoclonal-antibody-treatment-covid-19) - U.S. Food and Drug Administration, 2020-11-09.
+- **S15** [FDA revokes authorization for bamlanivimab when administered alone](https://www.fda.gov/news-events/press-announcements/coronavirus-covid-19-update-fda-revokes-emergency-use-authorization-monoclonal-antibody-bamlanivimab) - U.S. Food and Drug Administration, 2021-04-16.
+- **S16** [Tirzepatide achieves primary and key secondary study endpoints](https://investor.lilly.com/news-releases/news-release-details/lillys-tirzepatide-achieves-all-primary-and-key-secondary-study) - Eli Lilly, 2021-05-20.
+- **S17** [Donanemab receives FDA Breakthrough Therapy designation](https://investor.lilly.com/news-releases/news-release-details/lillys-donanemab-receives-us-fdas-breakthrough-therapy) - Eli Lilly, 2021-06-24.
+- **S18** [SURMOUNT-1 tirzepatide obesity trial results](https://investor.lilly.com/news-releases/news-release-details/lillys-tirzepatide-delivered-225-weight-loss-adults-obesity-or) - Eli Lilly, 2022-04-28.
+
+## Macro and energy
+
+- **S19** [Crude oil prices declined in fourth quarter 2018](https://www.eia.gov/todayinenergy/detail.php?id=37852) - U.S. Energy Information Administration, 2019-01-03.
+- **S20** [Federal Reserve issues FOMC statement](https://www.federalreserve.gov/newsevents/pressreleases/monetary20190320a.htm) - Federal Reserve, 2019-03-20.
+- **S21** [Federal Reserve issues FOMC statement](https://www.federalreserve.gov/newsevents/pressreleases/monetary20190731a.htm) - Federal Reserve, 2019-07-31.
+- **S22** [ECB monetary policy decisions](https://www.ecb.europa.eu/press/pr/date/2019/html/ecb.mp190912~08de50b4d2.en.html) - European Central Bank, 2019-09-12.
+- **S23** [Gold demand trends: full year 2019](https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-full-year-2019) - World Gold Council, 2020-01-30.
+- **S24** [Gold prices swing as markets sell off](https://www.gold.org/goldhub/research/gold-prices-swing-as-markets-sell-off) - World Gold Council, 2020-03-19.
+- **S25** [Low liquidity and limited storage pushed WTI futures below zero](https://www.eia.gov/todayinenergy/detail.php?id=43495) - U.S. Energy Information Administration, 2020-04-27.
+- **S26** [Global liquid fuels consumption returned toward 2019 levels](https://www.eia.gov/todayinenergy/detail.php?id=50296) - U.S. Energy Information Administration, 2021-11-09.
+- **S27** [Staff report on equity and options market structure conditions in early 2021](https://www.sec.gov/about/reports-publications/staff-report-equity-options-market-structure-conditions-early-2021) - U.S. Securities and Exchange Commission, 2021-10-18.
+- **S28** [Cboe VIX FAQ: definition, calculation and products](https://www.cboe.com/tradable_products/vix/faqs) - Cboe, 2018-05-15.
+- **S29** [FOMC projections materials](https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20211215.htm) - Federal Reserve, 2021-12-15.
+- **S30** [Crude oil prices were lower in 2022 than in 2021 by year end](https://www.eia.gov/todayinenergy/detail.php?id=55079) - U.S. Energy Information Administration, 2023-01-04.
+- **S31** [Gold market commentary: December 2022](https://www.gold.org/goldhub/research/gold-market-commentary-december-2022) - World Gold Council, 2023-01-09.
+
+## Calibration data
+
+- **S32** [FRED U.S. dollars to euro exchange rate series DEXUSEU](https://fred.stlouisfed.org/series/DEXUSEU) - Federal Reserve Bank of St. Louis, accessed 2026-07-10.
+- **S33** [Cushing WTI spot price history](https://www.eia.gov/dnav/pet/hist/rwtcd.htm) - U.S. Energy Information Administration, accessed 2026-07-10.
+- **S34** [VIX historical data](https://www.cboe.com/tradable_products/vix/vix_historical_data) - Cboe, accessed 2026-07-10.

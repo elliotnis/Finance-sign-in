@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, status
+from typing import Literal
+
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from pydantic import BaseModel
 from .utils import (
     check_email_exists, create_user, verify_user_credentials, get_all_users,
@@ -14,7 +16,7 @@ from .utils import (
     get_user_sessions_for_verification,
     submit_reflection,
     # Admin + classes
-    is_admin, is_email_allowed, is_trading_email_allowed, normalize_email_for_access,
+    is_admin, is_email_allowed, is_gamemaster, is_trading_player_email_allowed, normalize_email_for_access,
     create_class, list_classes, get_class, delete_class,
     register_for_class, unregister_from_class, get_my_classes,
 )
@@ -43,12 +45,17 @@ from .trading import (
     start_round,
     team_state,
 )
+from .trading_auth import (
+    authenticate_trading_session,
+    create_trading_session,
+    revoke_trading_session,
+)
 
     
 from .schema import (
     UserSignup, UserLogin, ProfileCreate, ProfileUpdate, ProfileResponse,
     # Passwordless email-link login
-    EmailLinkRequest, EmailLinkVerify, TradingEmailCodeRequest, SetPasswordRequest,
+    EmailLinkRequest, EmailLinkVerify, TradingEmailCodeRequest, TradingEmailCodeVerify, SetPasswordRequest,
     # Tutor availability schemas
     TutorAvailabilityCreate, SessionTypesList,
     # Student registration schemas
@@ -73,28 +80,28 @@ class AllowedEmailImportPayload(BaseModel):
 
 class TradingTeamCreatePayload(BaseModel):
     team_name: str
-    leader_email: str
+    # Kept optional for older clients; authenticated identity is used instead.
+    leader_email: str | None = None
 
 
 class TradingTeamJoinPayload(BaseModel):
     team_code: str
-    email: str
+    email: str | None = None
 
 
 class TradingOrderPayload(BaseModel):
-    email: str
+    email: str | None = None
     asset_id: str
     side: str
     quantity: float
-    mode: str = "discrete"
+    mode: Literal["discrete", "continuous"] = "discrete"
 
 
 class TradingAdminPayload(BaseModel):
-    admin_email: str
+    admin_email: str | None = None
 
 
 class TradingApiOrderPayload(BaseModel):
-    api_key: str
     asset_id: str
     side: str
     quantity: float
@@ -116,17 +123,64 @@ def require_allowed_email(email: str):
         )
 
 
-def require_trading_allowed_email(email: str):
-    if not is_trading_email_allowed(email):
+def require_trading_player_email(email: str):
+    if not is_trading_player_email_allowed(email):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="This account is not registered for Youth Financetopia Challenge access. Ask an admin to add the email first.",
+            detail="This email is not registered for participant access. Gamemasters must use the separate gamemaster sign-in.",
         )
+
+
+def require_gamemaster_email(email: str):
+    if not is_gamemaster(email):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This email is not approved for the Youth Financetopia gamemaster console.",
+        )
+
+
+def require_trading_session(
+    authorization: str | None = Header(default=None),
+) -> str:
+    email = authenticate_trading_session(authorization)
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Your challenge session has expired. Sign in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return email
+
+
+def require_player_trading_session(
+    authorization: str | None = Header(default=None),
+) -> str:
+    email = authenticate_trading_session(authorization, expected_audience="player")
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Your participant session has expired. Sign in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return email
+
+
+def require_gamemaster_trading_session(
+    authorization: str | None = Header(default=None),
+) -> str:
+    email = authenticate_trading_session(authorization, expected_audience="gamemaster")
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Your gamemaster session has expired. Sign in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return email
 
 
 def trading_result_or_error(result):
     if result == "forbidden":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Gamemaster access required")
     if result == "email_not_allowed":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This email is not registered for Youth Financetopia Challenge access")
     if result == "already_in_team":
@@ -145,6 +199,8 @@ def trading_result_or_error(result):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown or non-tradable asset")
     if result == "invalid_side":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Order side must be buy or sell")
+    if result == "invalid_mode":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown trading mode")
     if result == "invalid_quantity":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Quantity must be positive")
     if result == "insufficient_cash":
@@ -153,6 +209,11 @@ def trading_result_or_error(result):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough holdings to sell")
     if result == "invalid_api_key":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid continuous trading API key")
+    if result == "game_busy":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The market is processing another action. Try again.",
+        )
     return result
 
 
@@ -229,16 +290,25 @@ def request_email_link(payload: EmailLinkRequest):
     }
 
 
-@router.post("/auth/trading/email-code/request")
-def request_trading_email_code(payload: TradingEmailCodeRequest):
-    """Send a one-time sign-in code for Youth Financetopia Challenge."""
+def _request_trading_email_code(payload: TradingEmailCodeRequest, audience: str):
+    """Send a one-time code bound to the requested challenge audience."""
     try:
-        require_trading_allowed_email(normalize_email(payload.email))
+        email = normalize_email(payload.email)
+        if audience == "gamemaster":
+            require_gamemaster_email(email)
+            subject = "Your Youth Financetopia gamemaster sign-in code"
+            title = "Youth Financetopia Gamemaster Console"
+            access_scope = "trading_gamemaster"
+        else:
+            require_trading_player_email(email)
+            subject = "Your Youth Financetopia participant sign-in code"
+            title = "Youth Financetopia Challenge"
+            access_scope = "trading_player"
         result = create_magic_link_for_email(
-            payload.email,
-            subject="Your Youth Financetopia Challenge sign-in code",
-            title="Youth Financetopia Challenge",
-            access_scope="trading",
+            email,
+            subject=subject,
+            title=title,
+            access_scope=access_scope,
         )
     except MagicLinkError as exc:
         raise HTTPException(
@@ -260,7 +330,26 @@ def request_trading_email_code(payload: TradingEmailCodeRequest):
         "message": f"Sign-in code sent to {result['email']}",
         "email": result["email"],
         "expires_at": result["expires_at"],
+        "audience": audience,
     }
+
+
+@router.post("/auth/trading/player/email-code/request")
+def request_player_trading_email_code(payload: TradingEmailCodeRequest):
+    """Send a participant-only Youth Financetopia sign-in code."""
+    return _request_trading_email_code(payload, "player")
+
+
+@router.post("/auth/trading/gamemaster/email-code/request")
+def request_gamemaster_trading_email_code(payload: TradingEmailCodeRequest):
+    """Send a gamemaster-only Youth Financetopia sign-in code."""
+    return _request_trading_email_code(payload, "gamemaster")
+
+
+@router.post("/auth/trading/email-code/request", deprecated=True)
+def request_trading_email_code(payload: TradingEmailCodeRequest):
+    """Compatibility participant sign-in endpoint for older challenge links."""
+    return _request_trading_email_code(payload, "player")
 
 
 @router.get("/auth/password-status")
@@ -307,18 +396,85 @@ def set_password_endpoint(payload: SetPasswordRequest):
 @router.post("/auth/email-link/verify")
 def verify_email_link(payload: EmailLinkVerify):
     """Consume a sign-in code; returns the same shape as POST /login."""
-    user = consume_magic_link(payload.code)
+    try:
+        user = consume_magic_link(
+            payload.code,
+            expected_email=payload.email,
+            expected_scope="portal",
+        )
+    except MagicLinkError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="This sign-in code is invalid, expired, or already used.",
         )
 
-    return {
+    response = {
         "message": "Login successful",
         "email": user["email"],
         "user_id": str(user["_id"]),
     }
+    return response
+
+
+def _verify_trading_email_code(payload: TradingEmailCodeVerify, audience: str):
+    """Verify a role-bound code and issue a matching challenge session."""
+    try:
+        email = normalize_email(payload.email)
+        user = consume_magic_link(
+            payload.code,
+            expected_email=email,
+            expected_scope=f"trading_{audience}",
+        )
+    except MagicLinkError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="This code is invalid, expired, or locked after too many attempts.",
+        )
+    try:
+        challenge_session = create_trading_session(user["email"], audience=audience)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                "This account no longer has gamemaster access."
+                if audience == "gamemaster"
+                else "This account no longer has participant access."
+            ),
+        )
+    return {
+        "message": "Login successful",
+        "email": user["email"],
+        "user_id": str(user["_id"]),
+        "trading_session": challenge_session,
+    }
+
+
+@router.post("/auth/trading/player/email-code/verify")
+def verify_player_trading_email_code(payload: TradingEmailCodeVerify):
+    """Verify a participant code and issue a participant-only session."""
+    return _verify_trading_email_code(payload, "player")
+
+
+@router.post("/auth/trading/gamemaster/email-code/verify")
+def verify_gamemaster_trading_email_code(payload: TradingEmailCodeVerify):
+    """Verify a gamemaster code and issue a gamemaster-only session."""
+    return _verify_trading_email_code(payload, "gamemaster")
+
+
+@router.post("/auth/trading/email-code/verify", deprecated=True)
+def verify_trading_email_code(payload: TradingEmailCodeVerify):
+    """Compatibility participant verification endpoint for older challenge links."""
+    return _verify_trading_email_code(payload, "player")
 
 
 @router.get("/users")
@@ -871,26 +1027,53 @@ def admin_database_delete(collection_key: str, document_id: str, admin_email: st
 
 # ==================== Finance Development Trading Portal ====================
 
+@router.get("/trading/session")
+def trading_session_endpoint(email: str = Depends(require_player_trading_session)):
+    return {"email": email, "audience": "player", "is_gamemaster": False}
+
+
+@router.get("/trading/gamemaster/session")
+def trading_gamemaster_session_endpoint(
+    email: str = Depends(require_gamemaster_trading_session),
+):
+    return {"email": email, "audience": "gamemaster", "is_gamemaster": True}
+
+
+@router.post("/trading/logout")
+def trading_logout_endpoint(authorization: str | None = Header(default=None)):
+    revoke_trading_session(authorization)
+    return {"success": True}
+
+
 @router.get("/trading/state")
-def trading_state_endpoint(email: str):
+def trading_state_endpoint(email: str = Depends(require_player_trading_session)):
     return trading_result_or_error(team_state(email))
 
 
 @router.post("/trading/teams")
-def trading_create_team_endpoint(payload: TradingTeamCreatePayload):
-    return {"success": True, "team": trading_result_or_error(create_team(payload.team_name, payload.leader_email))}
+def trading_create_team_endpoint(
+    payload: TradingTeamCreatePayload,
+    email: str = Depends(require_player_trading_session),
+):
+    return {"success": True, "team": trading_result_or_error(create_team(payload.team_name, email))}
 
 
 @router.post("/trading/teams/join")
-def trading_join_team_endpoint(payload: TradingTeamJoinPayload):
-    return {"success": True, "team": trading_result_or_error(join_team(payload.team_code, payload.email))}
+def trading_join_team_endpoint(
+    payload: TradingTeamJoinPayload,
+    email: str = Depends(require_player_trading_session),
+):
+    return {"success": True, "team": trading_result_or_error(join_team(payload.team_code, email))}
 
 
 @router.post("/trading/orders")
-def trading_order_endpoint(payload: TradingOrderPayload):
+def trading_order_endpoint(
+    payload: TradingOrderPayload,
+    email: str = Depends(require_player_trading_session),
+):
     order = trading_result_or_error(
         place_order(
-            payload.email,
+            email,
             payload.asset_id,
             payload.side,
             payload.quantity,
@@ -901,35 +1084,49 @@ def trading_order_endpoint(payload: TradingOrderPayload):
 
 
 @router.get("/trading/gamemaster")
-def trading_gamemaster_endpoint(admin_email: str):
-    return trading_result_or_error(gamemaster_state(admin_email))
+def trading_gamemaster_endpoint(email: str = Depends(require_gamemaster_trading_session)):
+    return trading_result_or_error(gamemaster_state(email))
 
 
 @router.post("/trading/round/start")
-def trading_start_round_endpoint(payload: TradingAdminPayload):
-    return {"success": True, "game": trading_result_or_error(start_round(payload.admin_email))}
+def trading_start_round_endpoint(
+    payload: TradingAdminPayload,
+    email: str = Depends(require_gamemaster_trading_session),
+):
+    return {"success": True, "game": trading_result_or_error(start_round(email))}
 
 
 @router.post("/trading/round/advance")
-def trading_advance_round_endpoint(payload: TradingAdminPayload):
-    return {"success": True, "game": trading_result_or_error(advance_round(payload.admin_email))}
+def trading_advance_round_endpoint(
+    payload: TradingAdminPayload,
+    email: str = Depends(require_gamemaster_trading_session),
+):
+    return {"success": True, "game": trading_result_or_error(advance_round(email))}
 
 
 @router.post("/trading/round/reset")
-def trading_reset_round_endpoint(payload: TradingAdminPayload):
-    return {"success": True, "game": trading_result_or_error(reset_game(payload.admin_email))}
+def trading_reset_round_endpoint(
+    payload: TradingAdminPayload,
+    email: str = Depends(require_gamemaster_trading_session),
+):
+    return {"success": True, "game": trading_result_or_error(reset_game(email))}
 
 
 @router.get("/trading/continuous/snapshot")
-def trading_continuous_snapshot_endpoint(api_key: str):
+def trading_continuous_snapshot_endpoint(
+    api_key: str = Header(alias="X-Team-Api-Key"),
+):
     return trading_result_or_error(continuous_snapshot(api_key))
 
 
 @router.post("/trading/continuous/order")
-def trading_continuous_order_endpoint(payload: TradingApiOrderPayload):
+def trading_continuous_order_endpoint(
+    payload: TradingApiOrderPayload,
+    api_key: str = Header(alias="X-Team-Api-Key"),
+):
     order = trading_result_or_error(
         place_api_order(
-            payload.api_key,
+            api_key,
             payload.asset_id,
             payload.side,
             payload.quantity,

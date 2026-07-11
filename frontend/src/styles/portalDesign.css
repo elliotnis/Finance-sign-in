@@ -1,0 +1,1449 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap');
+
+:root {
+  --portal-ink: #172033;
+  --portal-muted: #647086;
+  --portal-paper: #f6f0e5;
+  --portal-sheet: #fffaf0;
+  --portal-line: rgba(23, 32, 51, 0.16);
+  --portal-blue: #003b7a;
+  --portal-sky: #2f74c0;
+  --portal-gold: #c7952b;
+  --portal-green: #19745c;
+  --portal-red: #ba3f33;
+  --portal-violet: #6541a2;
+  --portal-shadow: 0 18px 45px rgba(23, 32, 51, 0.13);
+  --portal-hard-shadow: 6px 6px 0 rgba(23, 32, 51, 0.14);
+  --portal-radius: 10px;
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--portal-ink);
+  background: var(--portal-paper);
+}
+
+body {
+  color: var(--portal-ink);
+  background:
+    linear-gradient(90deg, rgba(23, 32, 51, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(0deg, rgba(23, 32, 51, 0.03) 1px, transparent 1px) 0 0 / 32px 32px,
+    var(--portal-paper);
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Normal portal auth flow */
+.container {
+  min-height: 100vh;
+  width: 100%;
+  display: grid !important;
+  grid-template-columns: minmax(300px, 0.92fr) minmax(360px, 560px);
+  align-items: stretch !important;
+  gap: 0;
+  padding: 0 !important;
+  overflow-y: auto;
+  background:
+    linear-gradient(90deg, rgba(23, 32, 51, 0.04) 1px, transparent 1px) 0 0 / 30px 30px,
+    linear-gradient(0deg, rgba(23, 32, 51, 0.035) 1px, transparent 1px) 0 0 / 30px 30px,
+    var(--portal-paper) !important;
+  color: var(--portal-ink);
+}
+
+.portal-auth-aside {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  gap: 2rem;
+  padding: clamp(1.5rem, 5vw, 4.5rem);
+  background:
+    linear-gradient(140deg, rgba(0, 59, 122, 0.94), rgba(25, 116, 92, 0.88)),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 18px);
+  border-right: 3px solid var(--portal-ink);
+  box-shadow: inset -20px 0 0 rgba(255, 250, 240, 0.08);
+  color: var(--portal-sheet);
+  overflow: hidden;
+}
+
+.portal-auth-aside::after {
+  content: "";
+  position: absolute;
+  inset: auto -12% 12% 24%;
+  height: 3px;
+  background: rgba(255, 250, 240, 0.5);
+  box-shadow:
+    0 18px 0 rgba(255, 250, 240, 0.22),
+    0 36px 0 rgba(255, 250, 240, 0.12);
+  transform: rotate(-8deg);
+  z-index: -1;
+}
+
+.portal-auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.portal-auth-brand-mark {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(255, 250, 240, 0.78);
+  border-radius: 8px;
+  background: rgba(255, 250, 240, 0.12);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.portal-auth-brand > span:last-child {
+  display: grid;
+  gap: 0.08rem;
+}
+
+.portal-auth-brand strong {
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+}
+
+.portal-auth-brand small,
+.portal-auth-statement > span,
+.portal-auth-footer span {
+  color: rgba(255, 250, 240, 0.72);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.portal-auth-statement {
+  align-self: center;
+  max-width: 620px;
+}
+
+.portal-auth-statement h1 {
+  max-width: 590px;
+  margin: 0.65rem 0 0;
+  color: var(--portal-sheet);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 4rem;
+  line-height: 0.96;
+  letter-spacing: 0;
+}
+
+.portal-auth-progress {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portal-auth-progress li {
+  min-height: 50px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  border-top: 1px solid rgba(255, 250, 240, 0.28);
+  color: rgba(255, 250, 240, 0.54);
+}
+
+.portal-auth-progress li > span {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 250, 240, 0.38);
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.portal-auth-progress li strong {
+  font-size: 0.9rem;
+}
+
+.portal-auth-progress li.current,
+.portal-auth-progress li.complete {
+  color: var(--portal-sheet);
+}
+
+.portal-auth-progress li.current > span {
+  border-color: var(--portal-sheet);
+  background: var(--portal-sheet);
+  color: var(--portal-blue);
+}
+
+.portal-auth-progress li.complete > span {
+  border-color: #ffe1a3;
+  color: #ffe1a3;
+}
+
+.portal-auth-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 250, 240, 0.28);
+}
+
+.portal-auth-footer i {
+  color: #ffe1a3;
+}
+
+.portal-auth-main {
+  min-width: 0;
+  width: 100%;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+}
+
+.portal-auth-main > .login-form,
+.portal-auth-main > form.login-form {
+  width: 100%;
+  max-width: 560px;
+  min-width: 0;
+  margin: 0;
+}
+
+.portal-auth-main .logo-container {
+  display: none;
+}
+
+.login-form {
+  position: relative;
+  min-width: 0;
+  padding: clamp(1.2rem, 3vw, 2rem);
+  border: 3px solid var(--portal-ink);
+  border-radius: var(--portal-radius);
+  background: var(--portal-sheet);
+  box-shadow: var(--portal-hard-shadow);
+  color: var(--portal-ink);
+}
+
+.login-form::before {
+  content: "Student Services Desk";
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin-bottom: 1rem;
+  padding: 0 0.55rem;
+  border: 1px solid var(--portal-line);
+  border-radius: 999px;
+  color: var(--portal-muted);
+  background: #fffdf8;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.logo-container {
+  margin: 0 0 1.15rem;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--portal-ink);
+  text-align: left;
+}
+
+.logo-text {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.logo-text h1 {
+  color: var(--portal-blue);
+  margin: 0;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 3.2rem;
+  line-height: 0.9;
+  letter-spacing: 0;
+}
+
+.logo-text span {
+  color: var(--portal-muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.login-form h2 {
+  margin: 0 0 1rem;
+  color: var(--portal-ink);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 2rem;
+  line-height: 1;
+  text-align: left;
+}
+
+.login-form > p,
+.login-form .subtitle {
+  margin: -0.35rem 0 1.25rem;
+  color: var(--portal-muted);
+  text-align: left;
+  line-height: 1.55;
+}
+
+.auth-flow-panel,
+.login-form form {
+  animation: portal-rise 260ms ease-out both;
+}
+
+.login-mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin: 0 0 1rem;
+  padding: 0.35rem;
+  border: 2px solid var(--portal-ink);
+  border-radius: 999px;
+  background: #efe6d7;
+}
+
+.login-mode-tab {
+  min-width: 0;
+  min-height: 42px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--portal-muted);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.login-mode-tab:hover {
+  color: var(--portal-blue);
+  border-color: transparent;
+}
+
+.login-mode-tab.active {
+  background: var(--portal-ink);
+  color: var(--portal-sheet);
+  box-shadow: none;
+}
+
+.input-group,
+.form-group,
+.db-field {
+  position: relative;
+}
+
+.container label,
+.login-form label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--portal-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.container input[type="email"],
+.container input[type="password"],
+.container input[type="text"],
+.container input[type="tel"],
+.container select,
+.container textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 2.65rem;
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+  background: #fffdf8;
+  color: var(--portal-ink);
+  font-size: 1rem;
+  transition: box-shadow 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+.container textarea {
+  min-height: 110px;
+  padding: 0.8rem 1rem;
+}
+
+.container select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--portal-ink) 50%),
+    linear-gradient(135deg, var(--portal-ink) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 20px, calc(100% - 12px) 20px;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.container input:focus,
+.container select:focus,
+.container textarea:focus {
+  outline: none;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(199, 149, 43, 0.2);
+  transform: translateY(-1px);
+}
+
+.input-icon {
+  top: 39px;
+  left: 14px;
+  color: var(--portal-blue);
+}
+
+.toggle-password {
+  top: 39px;
+  color: var(--portal-muted);
+}
+
+.email-suffix-input {
+  min-height: 46px;
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+  background: #fffdf8;
+}
+
+.email-suffix-input:focus-within {
+  border-color: var(--portal-ink);
+  box-shadow: 0 0 0 4px rgba(199, 149, 43, 0.2);
+}
+
+.email-suffix-input input {
+  min-height: 42px;
+  padding: 0 0.85rem;
+}
+
+.email-suffix-input .email-domain-toggle {
+  min-width: 150px;
+  border-left: 2px solid var(--portal-ink);
+  background: #efe6d7;
+  color: var(--portal-ink);
+  font-weight: 800;
+}
+
+.input-hint {
+  color: var(--portal-muted);
+}
+
+.otp-inputs {
+  grid-template-columns: repeat(6, minmax(34px, 48px));
+  justify-content: start;
+  width: 100%;
+}
+
+.otp-inputs input.otp-input {
+  width: 100%;
+  height: 48px;
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+  background: #fffdf8;
+  color: var(--portal-ink);
+}
+
+.login-btn,
+.container .login-btn,
+.profile-picture-upload-btn {
+  min-height: 46px;
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+  background: var(--portal-blue);
+  color: #fffaf0;
+  box-shadow: 4px 4px 0 rgba(23, 32, 51, 0.16);
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.login-btn:hover:not(:disabled),
+.profile-picture-upload-btn:hover {
+  transform: translate(-1px, -1px);
+  border-color: var(--portal-ink);
+  background: #0a4c95;
+  box-shadow: 6px 6px 0 rgba(23, 32, 51, 0.16);
+}
+
+.login-btn-secondary {
+  background: transparent;
+  color: var(--portal-blue);
+  box-shadow: none;
+}
+
+.options-group {
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.remember-me,
+.forgot-password,
+.signup-link,
+.signup-link a,
+.department-links a {
+  color: var(--portal-ink);
+}
+
+.forgot-password,
+.signup-link a {
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.divider {
+  border-bottom: 2px solid var(--portal-line);
+}
+
+.divider span {
+  background: var(--portal-sheet);
+  color: var(--portal-muted);
+  font-weight: 800;
+}
+
+.department-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.department-links a {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--portal-line);
+  border-radius: 8px;
+  background: #fffdf8;
+  padding: 0 0.55rem;
+  font-size: 0.82rem;
+}
+
+.department-links a:hover {
+  background: #efe6d7;
+  color: var(--portal-ink);
+  transform: none;
+}
+
+.error-message,
+.success-message {
+  border-radius: 8px;
+  border-width: 2px;
+  padding: 0.75rem 0.85rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.error-message {
+  color: var(--portal-red) !important;
+  background: #fff0ed !important;
+  border-color: rgba(186, 63, 51, 0.28) !important;
+}
+
+.success-message {
+  color: var(--portal-green);
+  background: #eefaf4;
+  border-color: rgba(25, 116, 92, 0.26);
+}
+
+.profile-picture-preview {
+  border: 3px solid var(--portal-ink);
+  border-radius: 24px;
+  background: #efe6d7;
+}
+
+/* Shared interior shell */
+.dashboard-container,
+.booking-page,
+.sessions-page,
+.verification-page,
+.db-page {
+  min-height: 100vh;
+  color: var(--portal-ink);
+  background:
+    linear-gradient(90deg, rgba(23, 32, 51, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(0deg, rgba(23, 32, 51, 0.03) 1px, transparent 1px) 0 0 / 32px 32px,
+    var(--portal-paper);
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.dashboard-header,
+.booking-header,
+.db-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 0.85rem 1rem;
+  border-bottom: 3px solid var(--portal-ink);
+  background: rgba(255, 250, 240, 0.95);
+  box-shadow: none;
+  backdrop-filter: blur(14px);
+}
+
+.header-content,
+.dashboard-main,
+.booking-layout,
+.verification-header,
+.verification-page .sessions-list,
+.sessions-header,
+.sessions-list,
+.db-layout {
+  width: min(1320px, calc(100% - 2rem));
+  max-width: none;
+}
+
+.header-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin: 0 auto;
+  gap: 1rem;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.logo-section::before {
+  content: "F";
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--portal-ink);
+  border-radius: 10px;
+  background: var(--portal-blue);
+  color: var(--portal-sheet);
+  box-shadow: 4px 4px 0 rgba(23, 32, 51, 0.16);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.logo-section:has(.brand-mark)::before {
+  display: none;
+}
+
+.logo-section h1,
+.booking-title h1,
+.db-header h1,
+.verification-header h1,
+.sessions-header h1,
+.dashboard-section-heading h2,
+.booking-toolbar h2,
+.db-toolbar h2 {
+  color: var(--portal-ink);
+  font-family: "Newsreader", Georgia, serif;
+  letter-spacing: 0;
+}
+
+.logo-section h1 {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.logo-section span,
+.user-email,
+.user-role,
+.booking-title span,
+.db-kicker,
+.dashboard-section-heading p,
+.booking-toolbar span,
+.db-toolbar p,
+.sessions-header p,
+.verification-header .subtitle {
+  color: var(--portal-muted);
+  font-weight: 700;
+}
+
+.user-section,
+.user-info {
+  align-items: center;
+}
+
+.user-info {
+  text-align: right;
+}
+
+.logout-btn,
+.booking-icon-button,
+.db-back,
+.db-link-button,
+.schedule-open-calendar,
+.calendar-nav-btn,
+.today-btn,
+.week-nav-btn,
+.secondary-btn,
+.back-button {
+  min-height: 42px;
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+  background: #fffdf8;
+  color: var(--portal-ink);
+  box-shadow: none;
+  padding: 0 0.8rem;
+  font-weight: 800;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.logout-btn:hover,
+.booking-icon-button:hover,
+.db-back:hover,
+.db-link-button:hover,
+.schedule-open-calendar:hover,
+.calendar-nav-btn:hover,
+.today-btn:hover,
+.week-nav-btn:hover,
+.secondary-btn:hover,
+.back-button:hover {
+  transform: translate(-1px, -1px);
+  border-color: var(--portal-ink);
+  background: #efe6d7;
+  box-shadow: 4px 4px 0 rgba(23, 32, 51, 0.14);
+}
+
+.dashboard-hero {
+  width: min(1320px, calc(100% - 2rem));
+  margin: 1rem auto 0;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  border: 3px solid var(--portal-ink);
+  border-radius: var(--portal-radius);
+  background:
+    linear-gradient(110deg, rgba(0, 59, 122, 0.96), rgba(25, 116, 92, 0.9)),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px 20px);
+  box-shadow: var(--portal-hard-shadow);
+}
+
+.dashboard-hero::before,
+.dashboard-hero::after {
+  display: none;
+}
+
+.hero-eyebrow,
+.hero-meta-row span {
+  border-radius: 8px;
+  background: rgba(255, 250, 240, 0.14);
+}
+
+.greeting {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 4.2rem;
+  letter-spacing: 0;
+}
+
+.greeting span {
+  color: #ffe1a3;
+}
+
+.hero-profile-card {
+  border: 2px solid rgba(255, 250, 240, 0.42);
+  border-radius: var(--portal-radius);
+  background: rgba(255, 250, 240, 0.12);
+  box-shadow: none;
+}
+
+.dashboard-main {
+  margin: 0 auto;
+  padding: 1rem 0 3rem;
+}
+
+.dashboard-schedule,
+.schedule-panel,
+.action-grid {
+  animation: portal-rise 320ms ease-out both;
+}
+
+.schedule-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 390px);
+}
+
+.schedule-list-card,
+.schedule-month-card,
+.action-card,
+.booking-board,
+.booking-summary,
+.booking-detail,
+.sessions-page .session-card,
+.empty-state,
+.error-state,
+.verification-card,
+.stats-bar,
+.db-sidebar,
+.db-form-panel,
+.db-list-panel,
+.db-import-panel,
+.weekly-calendar,
+.instructions,
+.register-empty-state,
+.classes-grid {
+  border: 2px solid var(--portal-ink);
+  border-radius: var(--portal-radius);
+  background: var(--portal-sheet);
+  box-shadow: var(--portal-hard-shadow);
+}
+
+.schedule-card-header,
+.schedule-month-header,
+.db-panel-heading,
+.card-header {
+  border-bottom-color: var(--portal-line);
+}
+
+.schedule-list-card,
+.schedule-month-card,
+.db-form-panel,
+.db-list-panel,
+.db-import-panel {
+  padding: 1rem;
+}
+
+.schedule-card-header button,
+.db-primary,
+.db-search button,
+.create-sessions-btn,
+.primary-btn,
+.submit-btn,
+.register-btn,
+.btn-primary,
+.schedule-empty-actions button,
+.booking-empty-actions button {
+  min-height: 42px;
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+  background: var(--portal-blue);
+  color: var(--portal-sheet);
+  box-shadow: 4px 4px 0 rgba(23, 32, 51, 0.16);
+  font-weight: 800;
+}
+
+.schedule-card-header button:hover,
+.db-primary:hover,
+.db-search button:hover,
+.create-sessions-btn:hover:not(:disabled),
+.primary-btn:hover:not(:disabled),
+.submit-btn:hover:not(:disabled),
+.register-btn:hover:not(:disabled),
+.btn-primary:hover:not(:disabled),
+.schedule-empty-actions button:hover,
+.booking-empty-actions button:hover {
+  transform: translate(-1px, -1px);
+  background: #0a4c95;
+  border-color: var(--portal-ink);
+  box-shadow: 6px 6px 0 rgba(23, 32, 51, 0.16);
+}
+
+.action-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.action-card {
+  min-height: 132px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+  border-width: 2px;
+  text-align: left;
+  color: var(--portal-ink);
+  background: var(--portal-sheet);
+}
+
+.action-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 rgba(23, 32, 51, 0.14);
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+  background: #efe6d7;
+  color: var(--portal-blue);
+  font-size: 1.15rem;
+}
+
+.card-title {
+  color: var(--portal-ink);
+  font-size: 1.02rem;
+  font-weight: 800;
+}
+
+.card-description {
+  color: var(--portal-muted);
+  line-height: 1.42;
+}
+
+.schedule-date-badge,
+.hero-avatar,
+.booking-day-number {
+  border-radius: 8px;
+}
+
+.schedule-date-blue,
+.schedule-type-blue,
+.booking-event-blue {
+  --event-color: var(--portal-sky);
+}
+
+.schedule-date-gold,
+.schedule-type-gold,
+.booking-event-gold {
+  --event-color: var(--portal-gold);
+}
+
+/* Calendar and grid-heavy interiors */
+.calendar-header,
+.classes-toolbar,
+.booking-toolbar,
+.db-toolbar {
+  border: 2px solid var(--portal-ink);
+  border-radius: var(--portal-radius);
+  background: var(--portal-sheet);
+  box-shadow: var(--portal-hard-shadow);
+  padding: 0.9rem;
+}
+
+.instructions {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  color: var(--portal-ink);
+  background: #fff7df;
+}
+
+.instructions p {
+  color: var(--portal-ink);
+}
+
+.weekly-calendar {
+  overflow: auto;
+}
+
+.calendar-month-indicator {
+  top: 0.65rem;
+  left: 0.65rem;
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+  background: var(--portal-gold);
+  color: var(--portal-ink);
+}
+
+.calendar-grid,
+.classes-grid-header,
+.classes-grid-row {
+  background: var(--portal-ink);
+  gap: 1px;
+}
+
+.time-column,
+.time-header,
+.time-slot-label,
+.day-column,
+.day-header,
+.time-slot,
+.classes-grid-day,
+.classes-grid-time-col,
+.classes-grid-time-cell,
+.classes-grid-cell {
+  border-color: transparent;
+  background: #fffdf8;
+}
+
+.time-header,
+.day-header,
+.classes-grid-day,
+.classes-grid-time-col,
+.classes-grid-time-cell {
+  background: #efe6d7;
+}
+
+.day-date {
+  color: var(--portal-blue);
+}
+
+.time-slot.selected,
+.time-slot:hover,
+.class-block:hover {
+  background: #fff7df;
+}
+
+.session-card,
+.available-slot-card,
+.class-block {
+  border: 2px solid rgba(23, 32, 51, 0.22);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.class-block {
+  background: #eaf4ff;
+  color: var(--portal-blue);
+}
+
+.class-block--mine {
+  background: #eaf8f1;
+  color: var(--portal-green);
+}
+
+.class-block--full {
+  background: #fff0ed;
+  color: var(--portal-red);
+}
+
+.modal-overlay {
+  background: rgba(23, 32, 51, 0.55);
+  backdrop-filter: blur(8px);
+}
+
+.modal-content {
+  border: 3px solid var(--portal-ink);
+  border-radius: var(--portal-radius);
+  background: var(--portal-sheet);
+  color: var(--portal-ink);
+  box-shadow: 10px 10px 0 rgba(23, 32, 51, 0.18);
+}
+
+.modal-content h3 {
+  font-family: "Newsreader", Georgia, serif;
+  color: var(--portal-ink);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea,
+.db-entry-form input,
+.db-entry-form select,
+.db-entry-form textarea,
+.db-search,
+.db-import-form textarea,
+.session-type-filter select {
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+  background: #fffdf8;
+  color: var(--portal-ink);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.db-entry-form input:focus,
+.db-entry-form select:focus,
+.db-entry-form textarea:focus,
+.db-search:focus-within,
+.db-import-form textarea:focus,
+.session-type-filter select:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(199, 149, 43, 0.2);
+}
+
+.cancel-btn,
+.secondary-btn,
+.btn-secondary {
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+  background: #fffdf8;
+  color: var(--portal-ink);
+  font-weight: 800;
+}
+
+.delete-btn,
+.primary-btn.danger,
+.secondary-btn.danger-outline {
+  border: 2px solid var(--portal-ink);
+  background: var(--portal-red);
+  color: var(--portal-sheet);
+}
+
+/* Booking calendar */
+.booking-layout {
+  margin: 1rem auto 0;
+  grid-template-columns: minmax(0, 1fr) minmax(290px, 360px);
+}
+
+.booking-header {
+  grid-template-columns: auto 1fr auto;
+}
+
+.booking-board,
+.booking-summary,
+.booking-detail {
+  border-width: 2px;
+}
+
+.booking-day {
+  min-height: 120px;
+  border: 2px solid var(--portal-line);
+  border-radius: 8px;
+  background: #fffdf8;
+}
+
+.booking-day:hover,
+.booking-day:focus-visible,
+.booking-day.selected {
+  border-color: var(--portal-ink);
+  box-shadow: 4px 4px 0 rgba(23, 32, 51, 0.13);
+}
+
+/* Sessions and verification */
+.sessions-page,
+.verification-page {
+  max-width: none;
+  align-items: stretch;
+  padding: 1rem;
+}
+
+.sessions-header,
+.verification-header {
+  margin: 0 auto 1rem;
+  padding: 1rem;
+  border: 2px solid var(--portal-ink);
+  border-radius: var(--portal-radius);
+  background: var(--portal-sheet);
+  box-shadow: var(--portal-hard-shadow);
+  text-align: left;
+}
+
+.sessions-header h1,
+.verification-header h1 {
+  margin: 0;
+  font-size: 2.8rem;
+}
+
+.sessions-page .back-button,
+.verification-page .back-button {
+  align-self: start;
+  margin: 0 auto 1rem;
+  width: min(1320px, calc(100% - 2rem));
+}
+
+.sessions-page .sessions-list,
+.verification-page .sessions-list {
+  margin: 0 auto;
+}
+
+.sessions-page .session-card {
+  align-items: stretch;
+  border-width: 2px;
+}
+
+.session-tutor h3,
+.session-details h4 {
+  color: var(--portal-ink);
+}
+
+.tutor-profile-details,
+.participant {
+  border: 1px solid var(--portal-line);
+  border-left: 4px solid var(--portal-blue);
+  border-radius: 8px;
+  background: #fff7df;
+}
+
+.verification-card {
+  overflow: hidden;
+}
+
+.verification-card .card-header {
+  background: var(--portal-blue);
+  color: var(--portal-sheet);
+}
+
+.verification-card.verified {
+  border-color: var(--portal-green);
+}
+
+.verification-card.verified .card-header {
+  background: var(--portal-green);
+}
+
+.stats-bar {
+  justify-content: start;
+  box-shadow: var(--portal-hard-shadow);
+}
+
+.stat-number {
+  color: var(--portal-blue);
+}
+
+/* Database manager */
+.db-layout {
+  grid-template-columns: 280px minmax(0, 1fr);
+}
+
+.db-sidebar {
+  top: 78px;
+}
+
+.db-section-button {
+  border-radius: 8px;
+  color: var(--portal-ink);
+  font-weight: 800;
+}
+
+.db-section-button.active {
+  background: var(--portal-blue);
+  color: var(--portal-sheet);
+}
+
+.db-admin-pill {
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+  background: #fff7df;
+  color: var(--portal-ink);
+}
+
+.db-content-grid {
+  grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+}
+
+.db-message {
+  border: 2px solid var(--portal-ink);
+  border-radius: 8px;
+}
+
+.portal-auth-shell button:focus-visible,
+.portal-auth-shell a:focus-visible,
+.dashboard-container button:focus-visible,
+.booking-page button:focus-visible,
+.sessions-page button:focus-visible,
+.verification-page button:focus-visible,
+.db-page button:focus-visible,
+.db-page input:focus-visible,
+.db-page textarea:focus-visible,
+.db-page select:focus-visible {
+  outline: 3px solid var(--portal-gold);
+  outline-offset: 3px;
+}
+
+@keyframes portal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 980px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-auth-aside {
+    min-height: auto;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 1.25rem 2rem;
+    padding: 1.25rem;
+    border-right: 0;
+    border-bottom: 3px solid var(--portal-ink);
+  }
+
+  .portal-auth-statement {
+    align-self: start;
+  }
+
+  .portal-auth-statement h1 {
+    max-width: 520px;
+    font-size: 2.4rem;
+  }
+
+  .portal-auth-progress {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .portal-auth-progress li {
+    grid-template-columns: 34px minmax(0, 1fr);
+    border-top: 0;
+    border-left: 1px solid rgba(255, 250, 240, 0.28);
+    padding-left: 0.75rem;
+  }
+
+  .portal-auth-footer {
+    display: none;
+  }
+
+  .schedule-panel,
+  .dashboard-hero,
+  .booking-layout,
+  .db-layout,
+  .db-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .db-sidebar {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .header-content,
+  .booking-header,
+  .db-header {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .user-section,
+  .db-admin-pill {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 720px) {
+  .portal-auth-aside {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 0.9rem;
+  }
+
+  .portal-auth-statement h1 {
+    max-width: 100%;
+    font-size: 1.85rem;
+    overflow-wrap: anywhere;
+  }
+
+  .portal-auth-progress {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .portal-auth-progress li {
+    min-height: 38px;
+    border-left: 0;
+    border-top: 1px solid rgba(255, 250, 240, 0.24);
+    padding-left: 0;
+  }
+
+  .portal-auth-main {
+    max-width: 100vw;
+    padding: 1rem;
+    overflow-x: hidden;
+  }
+
+  .login-form {
+    width: 100%;
+    padding: 1rem;
+    overflow: hidden;
+  }
+
+  .login-mode-tabs {
+    width: 100%;
+  }
+
+  .login-mode-tab {
+    padding: 0.6rem 0.35rem;
+    font-size: 0.78rem;
+    line-height: 1.15;
+    white-space: normal;
+  }
+
+  .input-group,
+  .email-suffix-input,
+  .options-group {
+    min-width: 0;
+  }
+
+  .options-group {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .logo-text h1 {
+    font-size: 2.5rem;
+  }
+
+  .login-form h2 {
+    font-size: 1.7rem;
+  }
+
+  .greeting {
+    font-size: 2.55rem;
+  }
+
+  .sessions-header h1,
+  .verification-header h1 {
+    font-size: 2.2rem;
+  }
+
+  .department-links,
+  .action-card {
+    grid-template-columns: 1fr;
+  }
+
+  .action-card {
+    min-height: auto;
+  }
+
+  .calendar-header,
+  .classes-toolbar,
+  .booking-toolbar,
+  .db-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .weekly-calendar,
+  .classes-grid,
+  .booking-board {
+    overflow-x: auto;
+  }
+
+  .calendar-grid,
+  .classes-grid-header,
+  .classes-grid-row {
+    min-width: 820px;
+  }
+
+  .booking-month-grid {
+    min-width: 720px;
+  }
+
+  .sessions-page .session-card {
+    flex-direction: column;
+  }
+
+  .stats-bar {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .stat {
+    align-items: flex-start;
+    border-right: 0;
+    border-bottom: 1px solid var(--portal-line);
+    padding: 0 0 0.75rem;
+  }
+
+  .stat:last-child {
+    border-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-auth-shell *,
+  .dashboard-container *,
+  .booking-page *,
+  .sessions-page *,
+  .verification-page *,
+  .db-page * {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
