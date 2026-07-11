@@ -114,117 +114,13 @@ textarea {
   object-fit: cover;
   opacity: 0;
   transform: scale(1.04);
-  transition: opacity 1200ms ease-in-out;
+  transition: opacity 700ms ease-in-out;
   will-change: opacity, transform;
 }
 
 .portal-auth-carousel-slide.active {
   opacity: 1;
-  animation: portal-carousel-drift 7s ease-out both;
-}
-
-.portal-auth-carousel-controls {
-  position: absolute !important;
-  top: clamp(1.5rem, 5vw, 4.5rem);
-  right: clamp(1.5rem, 5vw, 4.5rem);
-  z-index: 3 !important;
-  display: grid;
-  justify-items: end;
-  gap: 0.5rem;
-  color: var(--portal-sheet);
-}
-
-.portal-auth-carousel-caption {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  max-width: 240px;
-  margin: 0;
-  color: rgba(255, 250, 240, 0.88);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.055em;
-  line-height: 1.35;
-  text-align: right;
-  text-transform: uppercase;
-}
-
-.portal-auth-carousel-caption span {
-  color: #ffe1a3;
-  white-space: nowrap;
-}
-
-.portal-auth-carousel-actions,
-.portal-auth-carousel-dots {
-  display: flex;
-  align-items: center;
-}
-
-.portal-auth-carousel-actions {
-  gap: 0.55rem;
-}
-
-.portal-auth-carousel-dots {
-  gap: 0.35rem;
-}
-
-.portal-auth-carousel-dots button,
-.portal-auth-carousel-toggle {
-  min-height: 28px;
-  border: 1px solid rgba(255, 250, 240, 0.48);
-  background: rgba(0, 25, 62, 0.36);
-  color: var(--portal-sheet);
-  backdrop-filter: blur(8px);
-  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
-}
-
-.portal-auth-carousel-dots button {
-  width: 28px;
-  min-width: 28px;
-  padding: 0;
-  border-radius: 999px;
-}
-
-.portal-auth-carousel-dots button::after {
-  content: "";
-  display: block;
-  width: 6px;
-  height: 6px;
-  margin: auto;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.portal-auth-carousel-dots button.active {
-  border-color: #ffe1a3;
-  background: #ffe1a3;
-  color: var(--portal-blue);
-}
-
-.portal-auth-carousel-toggle {
-  padding: 0 0.65rem;
-  border-radius: 999px;
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.portal-auth-carousel-dots button:hover,
-.portal-auth-carousel-toggle:hover {
-  border-color: var(--portal-sheet);
-  background: rgba(255, 250, 240, 0.2);
-  transform: translateY(-1px);
-}
-
-.portal-auth-carousel-dots button.active:hover {
-  background: #ffe1a3;
-}
-
-.portal-auth-carousel-dots button:focus-visible,
-.portal-auth-carousel-toggle:focus-visible {
-  outline: 3px solid #ffe1a3;
-  outline-offset: 3px;
+  animation: portal-carousel-drift 3s ease-out both;
 }
 
 .portal-auth-brand {
@@ -1405,15 +1301,9 @@ textarea {
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-rows: auto auto;
     gap: 1.25rem 2rem;
-    padding: 1.25rem 1.25rem 4rem;
+    padding: 1.25rem;
     border-right: 0;
     border-bottom: 3px solid var(--portal-ink);
-  }
-
-  .portal-auth-carousel-controls {
-    top: auto;
-    right: 1.25rem;
-    bottom: 1rem;
   }
 
   .portal-auth-statement {
@@ -1473,17 +1363,6 @@ textarea {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
     gap: 0.9rem;
-    padding-bottom: 4.4rem;
-  }
-
-  .portal-auth-carousel-controls {
-    right: 1rem;
-    bottom: 0.85rem;
-  }
-
-  .portal-auth-carousel-caption {
-    max-width: 190px;
-    font-size: 0.62rem;
   }
 
   .portal-auth-statement h1 {
