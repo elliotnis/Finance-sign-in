@@ -61,12 +61,12 @@ INTEREST_RATES = {
 ASSETS = [
     {
         "id": "stock_a",
-        "fake_name": "Meta Platforms",
+        "fake_name": "Pulse Social",
         "kind": "Equity",
         "tradable": True,
         "unit": "share",
         "color": "#1f6feb",
-        "profile": "Formerly Facebook: a global social-media and digital-advertising company shaped by engagement, ad demand, privacy rules, and platform investment.",
+        "profile": "Global social network funded by digital advertising, where engagement, privacy rules, advertiser demand, and ambitious platform investment all matter.",
         "prices": [
             160, 194, 164, 131,
             166, 193, 178, 205,
@@ -77,12 +77,12 @@ ASSETS = [
     },
     {
         "id": "stock_b",
-        "fake_name": "Occidental Petroleum",
+        "fake_name": "Cedar Ridge Energy",
         "kind": "Equity",
         "tradable": True,
         "unit": "share",
         "color": "#ce7e00",
-        "profile": "US oil-and-gas producer whose returns depend on crude prices, production discipline, debt, and capital allocation.",
+        "profile": "US-focused oil-and-gas producer whose returns depend on crude prices, output discipline, debt, and capital allocation.",
         "prices": [
             65, 83, 82, 61,
             66, 51, 44, 41,
@@ -93,12 +93,12 @@ ASSETS = [
     },
     {
         "id": "stock_c",
-        "fake_name": "Eli Lilly",
+        "fake_name": "Aster Therapeutics",
         "kind": "Equity",
         "tradable": True,
         "unit": "share",
         "color": "#7c3aed",
-        "profile": "US pharmaceutical company with established medicines and high-stakes research pipelines, including diabetes and obesity treatments.",
+        "profile": "Research-led medicines company with established treatments and high-stakes late-stage programs in metabolic disease and other major conditions.",
         "prices": [
             85, 92, 107, 116,
             125, 111, 110, 131,
@@ -109,12 +109,12 @@ ASSETS = [
     },
     {
         "id": "metal_d",
-        "fake_name": "Gold",
+        "fake_name": "Harbor Metal",
         "kind": "Commodity",
         "tradable": True,
         "unit": "oz",
         "color": "#b88a00",
-        "profile": "Gold priced in US dollars per troy ounce; a defensive asset shaped by real yields, the US dollar, central-bank demand, and risk appetite.",
+        "profile": "Defensive precious metal priced in US dollars per ounce, shaped by real yields, currency strength, central-bank demand, and risk appetite.",
         "prices": [
             1320, 1250, 1190, 1282,
             1292, 1409, 1472, 1517,
@@ -125,12 +125,12 @@ ASSETS = [
     },
     {
         "id": "energy_e",
-        "fake_name": "WTI Crude Oil",
+        "fake_name": "Meridian Crude",
         "kind": "Commodity",
         "tradable": True,
         "unit": "barrel",
         "color": "#0f766e",
-        "profile": "West Texas Intermediate crude oil priced per barrel, driven by global mobility, OPEC+ supply policy, inventories, and geopolitical risk.",
+        "profile": "Benchmark crude oil priced per barrel, driven by global mobility, producer supply policy, inventories, and geopolitical risk.",
         "prices": [
             65, 74, 76, 42,
             60, 58, 56, 61,
@@ -141,12 +141,12 @@ ASSETS = [
     },
     {
         "id": "fx_f",
-        "fake_name": "EUR / USD",
+        "fake_name": "Atlas Currency Pair",
         "kind": "FX",
         "tradable": True,
         "unit": "lot",
         "color": "#0b7285",
-        "profile": "Euro versus US dollar exchange rate, driven by relative central-bank policy, growth expectations, trade, and market stress.",
+        "profile": "Major developed-market currency pair driven by relative central-bank policy, growth expectations, trade, and market stress.",
         "prices": [
             1.23, 1.17, 1.16, 1.15,
             1.14, 1.13, 1.10, 1.12,
@@ -157,12 +157,12 @@ ASSETS = [
     },
     {
         "id": "fear_g",
-        "fake_name": "CBOE VIX",
+        "fake_name": "Market Nerves Index",
         "kind": "Indicator",
         "tradable": False,
         "unit": "index",
         "color": "#dc2626",
-        "profile": "The CBOE Volatility Index: an options-implied measure of expected S&P 500 volatility, shown as a market-stress signal only.",
+        "profile": "Options-implied measure of expected broad-market volatility, shown as a market-stress signal only and not directly tradable.",
         "prices": [
             37, 16, 22, 36,
             15, 18, 21, 14,
