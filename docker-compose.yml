@@ -32,7 +32,9 @@ services:
       # Admins allowed to create/cancel classes (comma-separated emails)
       ADMIN_EMAILS: ${ADMIN_EMAILS:-}
       # Dedicated event hosts; normal portal admins do not inherit this role.
-      GAMEMASTER_EMAILS: ${GAMEMASTER_EMAILS:-}
+      # Keep the approved Youth Financetopia hosts available when the server's
+      # preserved .env has not yet declared GAMEMASTER_EMAILS.
+      GAMEMASTER_EMAILS: ${GAMEMASTER_EMAILS:-cylaucb@connect.ust.hk,mikiyeung@ust.hk}
     depends_on:
       mongo:
         condition: service_healthy
