@@ -100,8 +100,6 @@ function YouthFinancetopiaPortal() {
   const decisionPeriodRef = useRef(null);
 
   const isAuthenticated = Boolean(sessionToken && sessionEmail);
-  const currentYear = state?.game?.current_period?.year;
-  const interestRate = currentYear ? state?.interest_rates?.[currentYear] || 0 : 0;
   const isLeader = Boolean(state?.team?.is_leader);
   const isRoundOpen = Boolean(state?.game?.is_round_open && secondsLeft > 0);
   const notebookOwner = state?.team?.team_code || sessionEmail || 'guest';
@@ -526,15 +524,8 @@ function YouthFinancetopiaPortal() {
               decisionBusy={actionBusy === 'decision'}
               isLeader={isLeader}
               isRoundOpen={isRoundOpen}
-              interestRate={interestRate}
               evidenceIds={evidenceIds}
               toggleEvidence={toggleEvidence}
-              stance={stance}
-              setStance={setStance}
-              confidence={confidence}
-              setConfidence={setConfidence}
-              thesis={thesis}
-              setThesis={setThesis}
             />
           )}
 
@@ -845,15 +836,8 @@ function MarketMission({
   decisionBusy,
   isLeader,
   isRoundOpen,
-  interestRate,
   evidenceIds,
   toggleEvidence,
-  stance,
-  setStance,
-  confidence,
-  setConfidence,
-  thesis,
-  setThesis,
 }) {
   return (
     <div className="yf-stack">
@@ -876,28 +860,6 @@ function MarketMission({
       <section className="yf-market-board">
         <SectionHeading eyebrow="PRICE BOARD" title="What the market has shown so far" note="Charts stop at the current quarter - future prices stay hidden." />
         <AssetGrid assets={state?.assets || []} />
-      </section>
-
-      <section className="yf-decision-zone" id="decision-ticket">
-        <div className="yf-ticket-copy">
-          <span>TEAM DECISION / {state?.game?.current_period?.label}</span>
-          <h2>Turn your clues into one careful move.</h2>
-          <p>A strong choice has a reason, a confidence level, and numbers your team understands.</p>
-          <div className="yf-rate-note">
-            <i className="fa-solid fa-piggy-bank" />
-            <div><b>Holding cash is also a decision.</b><span>Cash currently earns about {pct(interestRate * 100)} per year.</span></div>
-          </div>
-        </div>
-        <DecisionNotebook
-          news={state?.news || []}
-          evidenceIds={evidenceIds}
-          stance={stance}
-          setStance={setStance}
-          confidence={confidence}
-          setConfidence={setConfidence}
-          thesis={thesis}
-          setThesis={setThesis}
-        />
         <DecisionBoard
           team={state?.team}
           portfolio={state?.portfolio}
@@ -1035,45 +997,6 @@ function AssetGrid({ assets }) {
         );
       })}
     </div>
-  );
-}
-
-function DecisionNotebook({ news, evidenceIds, stance, setStance, confidence, setConfidence, thesis, setThesis }) {
-  const pinned = news.filter((item) => evidenceIds.includes(item.id));
-  return (
-    <section className="yf-notebook">
-      <div className="yf-notebook-binding" aria-hidden="true"><span /><span /><span /><span /><span /></div>
-      <div className="yf-notebook-title"><span>TEAM NOTEBOOK</span><b>{pinned.length} pinned clue{pinned.length === 1 ? '' : 's'}</b></div>
-      <div className="yf-notebook-clues">
-        {pinned.length ? pinned.slice(-3).map((item) => (
-          <span key={item.id}><i style={{ background: item.asset_color }} />{item.asset_name}: {item.headline}</span>
-        )) : <p>Pin a briefing above to keep your strongest clues beside the order ticket.</p>}
-      </div>
-      <fieldset>
-        <legend>Our current view</legend>
-        <div className="yf-choice-row">
-          {[['opportunity', 'Opportunity'], ['caution', 'Caution'], ['unsure', 'Not sure yet']].map(([value, label]) => (
-            <button type="button" key={value} className={stance === value ? 'active' : ''} onClick={() => setStance(value)}>{label}</button>
-          ))}
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>Confidence</legend>
-        <div className="yf-choice-row compact">
-          {['low', 'medium', 'high'].map((value) => (
-            <button type="button" key={value} className={confidence === value ? 'active' : ''} onClick={() => setConfidence(value)}>{value}</button>
-          ))}
-        </div>
-      </fieldset>
-      <label htmlFor="yf-thesis">One-sentence reason <span>{thesis.length}/140</span></label>
-      <textarea
-        id="yf-thesis"
-        value={thesis}
-        onChange={(event) => setThesis(event.target.value.slice(0, 140))}
-        placeholder="We think... because... but we may be wrong if..."
-        rows="3"
-      />
-    </section>
   );
 }
 
