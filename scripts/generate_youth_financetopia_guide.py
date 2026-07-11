@@ -87,6 +87,44 @@ EVENT_SOURCES = {
     "2022q3-c-demand": ["S18"],
     "2022q4-a-measurement": ["S06", "S07"],
     "2022q4-f-dollar": ["S29", "S32"],
+    "2018q1-growth": ["S01", "S02"],
+    "2018q1-energy-calm": ["S19", "S28", "S33", "S34"],
+    "2018q2-platform-warning": ["S02"],
+    "2018q2-health-momentum": ["S12"],
+    "2018q3-risk-off": ["S20", "S28", "S32"],
+    "2018q3-oil-glut": ["S19", "S33"],
+    "2018q4-policy-pause": ["S20", "S28"],
+    "2018q4-supply-response": ["S19", "S33"],
+    "2019q1-debt-pressure": ["S08"],
+    "2019q1-defensive-split": ["S13", "S23", "S28"],
+    "2019q2-trade-slowdown": ["S19", "S33"],
+    "2019q2-policy-support": ["S21", "S22", "S23", "S32"],
+    "2019q3-risk-rally": ["S21", "S22", "S28"],
+    "2019q3-energy-balance": ["S19", "S33"],
+    "2019q4-pandemic-shock": ["S25", "S28", "S34"],
+    "2019q4-defensive-offset": ["S13", "S23", "S24"],
+    "2020q1-policy-rebound": ["S04", "S14", "S24", "S28", "S34"],
+    "2020q1-energy-reset": ["S25", "S33"],
+    "2020q2-digital-ads": ["S04"],
+    "2020q2-energy-fragility": ["S09", "S25", "S28", "S33"],
+    "2020q3-reopening-trade": ["S09", "S14", "S26", "S28"],
+    "2020q3-health-pipeline": ["S14", "S15"],
+    "2020q4-reopening-cashflow": ["S09", "S26", "S33"],
+    "2020q4-metabolic-data": ["S16"],
+    "2021q1-broad-reopening": ["S04", "S09", "S16", "S26", "S28"],
+    "2021q1-rate-divergence": ["S23", "S29", "S32"],
+    "2021q2-variant-risk": ["S26", "S28"],
+    "2021q2-research-catalysts": ["S16", "S17"],
+    "2021q3-inflation-shift": ["S23", "S28", "S29", "S32"],
+    "2021q3-health-repricing": ["S16", "S17"],
+    "2021q4-energy-scarcity": ["S10", "S26", "S33"],
+    "2021q4-growth-reset": ["S05", "S06", "S28"],
+    "2022q1-platform-competition": ["S06"],
+    "2022q1-obesity-breakthrough": ["S18"],
+    "2022q2-recession-energy": ["S11", "S30", "S33"],
+    "2022q2-dollar-squeeze": ["S29", "S31", "S32", "S34"],
+    "2022q3-inflation-turn": ["S29", "S31", "S32", "S34"],
+    "2022q3-advertising-slump": ["S07"],
 }
 
 
@@ -119,6 +157,41 @@ def literal_assignment(name: str):
             if any(isinstance(target, ast.Name) and target.id == name for target in node.targets):
                 return ast.literal_eval(node.value)
     raise KeyError(f"Could not find {name} in {TRADING_PATH}")
+
+
+def load_events():
+    events = literal_assignment("NEWS_EVENTS")
+    for row_id, period_id, asset_ids, headline, brief, rumor, question in literal_assignment("BALANCE_SIGNAL_ROWS"):
+        events.append({
+            "id": row_id,
+            "period_id": period_id,
+            "asset_ids": asset_ids,
+            "headline": headline,
+            "brief": brief,
+            "rumor": rumor,
+            "question": question,
+        })
+    events.sort(key=lambda event: event["period_id"])
+    return events
+
+
+def event_asset_ids(event):
+    return event.get("asset_ids") or [event["asset_id"]]
+
+
+def event_asset_names(event, asset_map):
+    return [asset_map[asset_id]["fake_name"] for asset_id in event_asset_ids(event)]
+
+
+def event_debrief_lens(event, asset_map):
+    asset_ids = event_asset_ids(event)
+    if len(asset_ids) == 1:
+        return DEBRIEF_LENS[asset_ids[0]]
+    names = ", ".join(event_asset_names(event, asset_map))
+    return (
+        f"Compare how the shared signal could affect {names}. Ask students to separate direct effects "
+        "from indirect effects and explain why the assets may react by different amounts."
+    )
 
 
 def register_fonts() -> None:
@@ -242,9 +315,11 @@ def callout(title: str, body: str, styles, background=CREAM, accent=BLUE):
 
 
 def event_card(event, asset_map, styles):
-    asset = asset_map[event["asset_id"]]
+    asset_ids = event_asset_ids(event)
+    asset = asset_map[asset_ids[0]]
+    asset_names = ", ".join(event_asset_names(event, asset_map))
     source_ids = ", ".join(EVENT_SOURCES.get(event["id"], [])) or "Scenario synthesis"
-    period_asset = f"{event['period_id'][:4]} Q{event['period_id'][-1]} / {asset['fake_name']}"
+    period_asset = f"{event['period_id'][:4]} Q{event['period_id'][-1]} / {asset_names}"
     header = Table([
         [Paragraph(safe(period_asset).upper(), styles["card_label"]), Paragraph(safe(event["headline"]), styles["card_title"])],
     ], colWidths=[32 * mm, 127 * mm])
@@ -259,7 +334,7 @@ def event_card(event, asset_map, styles):
         [Paragraph("CONFIRMED BRIEF", styles["card_label"]), Paragraph(safe(event["brief"]), styles["small"])],
         [Paragraph("FICTIONAL RUMOR", styles["card_label"]), Paragraph(safe(event["rumor"]), styles["small"])],
         [Paragraph("ASK THE ROOM", styles["card_label"]), Paragraph(safe(event["question"]), styles["quote"])],
-        [Paragraph("DEBRIEF LENS", styles["card_label"]), Paragraph(safe(DEBRIEF_LENS[event["asset_id"]]), styles["small"])],
+        [Paragraph("DEBRIEF LENS", styles["card_label"]), Paragraph(safe(event_debrief_lens(event, asset_map)), styles["small"])],
         [Paragraph("SOURCE IDS", styles["card_label"]), Paragraph(safe(source_ids), styles["tiny"])],
     ], colWidths=[32 * mm, 127 * mm])
     body.setStyle(TableStyle([
@@ -289,7 +364,7 @@ def build_markdown(assets, events, sources) -> None:
         "---",
         'title: "Youth Financetopia Challenge: Newsroom and Facilitator Guide"',
         'subtitle: "Quarter-by-quarter cards, teaching notes and authoritative sources"',
-        'date: "2026-07-10"',
+        'date: "2026-07-12"',
         "---",
         "",
         "# Facilitator-only guide",
@@ -298,7 +373,7 @@ def build_markdown(assets, events, sources) -> None:
         "",
         "This is a classroom simulation, not investment advice. Prices are simplified and rounded teaching traces. The card timeline compresses real themes into a fictional 2018-2022 game sequence. Rumors are invented, and cards are not dated historical reporting or recommendations.",
         "",
-        "The React challenge releases cards quarter by quarter and clips every chart to the current period. Students see fake names only. The host controls the timer and round progression through a server-verified admin session.",
+        "The React challenge releases cards quarter by quarter and clips every chart to the current period. Each quarter's cards are forward-looking signals for the next revealed mark. Students see fake names only. The host controls the timer and round progression through a server-verified admin session.",
         "",
         "# Fake asset map",
         "",
@@ -333,10 +408,10 @@ def build_markdown(assets, events, sources) -> None:
         if year != current_year:
             current_year = year
             lines.extend([f"## {year}", ""])
-        asset = asset_map[event["asset_id"]]
+        asset_names = ", ".join(event_asset_names(event, asset_map))
         source_ids = ", ".join(EVENT_SOURCES.get(event["id"], [])) or "Scenario synthesis"
         lines.extend([
-            f"### {event['period_id'][:4]} Q{event['period_id'][-1]} / {ascii_text(asset['fake_name'])}",
+            f"### {event['period_id'][:4]} Q{event['period_id'][-1]} / {ascii_text(asset_names)}",
             "",
             f"**Headline:** {ascii_text(event['headline'])}",
             "",
@@ -346,7 +421,7 @@ def build_markdown(assets, events, sources) -> None:
             "",
             f"**Ask the room:** {ascii_text(event['question'])}",
             "",
-            f"**Debrief lens:** {ascii_text(DEBRIEF_LENS[event['asset_id']])}",
+            f"**Debrief lens:** {ascii_text(event_debrief_lens(event, asset_map))}",
             "",
             f"**Source IDs:** {source_ids}",
             "",
@@ -394,7 +469,7 @@ def build_pdf() -> None:
     register_fonts()
     styles = build_styles()
     assets = literal_assignment("ASSETS")
-    events = literal_assignment("NEWS_EVENTS")
+    events = load_events()
     sources = json.loads(SOURCE_PATH.read_text(encoding="utf-8"))
     asset_map = {asset["id"]: asset for asset in assets}
     build_markdown(assets, events, sources)
@@ -426,7 +501,7 @@ def build_pdf() -> None:
             "Quarter-by-quarter market cards, source anchors, teaching notes and classroom safeguards.",
             ParagraphStyle("CoverDeck", parent=styles["body"], fontSize=12, leading=17, textColor=INK_SOFT, spaceAfter=18),
         ),
-        Table([[Paragraph("2018-2022", styles["cover_year"]), Paragraph("VERSION 2.0<br/>10 JULY 2026", styles["eyebrow"])]], colWidths=[118 * mm, 47 * mm], style=TableStyle([
+        Table([[Paragraph("2018-2022", styles["cover_year"]), Paragraph("VERSION 2.1<br/>12 JULY 2026", styles["eyebrow"])]], colWidths=[118 * mm, 47 * mm], style=TableStyle([
             ("BACKGROUND", (0, 0), (-1, -1), LIME),
             ("BOX", (0, 0), (-1, -1), 1.2, INK),
             ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -450,7 +525,7 @@ def build_pdf() -> None:
         Paragraph("HOW TO USE THIS GUIDE", styles["eyebrow"]),
         Paragraph("Keep the uncertainty. Teach the process.", styles["h1"]),
         Paragraph(
-            "The challenge works when students must decide what matters without being handed the real ticker, the future path or a perfect answer. The website releases only the current quarter's cards and only historical chart points earned so far.",
+            "The challenge works when students must decide what matters without being handed the real ticker, the future path or a perfect answer. The website releases only the current quarter's forward-looking cards and historical chart points earned so far. Those cards are evidence for predicting the next revealed quarterly mark, not explanations of the mark already on screen.",
             styles["body"],
         ),
         Spacer(1, 4 * mm),

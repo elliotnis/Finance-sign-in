@@ -1,7 +1,7 @@
 ---
 title: "Youth Financetopia Challenge: Newsroom and Facilitator Guide"
 subtitle: "Quarter-by-quarter cards, teaching notes and authoritative sources"
-date: "2026-07-10"
+date: "2026-07-12"
 ---
 
 # Facilitator-only guide
@@ -10,19 +10,19 @@ date: "2026-07-10"
 
 This is a classroom simulation, not investment advice. Prices are simplified and rounded teaching traces. The card timeline compresses real themes into a fictional 2018-2022 game sequence. Rumors are invented, and cards are not dated historical reporting or recommendations.
 
-The React challenge releases cards quarter by quarter and clips every chart to the current period. Students see fake names only. The host controls the timer and round progression through a server-verified gamemaster session.
+The React challenge releases cards quarter by quarter and clips every chart to the current period. Each quarter's cards are forward-looking signals for the next revealed mark. Students see fake names only. The host controls the timer and round progression through a server-verified admin session.
 
 # Fake asset map
 
 | Game name | Real-world trace | Teaching role |
 | --- | --- | --- |
-| Stock A | Meta Platforms / Facebook | Advertising, privacy, platform growth and rate sensitivity |
-| Stock B | Occidental Petroleum | Commodity exposure, acquisition leverage and balance-sheet repair |
-| Stock C | Eli Lilly | Defensive sales, research catalysts and manufacturing execution |
-| Metal D | Gold | Safe-haven demand, real yields, dollar strength and liquidity |
-| Energy E | Crude oil, mainly WTI | Demand, supply, storage, sanctions and trade routes |
-| FX Pair F | EUR/USD | Relative policy, growth expectations and dollar cycles |
-| Fear Gauge G | Cboe VIX | Broad-market expected volatility from SPX options |
+| Pulse Social | Meta Platforms / Facebook | Advertising, privacy, platform growth and rate sensitivity |
+| Cedar Ridge Energy | Occidental Petroleum | Commodity exposure, acquisition leverage and balance-sheet repair |
+| Aster Therapeutics | Eli Lilly | Defensive sales, research catalysts and manufacturing execution |
+| Harbor Metal | Gold | Safe-haven demand, real yields, dollar strength and liquidity |
+| Meridian Crude | Crude oil, mainly WTI | Demand, supply, storage, sanctions and trade routes |
+| Atlas Currency Pair | EUR/USD | Relative policy, growth expectations and dollar cycles |
+| Market Nerves Index | Cboe VIX | Broad-market expected volatility from SPX options |
 
 ## Accuracy notes
 
@@ -42,7 +42,7 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 ## 2018
 
-### 2018 Q1 / Stock A
+### 2018 Q1 / Pulse Social
 
 **Headline:** Questions grow around customer data
 
@@ -56,7 +56,7 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S01, S02
 
-### 2018 Q1 / Stock C
+### 2018 Q1 / Aster Therapeutics
 
 **Headline:** A steady business hints at another trial update
 
@@ -70,7 +70,35 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S12
 
-### 2018 Q2 / Energy E
+### 2018 Q1 / Pulse Social
+
+**Headline:** Usage and ad budgets stay resilient
+
+**Confirmed brief:** Privacy questions are growing, but user activity remains strong and large advertisers have not reduced their budgets.
+
+**Fictional rumor:** Smaller advertisers may be increasing spending faster than expected.
+
+**Ask the room:** Can strong operating momentum outweigh a serious long-term risk for one more quarter?
+
+**Debrief lens:** Separate user attention from advertiser economics, then add regulation and discount-rate risk.
+
+**Source IDs:** S01, S02
+
+### 2018 Q1 / Cedar Ridge Energy, Meridian Crude, Market Nerves Index
+
+**Headline:** Tighter supply meets calmer markets
+
+**Confirmed brief:** Oil inventories are falling while producers remain disciplined. At the same time, broad demand for market protection is easing.
+
+**Fictional rumor:** A few major buyers may be locking in more fuel than usual.
+
+**Ask the room:** Which assets benefit when physical supply tightens but financial fear falls?
+
+**Debrief lens:** Compare how the shared signal could affect Cedar Ridge Energy, Meridian Crude, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S19, S28, S33, S34
+
+### 2018 Q2 / Meridian Crude
 
 **Headline:** Supply looks tight - for now
 
@@ -84,7 +112,35 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S19, S33
 
-### 2018 Q3 / Stock B
+### 2018 Q2 / Pulse Social, Market Nerves Index
+
+**Headline:** Growth warning shakes confidence
+
+**Confirmed brief:** A large online platform warns that user growth and future profit margins may slow even though current advertising revenue is healthy.
+
+**Fictional rumor:** Product teams may be spending heavily to address privacy concerns.
+
+**Ask the room:** Does a strong current quarter matter if management lowers expectations?
+
+**Debrief lens:** Compare how the shared signal could affect Pulse Social, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S02
+
+### 2018 Q2 / Aster Therapeutics
+
+**Headline:** Core medicines carry the quarter
+
+**Confirmed brief:** Established treatments are selling steadily while several research programs continue without a major setback.
+
+**Fictional rumor:** Analysts may be raising long-term estimates before the next formal update.
+
+**Ask the room:** How valuable is dependable growth when other sectors are becoming less certain?
+
+**Debrief lens:** Distinguish dependable core sales from uncertain trial, approval and capacity outcomes.
+
+**Source IDs:** S12
+
+### 2018 Q3 / Cedar Ridge Energy
 
 **Headline:** Board studies a large expansion
 
@@ -98,7 +154,35 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S08
 
-### 2018 Q4 / Metal D
+### 2018 Q3 / Pulse Social, Market Nerves Index, Atlas Currency Pair
+
+**Headline:** Rates and trade tension hit risky assets
+
+**Confirmed brief:** Borrowing costs are rising and trade tensions are weakening confidence. Investors are paying more for protection and cutting exposure to expensive growth companies.
+
+**Fictional rumor:** Systematic funds may have more selling to complete.
+
+**Ask the room:** Which assets are most sensitive when both rates and fear rise together?
+
+**Debrief lens:** Compare how the shared signal could affect Pulse Social, Market Nerves Index, Atlas Currency Pair. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S20, S28, S32
+
+### 2018 Q3 / Cedar Ridge Energy, Meridian Crude
+
+**Headline:** Supply catches up with demand
+
+**Confirmed brief:** Production is rising faster than consumption, and inventories are starting to rebuild after months of tight supply.
+
+**Fictional rumor:** Exporters may compete for market share instead of cutting output quickly.
+
+**Ask the room:** How does an unexpected surplus affect both a commodity and a debt-heavy producer?
+
+**Debrief lens:** Compare how the shared signal could affect Cedar Ridge Energy, Meridian Crude. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S19, S33
+
+### 2018 Q4 / Harbor Metal
 
 **Headline:** Safe-haven demand meets a strong currency
 
@@ -112,9 +196,37 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S19, S23
 
+### 2018 Q4 / Pulse Social, Market Nerves Index
+
+**Headline:** Policy makers sound more patient
+
+**Confirmed brief:** After a sharp selloff, policy makers signal they can slow future rate increases if growth weakens further.
+
+**Fictional rumor:** Large funds may be preparing to rebuild positions sold during the panic.
+
+**Ask the room:** Can a change in policy expectations reverse fear before the economy improves?
+
+**Debrief lens:** Compare how the shared signal could affect Pulse Social, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S20, S28
+
+### 2018 Q4 / Cedar Ridge Energy, Meridian Crude
+
+**Headline:** Producers discuss supply restraint
+
+**Confirmed brief:** After a steep energy-price fall, major producers are considering output cuts while lower prices begin to support demand.
+
+**Fictional rumor:** The announced cuts may be larger than traders expect.
+
+**Ask the room:** What usually happens after low prices trigger both less supply and more demand?
+
+**Debrief lens:** Compare how the shared signal could affect Cedar Ridge Energy, Meridian Crude. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S19, S33
+
 ## 2019
 
-### 2019 Q1 / Stock A
+### 2019 Q1 / Pulse Social
 
 **Headline:** Advertisers return, scrutiny remains
 
@@ -128,7 +240,7 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S03
 
-### 2019 Q1 / FX Pair F
+### 2019 Q1 / Atlas Currency Pair
 
 **Headline:** Central banks signal different paths
 
@@ -142,11 +254,39 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S20, S21, S22, S32
 
-### 2019 Q2 / Stock C
+### 2019 Q1 / Cedar Ridge Energy
+
+**Headline:** Expansion plan raises financing questions
+
+**Confirmed brief:** An oil producer is pursuing a large acquisition that could increase reserves but leave the combined company with much more debt.
+
+**Fictional rumor:** Some shareholders may oppose the deal unless terms improve.
+
+**Ask the room:** When can buying more assets destroy value for existing owners?
+
+**Debrief lens:** Ask whether stronger commodity cash flow is enough to compensate for leverage and execution risk.
+
+**Source IDs:** S08
+
+### 2019 Q1 / Aster Therapeutics, Harbor Metal, Market Nerves Index
+
+**Headline:** Defensive choices send mixed signals
+
+**Confirmed brief:** Medicine-pricing debate pressures healthcare shares while softer growth expectations increase demand for defensive metal and market protection.
+
+**Fictional rumor:** Policy proposals may be harsher in headlines than in final law.
+
+**Ask the room:** Why can two defensive assets move in different directions?
+
+**Debrief lens:** Compare how the shared signal could affect Aster Therapeutics, Harbor Metal, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S13, S23, S28
+
+### 2019 Q2 / Aster Therapeutics
 
 **Headline:** Pricing debate reaches healthcare
 
-**Confirmed brief:** Politicians are discussing medicine affordability while Stock C invests in a smaller research business.
+**Confirmed brief:** Politicians are discussing medicine affordability while a major drugmaker invests in a smaller research business.
 
 **Fictional rumor:** Researchers believe the acquired science may be worth more than the purchase price.
 
@@ -156,7 +296,35 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S13
 
-### 2019 Q3 / Metal D
+### 2019 Q2 / Cedar Ridge Energy, Meridian Crude, Market Nerves Index
+
+**Headline:** Trade dispute clouds industrial demand
+
+**Confirmed brief:** Factories and freight indicators are slowing as trade restrictions widen, weakening expected fuel demand and increasing uncertainty.
+
+**Fictional rumor:** Producers may delay investment before they cut current output.
+
+**Ask the room:** Which reacts first to weaker demand: the commodity, the producer, or market fear?
+
+**Debrief lens:** Compare how the shared signal could affect Cedar Ridge Energy, Meridian Crude, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S19, S33
+
+### 2019 Q2 / Pulse Social, Harbor Metal, Atlas Currency Pair
+
+**Headline:** Central banks prepare support
+
+**Confirmed brief:** Policy makers are discussing lower rates as global growth slows, reducing financing pressure but also changing currency and metal incentives.
+
+**Fictional rumor:** Markets may already expect more easing than officials will deliver.
+
+**Ask the room:** Who benefits most when rates fall but expectations are already high?
+
+**Debrief lens:** Compare how the shared signal could affect Pulse Social, Harbor Metal, Atlas Currency Pair. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S21, S22, S23, S32
+
+### 2019 Q3 / Harbor Metal
 
 **Headline:** Rate cuts return to the conversation
 
@@ -170,11 +338,39 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S21, S22, S23
 
-### 2019 Q4 / Stock B
+### 2019 Q3 / Pulse Social, Aster Therapeutics, Market Nerves Index
+
+**Headline:** Lower rates revive risk appetite
+
+**Confirmed brief:** Easier financial conditions support advertising, healthcare valuations, and broader equity demand while the cost of protection falls.
+
+**Fictional rumor:** A temporary trade agreement may be closer than public statements suggest.
+
+**Ask the room:** How can one macro change lift very different businesses at the same time?
+
+**Debrief lens:** Compare how the shared signal could affect Pulse Social, Aster Therapeutics, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S21, S22, S28
+
+### 2019 Q3 / Cedar Ridge Energy, Meridian Crude
+
+**Headline:** Supply discipline steadies energy
+
+**Confirmed brief:** Producers are limiting new spending and inventories are no longer rising as quickly, even though demand growth remains modest.
+
+**Fictional rumor:** Independent producers may cut drilling plans again.
+
+**Ask the room:** Is stabilization enough to help a highly indebted producer?
+
+**Debrief lens:** Compare how the shared signal could affect Cedar Ridge Energy, Meridian Crude. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S19, S33
+
+### 2019 Q4 / Cedar Ridge Energy
 
 **Headline:** Big deal, bigger balance sheet
 
-**Confirmed brief:** Stock B has committed to a major acquisition. Investors now have to judge the extra production against the extra debt.
+**Confirmed brief:** An oil producer has committed to a major acquisition. Investors now have to judge the extra production against the extra debt.
 
 **Fictional rumor:** Credit desks are questioning whether the dividend can stay untouched.
 
@@ -184,9 +380,37 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S08
 
+### 2019 Q4 / Pulse Social, Cedar Ridge Energy, Meridian Crude, Market Nerves Index
+
+**Headline:** Health emergency threatens global activity
+
+**Confirmed brief:** Travel, manufacturing, and in-person commerce are suddenly at risk as a new illness spreads across borders and forecasts are cut rapidly.
+
+**Fictional rumor:** Restrictions may last longer than early official estimates.
+
+**Ask the room:** Which assets face direct demand destruction, and which mainly face a confidence shock?
+
+**Debrief lens:** Compare how the shared signal could affect Pulse Social, Cedar Ridge Energy, Meridian Crude, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S25, S28, S34
+
+### 2019 Q4 / Aster Therapeutics, Harbor Metal
+
+**Headline:** Investors search for resilience and cash
+
+**Confirmed brief:** Healthcare demand looks comparatively stable and defensive metal is wanted as insurance, although forced selling could briefly pressure almost everything.
+
+**Fictional rumor:** Emergency policy support may arrive faster than in past crises.
+
+**Ask the room:** Can a defensive asset fall temporarily during a rush for cash?
+
+**Debrief lens:** Compare how the shared signal could affect Aster Therapeutics, Harbor Metal. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S13, S23, S24
+
 ## 2020
 
-### 2020 Q1 / Energy E
+### 2020 Q1 / Meridian Crude
 
 **Headline:** Travel stops and storage fills
 
@@ -200,7 +424,7 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S25, S33
 
-### 2020 Q1 / Fear Gauge G
+### 2020 Q1 / Market Nerves Index
 
 **Headline:** Stress gauge flashes red
 
@@ -214,7 +438,35 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S28, S34
 
-### 2020 Q2 / Metal D
+### 2020 Q1 / Pulse Social, Aster Therapeutics, Harbor Metal, Market Nerves Index
+
+**Headline:** Emergency support changes expectations
+
+**Confirmed brief:** Governments and central banks launch large support programs while digital activity and essential healthcare demand remain strong.
+
+**Fictional rumor:** Investors may move from maximum fear to recovery bets before the economy reopens.
+
+**Ask the room:** Which assets can recover while the real economy is still weak?
+
+**Debrief lens:** Compare how the shared signal could affect Pulse Social, Aster Therapeutics, Harbor Metal, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S04, S14, S24, S28, S34
+
+### 2020 Q1 / Cedar Ridge Energy, Meridian Crude
+
+**Headline:** Historic supply cuts follow the collapse
+
+**Confirmed brief:** After storage stress and a demand crash, producers announce deep output cuts and some transport activity begins to recover from extremely low levels.
+
+**Fictional rumor:** Temporary well closures may become permanent supply reductions.
+
+**Ask the room:** Can terrible current conditions create the setup for a sharp rebound?
+
+**Debrief lens:** Compare how the shared signal could affect Cedar Ridge Energy, Meridian Crude. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S25, S33
+
+### 2020 Q2 / Harbor Metal
 
 **Headline:** Emergency support changes the macro picture
 
@@ -228,7 +480,35 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S24
 
-### 2020 Q3 / Stock A
+### 2020 Q2 / Pulse Social
+
+**Headline:** Digital demand recovers unevenly
+
+**Confirmed brief:** Online activity stays elevated and large advertisers return faster than small businesses, improving the outlook for a global ad platform.
+
+**Fictional rumor:** Shopping activity inside social apps may be accelerating.
+
+**Ask the room:** Does a shift in where people spend time create a durable advantage?
+
+**Debrief lens:** Separate user attention from advertiser economics, then add regulation and discount-rate risk.
+
+**Source IDs:** S04
+
+### 2020 Q2 / Cedar Ridge Energy, Meridian Crude, Market Nerves Index
+
+**Headline:** Oil rebounds, balance sheets lag
+
+**Confirmed brief:** Crude prices recover from extreme lows, but indebted producers still face weak cash flow and refinancing pressure as market fear gradually declines.
+
+**Fictional rumor:** Lenders may demand asset sales even if the commodity keeps improving.
+
+**Ask the room:** Why might the commodity recover before the company that produces it?
+
+**Debrief lens:** Compare how the shared signal could affect Cedar Ridge Energy, Meridian Crude, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S09, S25, S28, S33
+
+### 2020 Q3 / Pulse Social
 
 **Headline:** Online activity jumps, advertising stays uneven
 
@@ -242,7 +522,35 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S04
 
-### 2020 Q4 / Stock C
+### 2020 Q3 / Cedar Ridge Energy, Meridian Crude, Market Nerves Index
+
+**Headline:** Vaccine progress strengthens reopening bets
+
+**Confirmed brief:** Encouraging vaccine results improve expectations for travel and fuel demand, helping energy markets while reducing demand for protection.
+
+**Fictional rumor:** Distribution could begin sooner than conservative forecasts assume.
+
+**Ask the room:** Which prices move first when investors anticipate reopening months ahead?
+
+**Debrief lens:** Compare how the shared signal could affect Cedar Ridge Energy, Meridian Crude, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S09, S14, S26, S28
+
+### 2020 Q3 / Aster Therapeutics
+
+**Headline:** Research pipeline broadens beyond the crisis
+
+**Confirmed brief:** A medicines company reports progress across both emergency treatments and longer-term metabolic and neurological programs.
+
+**Fictional rumor:** One non-pandemic program may eventually matter more than the emergency treatment.
+
+**Ask the room:** How should investors compare temporary revenue with a durable pipeline?
+
+**Debrief lens:** Distinguish dependable core sales from uncertain trial, approval and capacity outcomes.
+
+**Source IDs:** S14, S15
+
+### 2020 Q4 / Aster Therapeutics
 
 **Headline:** Treatment data draws attention
 
@@ -256,13 +564,41 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S14, S15
 
+### 2020 Q4 / Cedar Ridge Energy, Meridian Crude, Market Nerves Index
+
+**Headline:** Reopening improves the cash-flow map
+
+**Confirmed brief:** Vaccinations begin, mobility forecasts rise, and producers hold back spending, creating a better supply-demand outlook and calmer markets.
+
+**Fictional rumor:** Energy inventories may normalize faster than expected.
+
+**Ask the room:** How does restrained supply amplify a demand recovery?
+
+**Debrief lens:** Compare how the shared signal could affect Cedar Ridge Energy, Meridian Crude, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S09, S26, S33
+
+### 2020 Q4 / Aster Therapeutics
+
+**Headline:** Metabolic treatment clears an important hurdle
+
+**Confirmed brief:** Late-stage data show meaningful improvements in a large chronic-disease market, strengthening confidence in a future product launch.
+
+**Fictional rumor:** Doctors may use the treatment more broadly than the initial label suggests.
+
+**Ask the room:** What makes a clinical result commercially important rather than merely interesting?
+
+**Debrief lens:** Distinguish dependable core sales from uncertain trial, approval and capacity outcomes.
+
+**Source IDs:** S16
+
 ## 2021
 
-### 2021 Q1 / Stock B
+### 2021 Q1 / Cedar Ridge Energy
 
 **Headline:** Reopening lifts fuel expectations
 
-**Confirmed brief:** Mobility is improving and producers are still cautious about adding supply. Stock B is using stronger cash flow to repair its finances.
+**Confirmed brief:** Mobility is improving and producers are still cautious about adding supply. One producer is using stronger cash flow to repair its finances.
 
 **Fictional rumor:** Value investors are quietly revisiting companies they avoided last year.
 
@@ -272,7 +608,35 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S10, S26
 
-### 2021 Q2 / Fear Gauge G
+### 2021 Q1 / Pulse Social, Cedar Ridge Energy, Aster Therapeutics, Meridian Crude, Market Nerves Index
+
+**Headline:** Reopening lifts several kinds of demand
+
+**Confirmed brief:** Mobility, advertising, elective healthcare, and industrial activity improve together while market protection becomes less expensive.
+
+**Fictional rumor:** Household savings may support a stronger spending burst than forecasts show.
+
+**Ask the room:** Which businesses gain directly, and which gain mainly through confidence?
+
+**Debrief lens:** Compare how the shared signal could affect Pulse Social, Cedar Ridge Energy, Aster Therapeutics, Meridian Crude, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S04, S09, S16, S26, S28
+
+### 2021 Q1 / Harbor Metal, Atlas Currency Pair
+
+**Headline:** Recovery changes the rate debate
+
+**Confirmed brief:** One economy is recovering faster, pushing its bond yields higher and changing the relative appeal of defensive metal and major currencies.
+
+**Fictional rumor:** Policy makers may tolerate higher inflation for longer than bond traders expect.
+
+**Ask the room:** How do relative rates connect a currency pair and a defensive metal?
+
+**Debrief lens:** Compare how the shared signal could affect Harbor Metal, Atlas Currency Pair. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S23, S29, S32
+
+### 2021 Q2 / Market Nerves Index
 
 **Headline:** Calmer index, noisy corners
 
@@ -286,11 +650,39 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S27, S28
 
-### 2021 Q3 / Stock C
+### 2021 Q2 / Market Nerves Index, Meridian Crude
+
+**Headline:** A new variant tests the calm
+
+**Confirmed brief:** A more contagious virus variant creates uncertainty about travel even as vaccination keeps the base-case recovery intact.
+
+**Fictional rumor:** Options traders may be underpricing short-term disruption.
+
+**Ask the room:** When does a setback change the trend rather than merely interrupt it?
+
+**Debrief lens:** Compare how the shared signal could affect Market Nerves Index, Meridian Crude. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S26, S28
+
+### 2021 Q2 / Aster Therapeutics
+
+**Headline:** Two programs strengthen the growth case
+
+**Confirmed brief:** Positive metabolic data and a regulatory breakthrough designation improve the odds that new medicines can expand future sales.
+
+**Fictional rumor:** Manufacturing capacity may become the next constraint.
+
+**Ask the room:** What new risk appears after scientific uncertainty falls?
+
+**Debrief lens:** Distinguish dependable core sales from uncertain trial, approval and capacity outcomes.
+
+**Source IDs:** S16, S17
+
+### 2021 Q3 / Aster Therapeutics
 
 **Headline:** Two research programs approach key updates
 
-**Confirmed brief:** Stock C has more than one late-stage program that could affect its future growth story.
+**Confirmed brief:** A drugmaker has more than one late-stage program that could affect its future growth story.
 
 **Fictional rumor:** Specialist discussions describe one dataset as unusually strong.
 
@@ -300,11 +692,39 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S16, S17
 
-### 2021 Q4 / Stock A
+### 2021 Q3 / Market Nerves Index, Atlas Currency Pair, Harbor Metal
+
+**Headline:** Inflation changes policy expectations
+
+**Confirmed brief:** Persistent inflation leads traders to expect earlier tightening, supporting one side of a major currency pair and challenging defensive metal.
+
+**Fictional rumor:** Bond markets may be moving faster than central-bank guidance.
+
+**Ask the room:** How can fear rise even when economic growth remains healthy?
+
+**Debrief lens:** Compare how the shared signal could affect Market Nerves Index, Atlas Currency Pair, Harbor Metal. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S23, S28, S29, S32
+
+### 2021 Q3 / Aster Therapeutics
+
+**Headline:** Strong data expand the addressable market
+
+**Confirmed brief:** Research results suggest a metabolic treatment could serve a much larger patient group than investors assumed a year ago.
+
+**Fictional rumor:** Early demand forecasts may still underestimate physician interest.
+
+**Ask the room:** How should a larger potential market change valuation before launch?
+
+**Debrief lens:** Distinguish dependable core sales from uncertain trial, approval and capacity outcomes.
+
+**Source IDs:** S16, S17
+
+### 2021 Q4 / Pulse Social
 
 **Headline:** A new identity comes with a large bill
 
-**Confirmed brief:** Stock A is redirecting investment toward a long-term platform idea while near-term growth becomes less certain.
+**Confirmed brief:** A consumer internet company is redirecting investment toward a long-term platform idea while near-term growth becomes less certain.
 
 **Fictional rumor:** The rebrand may be distracting leaders from the existing advertising engine.
 
@@ -314,9 +734,37 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S05, S06
 
+### 2021 Q4 / Cedar Ridge Energy, Meridian Crude
+
+**Headline:** Energy supply struggles to match reopening
+
+**Confirmed brief:** Demand has returned near pre-crisis levels while producer investment remains restrained, improving cash flow for efficient oil companies.
+
+**Fictional rumor:** A prominent long-term investor may be accumulating shares in the sector.
+
+**Ask the room:** How does scarcity affect the commodity and a leveraged producer differently?
+
+**Debrief lens:** Compare how the shared signal could affect Cedar Ridge Energy, Meridian Crude. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S10, S26, S33
+
+### 2021 Q4 / Pulse Social, Market Nerves Index
+
+**Headline:** Higher rates expose expensive growth plans
+
+**Confirmed brief:** User growth slows just as rates rise and a consumer platform commits heavily to a long-dated project with uncertain returns.
+
+**Fictional rumor:** Advertising measurement problems may be worse than management first expected.
+
+**Ask the room:** Why do higher rates magnify a company-specific execution problem?
+
+**Debrief lens:** Compare how the shared signal could affect Pulse Social, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S05, S06, S28
+
 ## 2022
 
-### 2022 Q1 / Energy E
+### 2022 Q1 / Meridian Crude
 
 **Headline:** Conflict threatens a major supply route
 
@@ -330,11 +778,11 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S30
 
-### 2022 Q1 / Stock B
+### 2022 Q1 / Cedar Ridge Energy
 
 **Headline:** Stronger prices transform the debt story
 
-**Confirmed brief:** Stock B is generating far more cash as the energy market tightens, giving management new choices about debt and shareholder returns.
+**Confirmed brief:** An oil producer is generating far more cash as the energy market tightens, giving management new choices about debt and shareholder returns.
 
 **Fictional rumor:** A famous long-term investor may still be adding to a position.
 
@@ -344,7 +792,35 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S11
 
-### 2022 Q2 / Metal D
+### 2022 Q1 / Pulse Social
+
+**Headline:** Short-form competition pressures engagement
+
+**Confirmed brief:** A mature social platform faces stronger competition for younger users while privacy changes make advertising results harder to measure.
+
+**Fictional rumor:** Management may increase spending before engagement stabilizes.
+
+**Ask the room:** Can a profitable core business offset weakening user momentum?
+
+**Debrief lens:** Separate user attention from advertiser economics, then add regulation and discount-rate risk.
+
+**Source IDs:** S06
+
+### 2022 Q1 / Aster Therapeutics
+
+**Headline:** Trial results point to a very large market
+
+**Confirmed brief:** A late-stage obesity study reports unusually strong results, increasing expectations for demand across metabolic disease treatment.
+
+**Fictional rumor:** Insurers may cover the treatment sooner than expected.
+
+**Ask the room:** What must happen after strong science for shareholders to benefit?
+
+**Debrief lens:** Distinguish dependable core sales from uncertain trial, approval and capacity outcomes.
+
+**Source IDs:** S18
+
+### 2022 Q2 / Harbor Metal
 
 **Headline:** War risk meets aggressive rate hikes
 
@@ -358,7 +834,35 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S29, S31
 
-### 2022 Q3 / Stock C
+### 2022 Q2 / Cedar Ridge Energy, Meridian Crude
+
+**Headline:** Recession fears challenge the energy spike
+
+**Confirmed brief:** Rapid rate increases and slowing activity forecasts reduce expected fuel demand after an extreme war-driven price surge.
+
+**Fictional rumor:** Physical shortages may ease before geopolitical risk disappears.
+
+**Ask the room:** Can demand fear overpower a genuine supply problem?
+
+**Debrief lens:** Compare how the shared signal could affect Cedar Ridge Energy, Meridian Crude. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S11, S30, S33
+
+### 2022 Q2 / Pulse Social, Harbor Metal, Atlas Currency Pair, Market Nerves Index
+
+**Headline:** A stronger dollar tightens global conditions
+
+**Confirmed brief:** Faster US rate increases strengthen the dollar, pressure a major currency pair and defensive metal, and keep volatility elevated.
+
+**Fictional rumor:** Crowded dollar positions may eventually become vulnerable to reversal.
+
+**Ask the room:** Which move is driven by fundamentals, and which may be driven by positioning?
+
+**Debrief lens:** Compare how the shared signal could affect Pulse Social, Harbor Metal, Atlas Currency Pair, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S29, S31, S32, S34
+
+### 2022 Q3 / Aster Therapeutics
 
 **Headline:** A new treatment could face a supply problem
 
@@ -372,7 +876,35 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S18
 
-### 2022 Q4 / Stock A
+### 2022 Q3 / Harbor Metal, Atlas Currency Pair, Market Nerves Index
+
+**Headline:** Inflation shows early signs of cooling
+
+**Confirmed brief:** Softer inflation data raise hopes that rate increases can slow, weakening the dollar from extreme levels and calming market stress.
+
+**Fictional rumor:** Policy makers may still resist declaring victory.
+
+**Ask the room:** Why can markets turn before central banks officially change direction?
+
+**Debrief lens:** Compare how the shared signal could affect Harbor Metal, Atlas Currency Pair, Market Nerves Index. Ask students to separate direct effects from indirect effects and explain why the assets may react by different amounts.
+
+**Source IDs:** S29, S31, S32, S34
+
+### 2022 Q3 / Pulse Social
+
+**Headline:** Weak advertising meets heavy spending
+
+**Confirmed brief:** Advertisers cut budgets as economic growth slows, while a consumer platform continues investing heavily in an uncertain long-term project.
+
+**Fictional rumor:** Cost reductions may arrive later than investors want.
+
+**Ask the room:** Which matters more during a slowdown: current revenue weakness or future investment discipline?
+
+**Debrief lens:** Separate user attention from advertiser economics, then add regulation and discount-rate risk.
+
+**Source IDs:** S07
+
+### 2022 Q4 / Pulse Social
 
 **Headline:** Advertisers question measurement
 
@@ -386,11 +918,11 @@ The React challenge releases cards quarter by quarter and clips every chart to t
 
 **Source IDs:** S06, S07
 
-### 2022 Q4 / FX Pair F
+### 2022 Q4 / Atlas Currency Pair
 
 **Headline:** Rate gaps pull currencies apart
 
-**Confirmed brief:** One central bank is tightening faster while energy costs put different pressure on the two economies behind FX Pair F.
+**Confirmed brief:** One central bank is tightening faster while energy costs put different pressure on the two economies in a major currency pair.
 
 **Fictional rumor:** Positioning may be crowded after a long move in the same direction.
 
