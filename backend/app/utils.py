@@ -27,6 +27,12 @@ def get_gamemaster_emails():
     return {e.strip().lower() for e in raw.split(",") if e.strip()}
 
 
+def get_trading_participant_emails():
+    """Comma-separated participant emails with direct Youth access."""
+    raw = os.getenv("TRADING_PARTICIPANT_EMAILS", "")
+    return {e.strip().lower() for e in raw.split(",") if e.strip()}
+
+
 def is_admin(email):
     if not email:
         return False
@@ -88,13 +94,15 @@ def is_trading_email_allowed(email):
 def is_trading_player_email_allowed(email):
     """Whether an email can enter the participant side of the challenge.
 
-    Gamemasters deliberately use their own sign-in route and session audience.
-    This prevents a gamemaster login from becoming a participant session with
-    hidden host controls.
+    A person can be approved for both participant and gamemaster access. The
+    sign-in route still determines the server-issued session audience, so a
+    participant session never receives gamemaster controls.
     """
     normalized = normalize_email_for_access(email)
-    if not normalized or not EMAIL_RE.match(normalized) or is_gamemaster(normalized):
+    if not normalized or not EMAIL_RE.match(normalized):
         return False
+    if normalized in get_trading_participant_emails():
+        return True
     allowed = trading_allowed_email_collection.find_one({"email": normalized})
     if not allowed:
         return False

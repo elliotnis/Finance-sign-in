@@ -35,6 +35,9 @@ services:
       # Keep the approved Youth Financetopia hosts available when the server's
       # preserved .env has not yet declared GAMEMASTER_EMAILS.
       GAMEMASTER_EMAILS: ${GAMEMASTER_EMAILS:-cylaucb@connect.ust.hk,mikiyeung@ust.hk}
+      # These event hosts can also sign in on the participant portal. Their
+      # participant session remains separate from their gamemaster session.
+      TRADING_PARTICIPANT_EMAILS: ${TRADING_PARTICIPANT_EMAILS:-cylaucb@connect.ust.hk,mikiyeung@ust.hk}
     depends_on:
       mongo:
         condition: service_healthy

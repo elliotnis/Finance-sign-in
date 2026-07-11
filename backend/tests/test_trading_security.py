@@ -211,6 +211,18 @@ class TradingIdentityTests(unittest.TestCase):
         ):
             self.assertTrue(utils.is_gamemaster("event-host@example.edu"))
 
+    def test_event_host_can_also_use_participant_access(self):
+        with patch.dict(
+            os.environ,
+            {
+                "GAMEMASTER_EMAILS": "event-host@example.edu",
+                "TRADING_PARTICIPANT_EMAILS": "event-host@example.edu",
+            },
+            clear=False,
+        ):
+            self.assertTrue(utils.is_gamemaster("event-host@example.edu"))
+            self.assertTrue(utils.is_trading_player_email_allowed("event-host@example.edu"))
+
     def test_invalid_order_mode_is_rejected_before_storage(self):
         team = {"leader_email": "student@example.edu"}
         with patch.object(trading, "is_trading_player_email_allowed", return_value=True), patch.object(
