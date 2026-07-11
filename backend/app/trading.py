@@ -957,6 +957,117 @@ def place_order(email: str, asset_id: str, side: str, quantity: float, mode: str
     return _place_team_order(team, asset_id, side, quantity, mode)
 
 
+def submit_team_decisions(email: str, decisions: list[dict[str, Any]]):
+    """Lock one complete decision board for the current quarter.
+
+    A board can include buy, sell, and hold rows. It is deliberately an atomic
+    submission: the captain can unsubmit the entire board while the timer is
+    open, but cannot quietly change individual rows after submission.
+    """
+    email = normalize_email_for_access(email)
+    if not is_trading_player_email_allowed(email):
+        return "email_not_allowed"
+    team = get_team_for_email(email)
+    if not team:
+        return "team_required"
+    if team.get("leader_email") != email:
+        return "leader_required"
+    if not isinstance(decisions, list) or not decisions:
+        return "invalid_decisions"
+
+    lock_owner = _acquire_game_lock()
+    if not lock_owner:
+        return "game_busy"
+    try:
+        state = public_game_state()
+        period_index = state["current_period_index"]
+        if not state["is_round_open"]:
+            return "round_closed"
+        if trading_order_collection.find_one({
+            "team_code": team["team_code"], "period_index": period_index, "mode": "discrete",
+        }):
+            return "order_locked"
+
+        portfolio = simulate_portfolio(team["team_code"], period_index)
+        cash = float(portfolio["available_cash"])
+        holdings = {row["asset_id"]: float(row["quantity"]) for row in portfolio["holdings"]}
+        seen_assets = set()
+        submission_id = secrets.token_urlsafe(12)
+        orders = []
+        for raw in decisions:
+            asset_id = str(raw.get("asset_id", ""))
+            side = str(raw.get("side", "hold")).lower()
+            asset = ASSET_LOOKUP.get(asset_id)
+            if not asset or not asset.get("tradable"):
+                return "invalid_asset"
+            if asset_id in seen_assets:
+                return "invalid_decisions"
+            seen_assets.add(asset_id)
+            if side not in {"buy", "sell", "hold"}:
+                return "invalid_side"
+            try:
+                quantity = float(raw.get("quantity", 0))
+            except (TypeError, ValueError):
+                return "invalid_quantity"
+            if side == "hold":
+                quantity = 0.0
+            if side != "hold" and (not math.isfinite(quantity) or quantity <= 0):
+                return "invalid_quantity"
+
+            price = period_price(asset_id, period_index)
+            gross = quantity * price
+            if side == "buy":
+                if gross > cash:
+                    return "insufficient_cash"
+                cash -= gross
+                holdings[asset_id] = holdings.get(asset_id, 0.0) + quantity
+            elif side == "sell":
+                if quantity > holdings.get(asset_id, 0.0):
+                    return "insufficient_holdings"
+                cash += gross
+                holdings[asset_id] = holdings.get(asset_id, 0.0) - quantity
+            orders.append({
+                "team_code": team["team_code"], "asset_id": asset_id, "side": side,
+                "quantity": quantity, "price": round(price, 4), "gross": round(gross, 2),
+                "mode": "discrete", "submission_id": submission_id,
+                "period_index": period_index, "period_id": PERIODS[period_index]["id"],
+                "created_by": team["leader_email"], "created_at": _now(),
+            })
+        trading_order_collection.insert_many(orders)
+        return {"submission_id": submission_id, "orders": [_serialize(order) for order in orders]}
+    finally:
+        _release_game_lock(lock_owner)
+
+
+def unsubmit_team_decisions(email: str):
+    """Unlock the captain's current decision board before the round closes."""
+    email = normalize_email_for_access(email)
+    if not is_trading_player_email_allowed(email):
+        return "email_not_allowed"
+    team = get_team_for_email(email)
+    if not team:
+        return "team_required"
+    if team.get("leader_email") != email:
+        return "leader_required"
+    lock_owner = _acquire_game_lock()
+    if not lock_owner:
+        return "game_busy"
+    try:
+        state = public_game_state()
+        if not state["is_round_open"]:
+            return "round_closed"
+        result = trading_order_collection.delete_many({
+            "team_code": team["team_code"],
+            "period_index": state["current_period_index"],
+            "mode": "discrete",
+        })
+        if not result.deleted_count:
+            return "not_submitted"
+        return {"deleted_count": result.deleted_count}
+    finally:
+        _release_game_lock(lock_owner)
+
+
 def place_api_order(api_key: str, asset_id: str, side: str, quantity: float):
     team = trading_team_collection.find_one({"api_key": api_key})
     if not team or is_gamemaster(team.get("leader_email", "")):
@@ -1095,10 +1206,21 @@ def team_state(email: str):
     game = public_game_state()
     team = get_team_for_email(email)
     portfolio = simulate_portfolio(team["team_code"], game["current_period_index"]) if team else None
+    submitted_decisions = []
+    if team:
+        submitted_decisions = [
+            _serialize(order)
+            for order in trading_order_collection.find({
+                "team_code": team["team_code"],
+                "period_index": game["current_period_index"],
+                "mode": "discrete",
+            }).sort([("created_at", 1)])
+        ]
     return {
         "game": game,
         "team": _public_team(team, email, include_api_key=True),
         "portfolio": portfolio,
+        "submitted_decisions": submitted_decisions,
         "assets": _asset_payload(game["current_period_index"]),
         "periods": PERIODS,
         "news": _news_payload(game["current_period_index"]),

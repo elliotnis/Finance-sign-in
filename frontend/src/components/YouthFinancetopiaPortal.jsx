@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../styles/youthFinancetopiaPortal.css';
@@ -89,7 +89,7 @@ function YouthFinancetopiaPortal() {
   const [orderAsset, setOrderAsset] = useState('stock_a');
   const [orderSide, setOrderSide] = useState('buy');
   const [orderQuantity, setOrderQuantity] = useState('10');
-  const [orderReview, setOrderReview] = useState(null);
+  const [decisions, setDecisions] = useState({});
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [actionBusy, setActionBusy] = useState('');
   const [evidenceIds, setEvidenceIds] = useState([]);
@@ -97,12 +97,9 @@ function YouthFinancetopiaPortal() {
   const [confidence, setConfidence] = useState('medium');
   const [thesis, setThesis] = useState('');
   const [notebookReady, setNotebookReady] = useState(false);
+  const decisionPeriodRef = useRef(null);
 
   const isAuthenticated = Boolean(sessionToken && sessionEmail);
-  const selectedAsset = useMemo(
-    () => (state?.assets || []).find((asset) => asset.id === orderAsset) || state?.assets?.[0],
-    [orderAsset, state]
-  );
   const currentYear = state?.game?.current_period?.year;
   const interestRate = currentYear ? state?.interest_rates?.[currentYear] || 0 : 0;
   const isLeader = Boolean(state?.team?.is_leader);
@@ -210,6 +207,21 @@ function YouthFinancetopiaPortal() {
     }
     setNotebookReady(true);
   }, [notebookOwner]);
+
+  useEffect(() => {
+    if (!state) return;
+    if (decisionPeriodRef.current === state.game?.current_period_index) return;
+    decisionPeriodRef.current = state.game?.current_period_index;
+    const submitted = new Map((state.submitted_decisions || []).map((decision) => [decision.asset_id, decision]));
+    const next = {};
+    (state.assets || []).filter((asset) => asset.tradable).forEach((asset) => {
+      const decision = submitted.get(asset.id);
+      next[asset.id] = decision
+        ? { side: decision.side, quantity: decision.quantity ? String(decision.quantity) : '' }
+        : { side: 'hold', quantity: '' };
+    });
+    setDecisions(next);
+  }, [state]);
 
   useEffect(() => {
     if (!notebookReady) return;
@@ -336,55 +348,35 @@ function YouthFinancetopiaPortal() {
     }
   }
 
-  function prepareOrder(event) {
-    event.preventDefault();
-    const quantity = Number(orderQuantity);
-    if (!Number.isFinite(quantity) || quantity <= 0) {
-      setError('Choose a quantity greater than zero.');
-      return;
-    }
-    if (!selectedAsset) {
-      setError('Choose an asset first.');
-      return;
-    }
-    const total = quantity * Number(selectedAsset.price);
-    const availableCash = Number(
-      state?.portfolio?.available_cash ?? state?.portfolio?.cash ?? 0
-    );
-    const heldQuantity = Number(
-      state?.portfolio?.holdings?.find((item) => item.asset_id === selectedAsset.id)?.quantity || 0
-    );
-    if (orderSide === 'buy' && total > availableCash) {
-      setError(`That order costs ${money(total)}, which is more cash than your team has available.`);
-      return;
-    }
-    if (orderSide === 'sell' && quantity > heldQuantity) {
-      setError(`Your team owns ${number(heldQuantity, 4)} units of ${selectedAsset.fake_name}.`);
-      return;
-    }
-    setError('');
-    setOrderReview({
-      assetId: selectedAsset.id,
-      assetName: selectedAsset.fake_name,
-      side: orderSide,
-      quantity,
-      price: Number(selectedAsset.price),
-      total,
-    });
+  function updateDecision(assetId, patch) {
+    setDecisions((current) => ({ ...current, [assetId]: { ...(current[assetId] || { side: 'hold', quantity: '' }), ...patch } }));
   }
 
-  async function confirmOrder() {
-    if (!orderReview || actionBusy) return;
-    setActionBusy('order');
+  async function submitDecisionBoard() {
+    if (actionBusy) return;
+    const rows = (state?.assets || []).filter((asset) => asset.tradable).map((asset) => ({
+      asset_id: asset.id,
+      side: decisions[asset.id]?.side || 'hold',
+      quantity: Number(decisions[asset.id]?.quantity || 0),
+    }));
+    setActionBusy('decision');
     try {
-      await postJson('/trading/orders', {
-        asset_id: orderReview.assetId,
-        side: orderReview.side,
-        quantity: orderReview.quantity,
-        mode: 'discrete',
-      });
-      setNotice(`${orderReview.side === 'buy' ? 'Bought' : 'Sold'} ${number(orderReview.quantity, 4)} units of ${orderReview.assetName}.`);
-      setOrderReview(null);
+      await postJson('/trading/decisions/submit', { decisions: rows });
+      setNotice('Decision board submitted. It is locked until you unsubmit it or the timer ends.');
+      await loadAll({ quiet: true });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setActionBusy('');
+    }
+  }
+
+  async function unsubmitDecisionBoard() {
+    if (actionBusy) return;
+    setActionBusy('decision');
+    try {
+      await postJson('/trading/decisions/unsubmit');
+      setNotice('Decision board unlocked. Make changes, then submit again before time runs out.');
       await loadAll({ quiet: true });
     } catch (err) {
       setError(err.message);
@@ -527,18 +519,11 @@ function YouthFinancetopiaPortal() {
           {activeTab === 'market' && (
             <MarketMission
               state={state}
-              selectedAsset={selectedAsset}
-              orderAsset={orderAsset}
-              setOrderAsset={setOrderAsset}
-              orderSide={orderSide}
-              setOrderSide={setOrderSide}
-              orderQuantity={orderQuantity}
-              setOrderQuantity={setOrderQuantity}
-              prepareOrder={prepareOrder}
-              orderReview={orderReview}
-              setOrderReview={setOrderReview}
-              confirmOrder={confirmOrder}
-              orderBusy={actionBusy === 'order'}
+              decisions={decisions}
+              updateDecision={updateDecision}
+              submitDecisionBoard={submitDecisionBoard}
+              unsubmitDecisionBoard={unsubmitDecisionBoard}
+              decisionBusy={actionBusy === 'decision'}
               isLeader={isLeader}
               isRoundOpen={isRoundOpen}
               interestRate={interestRate}
@@ -853,18 +838,11 @@ function RoundStrip({ periods, currentIndex }) {
 
 function MarketMission({
   state,
-  selectedAsset,
-  orderAsset,
-  setOrderAsset,
-  orderSide,
-  setOrderSide,
-  orderQuantity,
-  setOrderQuantity,
-  prepareOrder,
-  orderReview,
-  setOrderReview,
-  confirmOrder,
-  orderBusy,
+  decisions,
+  updateDecision,
+  submitDecisionBoard,
+  unsubmitDecisionBoard,
+  decisionBusy,
   isLeader,
   isRoundOpen,
   interestRate,
@@ -897,7 +875,7 @@ function MarketMission({
 
       <section className="yf-market-board">
         <SectionHeading eyebrow="PRICE BOARD" title="What the market has shown so far" note="Charts stop at the current quarter - future prices stay hidden." />
-        <AssetGrid assets={state?.assets || []} selectedId={orderAsset} onSelect={setOrderAsset} />
+        <AssetGrid assets={state?.assets || []} />
       </section>
 
       <section className="yf-decision-zone" id="decision-ticket">
@@ -920,22 +898,16 @@ function MarketMission({
           thesis={thesis}
           setThesis={setThesis}
         />
-        <OrderTicket
+        <DecisionBoard
           team={state?.team}
           portfolio={state?.portfolio}
           assets={state?.assets || []}
-          selectedAsset={selectedAsset}
-          orderAsset={orderAsset}
-          setOrderAsset={setOrderAsset}
-          orderSide={orderSide}
-          setOrderSide={setOrderSide}
-          orderQuantity={orderQuantity}
-          setOrderQuantity={setOrderQuantity}
-          prepareOrder={prepareOrder}
-          orderReview={orderReview}
-          setOrderReview={setOrderReview}
-          confirmOrder={confirmOrder}
-          orderBusy={orderBusy}
+          decisions={decisions}
+          submittedDecisions={state?.submitted_decisions || []}
+          updateDecision={updateDecision}
+          submitDecisionBoard={submitDecisionBoard}
+          unsubmitDecisionBoard={unsubmitDecisionBoard}
+          decisionBusy={decisionBusy}
           isLeader={isLeader}
           isRoundOpen={isRoundOpen}
         />
@@ -1036,13 +1008,13 @@ function MarketTape({ news, currentPeriodId, assets, evidenceIds, toggleEvidence
   );
 }
 
-function AssetGrid({ assets, selectedId, onSelect }) {
+function AssetGrid({ assets }) {
   return (
     <div className="yf-asset-grid">
       {assets.map((asset) => {
         const move = assetMove(asset);
         return (
-          <article key={asset.id} className={`yf-asset-card ${asset.tradable ? '' : 'indicator'} ${selectedId === asset.id ? 'selected' : ''}`}>
+          <article key={asset.id} className={`yf-asset-card ${asset.tradable ? '' : 'indicator'}`}>
             <div className="yf-asset-bar" style={{ background: asset.color }} />
             <div className="yf-asset-head">
               <div><span>{asset.kind}</span><h3>{asset.fake_name}</h3></div>
@@ -1055,9 +1027,7 @@ function AssetGrid({ assets, selectedId, onSelect }) {
               <strong>{asset.kind === 'FX' ? number(asset.price, 4) : money(asset.price, asset.price < 10 ? 4 : 0)}</strong>
             </div>
             {asset.tradable ? (
-              <button type="button" onClick={() => onSelect(asset.id)}>
-                {selectedId === asset.id ? <><i className="fa-solid fa-check" /> In your ticket</> : <>Choose asset <i className="fa-solid fa-arrow-right" /></>}
-              </button>
+              <div className="yf-asset-ready"><i className="fa-solid fa-sliders" /> Set a decision below</div>
             ) : (
               <div className="yf-indicator-note"><i className="fa-solid fa-eye" /> Watch only - not tradable</div>
             )}
@@ -1107,110 +1077,54 @@ function DecisionNotebook({ news, evidenceIds, stance, setStance, confidence, se
   );
 }
 
-function OrderTicket({
+function DecisionBoard({
   team,
   portfolio,
   assets,
-  selectedAsset,
-  orderAsset,
-  setOrderAsset,
-  orderSide,
-  setOrderSide,
-  orderQuantity,
-  setOrderQuantity,
-  prepareOrder,
-  orderReview,
-  setOrderReview,
-  confirmOrder,
-  orderBusy,
+  decisions,
+  submittedDecisions,
+  updateDecision,
+  submitDecisionBoard,
+  unsubmitDecisionBoard,
+  decisionBusy,
   isLeader,
   isRoundOpen,
 }) {
-  const quantity = Number(orderQuantity) || 0;
-  const price = Number(selectedAsset?.price || 0);
-  const estimate = quantity * price;
-  const holding = portfolio?.holdings?.find((item) => item.asset_id === selectedAsset?.id);
-  const owned = Number(holding?.quantity || 0);
-  const disabled = !team || !isLeader || !isRoundOpen;
+  const submitted = submittedDecisions.length > 0;
+  const disabled = !team || !isLeader || !isRoundOpen || submitted;
   let disabledReason = '';
   if (!team) disabledReason = 'Join a team to unlock the ticket.';
   else if (!isLeader) disabledReason = 'Only your team captain can submit. You can still help build the decision.';
   else if (!isRoundOpen) disabledReason = 'Trading is closed. Prepare your view while the host gets the next round ready.';
-
-  function setQuickQuantity(fraction) {
-    if (orderSide === 'buy') {
-      const cash = Number(portfolio?.available_cash ?? portfolio?.cash ?? 0);
-      setOrderQuantity(String(Math.max(0.0001, Math.floor(((cash * fraction) / price) * 10000) / 10000)));
-    } else {
-      setOrderQuantity(String(Math.max(0.0001, Math.floor((owned * fraction) * 10000) / 10000)));
-    }
-  }
-
-  if (orderReview) {
-    const availableCash = Number(portfolio?.available_cash ?? portfolio?.cash ?? 0);
-    const cashAfter = availableCash + (orderReview.side === 'sell' ? orderReview.total : -orderReview.total);
-    return (
-      <section className="yf-order-ticket yf-review-ticket">
-        <div className="yf-ticket-number">REVIEW / 02</div>
-        <div className="yf-review-icon"><i className={`fa-solid fa-arrow-trend-${orderReview.side === 'buy' ? 'up' : 'down'}`} /></div>
-        <span>Final check</span>
-        <h3>{orderReview.side === 'buy' ? 'Buy' : 'Sell'} {orderReview.assetName}</h3>
-        <dl>
-          <div><dt>Quantity</dt><dd>{number(orderReview.quantity, 4)}</dd></div>
-          <div><dt>Price now</dt><dd>{money(orderReview.price, orderReview.price < 10 ? 4 : 0)}</dd></div>
-          <div><dt>Estimated total</dt><dd>{money(orderReview.total)}</dd></div>
-          <div><dt>Cash after</dt><dd className={cashAfter < 0 ? 'negative' : ''}>{money(cashAfter)}</dd></div>
-        </dl>
-        <p>The server checks the live round, cash, and holdings again before accepting this order.</p>
-        <div className="yf-review-actions">
-          <button type="button" className="yf-secondary" onClick={() => setOrderReview(null)} disabled={orderBusy}>Go back</button>
-          <button type="button" className="yf-primary" onClick={confirmOrder} disabled={orderBusy}>
-            {orderBusy ? 'Sending...' : 'Confirm team order'} <i className={`fa-solid ${orderBusy ? 'fa-circle-notch fa-spin' : 'fa-check'}`} />
-          </button>
-        </div>
-      </section>
-    );
-  }
+  else if (submitted) disabledReason = 'Your board is locked. Unsubmit it before the timer ends to make changes.';
+  const submittedByAsset = new Map(submittedDecisions.map((decision) => [decision.asset_id, decision]));
 
   return (
-    <form className="yf-order-ticket" onSubmit={prepareOrder}>
-      <div className="yf-ticket-number">ORDER / 01</div>
-      <div className="yf-order-title"><span>CAPTAIN&apos;S TICKET</span><h3>Check the maths before you move.</h3></div>
-      <label htmlFor="yf-order-asset">Asset</label>
-      <select id="yf-order-asset" value={orderAsset} onChange={(event) => setOrderAsset(event.target.value)}>
-        {assets.filter((asset) => asset.tradable).map((asset) => (
-          <option key={asset.id} value={asset.id}>{asset.fake_name} - {asset.kind}</option>
-        ))}
-      </select>
-      <fieldset>
-        <legend>Action</legend>
-        <div className="yf-side-toggle">
-          <button type="button" className={orderSide === 'buy' ? 'active buy' : ''} onClick={() => setOrderSide('buy')} aria-pressed={orderSide === 'buy'}>
-            <i className="fa-solid fa-arrow-trend-up" /> Buy
-          </button>
-          <button type="button" className={orderSide === 'sell' ? 'active sell' : ''} onClick={() => setOrderSide('sell')} aria-pressed={orderSide === 'sell'}>
-            <i className="fa-solid fa-arrow-trend-down" /> Sell
-          </button>
-        </div>
-      </fieldset>
-      <label htmlFor="yf-order-quantity">Quantity <span>{orderSide === 'sell' ? `${number(owned, 4)} owned` : `${money(portfolio?.available_cash ?? portfolio?.cash ?? 0)} cash`}</span></label>
-      <input id="yf-order-quantity" type="number" min="0.0001" step="0.0001" value={orderQuantity} onChange={(event) => setOrderQuantity(event.target.value)} />
-      <div className="yf-quick-row">
-        {[0.05, 0.1, 0.25].map((fraction) => (
-          <button type="button" key={fraction} onClick={() => setQuickQuantity(fraction)}>{fraction * 100}%</button>
-        ))}
-        {orderSide === 'sell' && <button type="button" onClick={() => setQuickQuantity(1)}>All</button>}
+    <section className={`yf-decision-board ${submitted ? 'submitted' : ''}`}>
+      <div className="yf-decision-board-head">
+        <div><span>CAPTAIN&apos;S DECISION BOARD</span><h3>Choose a side for every stock.</h3></div>
+        <b>{submitted ? 'LOCKED' : 'DRAFT'}</b>
       </div>
-      <div className="yf-order-estimate">
-        <span>Estimated {orderSide === 'buy' ? 'cost' : 'proceeds'}</span>
-        <strong>{money(estimate)}</strong>
-        <small>@ {selectedAsset?.kind === 'FX' ? number(price, 4) : money(price, price < 10 ? 4 : 0)} now</small>
+      <p>Red sells on the left, grey holds in the middle, and green buys on the right. Enter an amount only for a buy or sell.</p>
+      <div className="yf-decision-rows">
+        {assets.filter((asset) => asset.tradable).map((asset) => {
+          const locked = submittedByAsset.get(asset.id);
+          const decision = locked || decisions[asset.id] || { side: 'hold', quantity: '' };
+          const owned = Number(portfolio?.holdings?.find((item) => item.asset_id === asset.id)?.quantity || 0);
+          return <article key={asset.id} className="yf-decision-row" style={{ '--asset-color': asset.color }}>
+            <div className="yf-decision-stock"><i /><div><b>{asset.fake_name}</b><small>{asset.kind} · {money(asset.price, asset.price < 10 ? 4 : 0)}</small></div></div>
+            <div className="yf-decision-switch" role="group" aria-label={`Decision for ${asset.fake_name}`}>
+              {['sell', 'hold', 'buy'].map((side) => <button key={side} type="button" disabled={disabled} className={`${side} ${decision.side === side ? 'active' : ''}`} onClick={() => updateDecision(asset.id, { side, quantity: side === 'hold' ? '' : decision.quantity })}>{side}</button>)}
+            </div>
+            <label>Amount <input disabled={disabled || decision.side === 'hold'} type="number" min="0.0001" step="0.0001" value={decision.quantity} onChange={(event) => updateDecision(asset.id, { quantity: event.target.value })} placeholder={decision.side === 'sell' ? `${number(owned, 4)} owned` : 'Units'} /></label>
+          </article>;
+        })}
       </div>
-      <button className="yf-primary" disabled={disabled} type="submit">
-        Review this decision <i className="fa-solid fa-arrow-right" />
-      </button>
+      <div className="yf-decision-board-actions">
+        {submitted ? <button type="button" className="yf-secondary" disabled={!isRoundOpen || !isLeader || decisionBusy} onClick={unsubmitDecisionBoard}>{decisionBusy ? 'Unlocking...' : 'Unsubmit & change'}</button> : <button type="button" className="yf-primary" disabled={disabled || decisionBusy} onClick={submitDecisionBoard}>{decisionBusy ? 'Submitting...' : 'Submit team decisions'} <i className="fa-solid fa-lock" /></button>}
+      </div>
       {disabledReason && <p className="yf-disabled-note"><i className="fa-solid fa-circle-info" /> {disabledReason}</p>}
-    </form>
+    </section>
   );
 }
 
@@ -1263,6 +1177,34 @@ function Metric({ label, value, className = '', icon }) {
   );
 }
 
+function PerformanceChart({ portfolio, assets }) {
+  const portfolioRows = portfolio?.history || [];
+  const series = [
+    { label: 'Total assets', color: '#13231f', values: portfolioRows.map((row) => row.equity) },
+    { label: 'Cash', color: '#256fdd', values: portfolioRows.map((row) => row.cash) },
+    ...assets.filter((asset) => asset.tradable).map((asset) => ({ label: asset.fake_name, color: asset.color, values: asset.series.map((point) => point.price) })),
+  ].filter((line) => line.values.length > 1);
+  const all = series.flatMap((line) => line.values);
+  if (!all.length) return <div className="yf-empty-state"><b>Your performance graph will appear after the next quarter.</b></div>;
+  const min = Math.min(...all);
+  const max = Math.max(...all);
+  const range = max - min || 1;
+  const pathFor = (values) => values.map((value, index) => {
+    const x = values.length === 1 ? 0 : (index / (values.length - 1)) * 100;
+    const y = 92 - ((value - min) / range) * 84;
+    return `${index === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`;
+  }).join(' ');
+  return <section className="yf-panel yf-performance-chart">
+    <SectionHeading eyebrow="TEAM PERFORMANCE" title="Cash, assets, and market marks" note="Follow your total assets and cash alongside each tradable stock." />
+    <div className="yf-chart-legend">{series.map((line) => <span key={line.label}><i style={{ background: line.color }} />{line.label}</span>)}</div>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Team performance chart">
+      {[20, 50, 80].map((y) => <line key={y} x1="0" x2="100" y1={y} y2={y} />)}
+      {series.map((line) => <path key={line.label} d={pathFor(line.values)} style={{ stroke: line.color }} />)}
+    </svg>
+    <div className="yf-chart-labels">{portfolioRows.map((row) => <span key={row.period.id}>{row.period.label}</span>)}</div>
+  </section>;
+}
+
 function PerformanceDesk({ portfolio, leaderboard, assets, evidenceCount, stance, confidence, thesis }) {
   return (
     <div className="yf-stack">
@@ -1272,6 +1214,7 @@ function PerformanceDesk({ portfolio, leaderboard, assets, evidenceCount, stance
         <p>Winning one quarter can be luck. The real challenge is making choices your team can explain.</p>
       </section>
       <PortfolioPanel portfolio={portfolio} assets={assets} />
+      <PerformanceChart portfolio={portfolio} assets={assets} />
       <section className="yf-panel yf-decision-recap">
         <SectionHeading eyebrow="DECISION RECAP" title="Your current team view" />
         <div className="yf-recap-grid">

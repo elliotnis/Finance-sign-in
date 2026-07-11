@@ -41,6 +41,8 @@ from .trading import (
     join_team,
     place_api_order,
     place_order,
+    submit_team_decisions,
+    unsubmit_team_decisions,
     reset_game,
     start_round,
     team_state,
@@ -95,6 +97,16 @@ class TradingOrderPayload(BaseModel):
     side: str
     quantity: float
     mode: Literal["discrete", "continuous"] = "discrete"
+
+
+class TradingDecisionPayload(BaseModel):
+    asset_id: str
+    side: Literal["buy", "sell", "hold"]
+    quantity: float = 0
+
+
+class TradingDecisionSubmissionPayload(BaseModel):
+    decisions: list[TradingDecisionPayload]
 
 
 class TradingAdminPayload(BaseModel):
@@ -203,6 +215,12 @@ def trading_result_or_error(result):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown trading mode")
     if result == "invalid_quantity":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Quantity must be positive")
+    if result == "invalid_decisions":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Choose each stock once and include at least one decision")
+    if result == "order_locked":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This quarter's decision is submitted. Unsubmit it before changing it.")
+    if result == "not_submitted":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="There is no submitted decision to unlock")
     if result == "insufficient_cash":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough cash for this order")
     if result == "insufficient_holdings":
@@ -1081,6 +1099,19 @@ def trading_order_endpoint(
         )
     )
     return {"success": True, "order": order}
+
+
+@router.post("/trading/decisions/submit")
+def trading_decision_submit_endpoint(
+    payload: TradingDecisionSubmissionPayload,
+    email: str = Depends(require_player_trading_session),
+):
+    return {"success": True, "submission": trading_result_or_error(submit_team_decisions(email, [item.model_dump() for item in payload.decisions]))}
+
+
+@router.post("/trading/decisions/unsubmit")
+def trading_decision_unsubmit_endpoint(email: str = Depends(require_player_trading_session)):
+    return {"success": True, "result": trading_result_or_error(unsubmit_team_decisions(email))}
 
 
 @router.get("/trading/gamemaster")
