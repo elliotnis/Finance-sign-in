@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/authcontext';
 import DepartmentBrand from './DepartmentBrand';
 import '../styles/dashboard.css';
 
@@ -100,6 +101,7 @@ function normalizeClass(cls) {
 
 function Dashboard(){
     const navigate = useNavigate();
+    const { logout } = useAuth();
     const [loading, setLoading] = useState(true);
     const [profilePicture, setProfilePicture] = useState(null);
     const [profileLoading, setProfileLoading] = useState(true);
@@ -123,10 +125,7 @@ function Dashboard(){
             if (response.ok) {
                 const data = await response.json();
                 if (data.is_allowed === false) {
-                    localStorage.removeItem('user_id');
-                    localStorage.removeItem('username');
-                    localStorage.removeItem('preferred_name');
-                    localStorage.removeItem('user_email');
+                    logout();
                     navigate('/login');
                     return;
                 }
@@ -135,7 +134,7 @@ function Dashboard(){
         } catch (error) {
             console.error('Error checking admin role:', error);
         }
-    }, [navigate]);
+    }, [logout, navigate]);
 
     const fetchUserProfile = useCallback(async () => {
         try {
@@ -357,9 +356,7 @@ function Dashboard(){
                         <button
                             className="logout-btn"
                             onClick={() => {
-                                localStorage.removeItem('user_id');
-                                localStorage.removeItem('preferred_name');
-                                localStorage.removeItem('user_email');
+                                logout();
                                 navigate('/login');
                             }}
                         >

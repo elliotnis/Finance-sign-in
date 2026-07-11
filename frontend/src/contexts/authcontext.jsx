@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
+const AUTH_STORAGE_KEYS = ['user_id', 'username', 'user_email', 'preferred_name'];
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
@@ -17,10 +18,10 @@ export function AuthProvider({ children }) {
             const username = localStorage.getItem('username');
             const email = localStorage.getItem('user_email');
             
-            if (userId && username) {
+            if (userId && email) {
                 setUser({
                     user_id: userId,
-                    username: username,
+                    username: username || email,
                     email: email
                 });
             }
@@ -34,15 +35,13 @@ export function AuthProvider({ children }) {
     const login = (userData) => {
         setUser(userData);
         localStorage.setItem('user_id', userData.user_id);
-        localStorage.setItem('username', userData.username);
+        localStorage.setItem('username', userData.username || userData.email);
         localStorage.setItem('user_email', userData.email);
     };
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('user_id');
-        localStorage.removeItem('username');
-        localStorage.removeItem('user_email');
+        AUTH_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
     };
 
     const value = {

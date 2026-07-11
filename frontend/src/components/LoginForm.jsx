@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
 import PortalAuthShell from './PortalAuthShell';
@@ -23,9 +23,19 @@ function getSafeReturnTo(location) {
 function LoginForm() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState('password'); // 'password' | 'email-link'
   const returnTo = getSafeReturnTo(location);
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate(returnTo, { replace: true });
+    }
+  }, [authLoading, navigate, returnTo, user]);
+
+  if (authLoading || user) {
+    return null;
+  }
 
   return (
     <PortalAuthShell currentStage="access">
@@ -88,7 +98,6 @@ function PasswordLogin({ navigate, login, returnTo }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -137,13 +146,7 @@ function PasswordLogin({ navigate, login, returnTo }) {
         email,
       };
 
-      login(userData, rememberMe);
-
-      if (rememberMe) {
-        localStorage.setItem('user_email', email);
-      } else {
-        sessionStorage.setItem('user_email', email);
-      }
+      login(userData);
 
       if (targetPath === '/complete-profile') {
         navigate('/complete-profile', {
@@ -206,16 +209,9 @@ function PasswordLogin({ navigate, login, returnTo }) {
       </div>
 
       <div className="options-group">
-        <label className="remember-me">
-          <input
-            type="checkbox"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-            disabled={loading}
-          />
-          <span className="checkmark"></span>
-          Remember my login
-        </label>
+        <span className="remember-me" aria-live="polite">
+          Your login will be remembered on this device.
+        </span>
         <Link to="/forgot-password" className="forgot-password">Forgot Password?</Link>
       </div>
 
@@ -314,8 +310,7 @@ function EmailLinkLogin({ navigate, returnTo }) {
       email,
     };
 
-    login(userData, true);
-    localStorage.setItem('user_email', email);
+    login(userData);
 
     if (targetPath === '/complete-profile') {
       navigate('/complete-profile', {

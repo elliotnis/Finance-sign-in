@@ -60,8 +60,7 @@ function MagicLinkVerify() {
           username: preferredName || email,
           email,
         };
-        login(userData, true);
-        localStorage.setItem('user_email', email);
+        login(userData);
 
         if (targetPath === '/complete-profile') {
           navigate('/complete-profile', {
