@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DepartmentBrand from './DepartmentBrand';
 import '../styles/dashboard.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -329,15 +330,7 @@ function Dashboard(){
         <div className="dashboard-container">
             <header className="dashboard-header">
                 <div className="header-content">
-                    <div className="logo-section">
-                        <div className="brand-mark" aria-hidden="true">
-                            <i className="fas fa-chart-line"></i>
-                        </div>
-                        <div>
-                            <h1>HKUST FINA Department</h1>
-                            <span>Session Calendar</span>
-                        </div>
-                    </div>
+                    <DepartmentBrand subtitle="Session Calendar" />
                     <div className="user-section">
                         <div className="user-info">
                             <span className="user-name">Welcome, {displayName}</span>

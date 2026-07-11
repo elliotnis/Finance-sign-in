@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DepartmentBrand from './DepartmentBrand';
 import '../styles/tutorCalendar.css';
 
 function TutorCalendar() {
@@ -316,10 +317,7 @@ function TutorCalendar() {
             {/* Header */}
             <header className="dashboard-header">
                 <div className="header-content">
-                    <div className="logo-section">
-                        <h1>HKUST FINA Department</h1>
-                        <span>Event Calendar</span>
-                    </div>
+                    <DepartmentBrand subtitle="Event Calendar" />
                     <div className="user-section">
                         <div className="user-info">
                             <span className="user-name">Welcome, {username || 'Tutor'}!</span>
