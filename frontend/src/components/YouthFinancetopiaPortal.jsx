@@ -543,6 +543,7 @@ function YouthFinancetopiaPortal() {
           {activeTab === 'market' && (
             <MarketMission
               state={state}
+              debrief={state?.debrief}
               decisions={decisions}
               updateDecision={updateDecision}
               submitDecisionBoard={submitDecisionBoard}
@@ -702,14 +703,16 @@ function RoundHero({ game, secondsLeft, isRoundOpen, refreshing, onRefresh }) {
   return (
     <section className={`yf-round-hero ${isRoundOpen ? 'open' : ''}`}>
       <div className="yf-round-kicker">
-        <span>{isRoundOpen ? 'DECISION WINDOW' : 'BRIEFING MODE'}</span>
-        <i className={`fa-solid ${isRoundOpen ? 'fa-bolt' : 'fa-magnifying-glass'}`} />
+        <span>{game?.is_complete ? 'FINAL RESULTS' : isRoundOpen ? 'DECISION WINDOW' : 'BRIEFING MODE'}</span>
+        <i className={`fa-solid ${game?.is_complete ? 'fa-flag-checkered' : isRoundOpen ? 'fa-bolt' : 'fa-magnifying-glass'}`} />
       </div>
       <div className="yf-round-copy">
         <span>Current market</span>
         <h1>{game?.current_period?.label || 'Waiting for host'}</h1>
         <p>
-          {isRoundOpen
+          {game?.is_complete
+            ? 'The final marks are in. Review the clue links, portfolio results, and what your team learned.'
+            : isRoundOpen
             ? 'Talk it through, check the numbers, then let your team captain submit one careful decision.'
             : 'Open the latest briefings and build your team view. Your host controls when trading begins.'}
         </p>
@@ -855,6 +858,7 @@ function RoundStrip({ periods, currentIndex }) {
 
 function MarketMission({
   state,
+  debrief,
   decisions,
   updateDecision,
   submitDecisionBoard,
@@ -882,6 +886,8 @@ function MarketMission({
         toggleEvidence={toggleEvidence}
       />
 
+      {debrief && <QuarterDebrief debrief={debrief} />}
+
       <section className="yf-market-board">
         <SectionHeading eyebrow="PRICE BOARD" title="What the market has shown so far" note="Charts stop at the current quarter - future prices stay hidden." />
         <AssetGrid
@@ -893,6 +899,7 @@ function MarketMission({
           updateDecision={updateDecision}
           isLeader={isLeader}
           isRoundOpen={isRoundOpen}
+          isComplete={state?.game?.is_complete}
         />
         <DecisionSubmitBar
           team={state?.team}
@@ -902,6 +909,7 @@ function MarketMission({
           decisionBusy={decisionBusy}
           isLeader={isLeader}
           isRoundOpen={isRoundOpen}
+          isComplete={state?.game?.is_complete}
         />
       </section>
     </div>
@@ -937,7 +945,7 @@ function MarketTape({ news, currentPeriodId, evidenceIds, toggleEvidence }) {
         <div className="yf-news-title">
           <span className="yf-news-flag"><i className="fa-solid fa-satellite-dish" /> LIVE BRIEFING</span>
           <h2>Clues, not answers.</h2>
-          <p>Open a card, question the source, and pin only the evidence your team actually trusts.</p>
+          <p>These signals arrive before the next quarter closes. Connect them to the fictional assets, weigh mixed evidence, and predict the next marks.</p>
         </div>
         <div className="yf-evidence-counter">
           <strong>{evidenceIds.length}</strong>
@@ -995,7 +1003,23 @@ function MarketTape({ news, currentPeriodId, evidenceIds, toggleEvidence }) {
   );
 }
 
-function AssetGrid({ assets, team, portfolio, decisions, submittedDecisions, updateDecision, isLeader, isRoundOpen }) {
+function QuarterDebrief({ debrief }) {
+  return <section className="yf-panel yf-quarter-debrief">
+    <SectionHeading
+      eyebrow="PREVIOUS QUARTER REVEAL"
+      title={`${debrief.decision_period.label} clues → ${debrief.outcome_period.label} marks`}
+      note="Now that prices moved, here is how the hidden clues connected. The signal was evidence—not a guaranteed answer."
+    />
+    <div className="yf-debrief-grid">
+      {debrief.rows.map((row) => <article key={row.asset_id}>
+        <div><b>{row.asset_name}</b><strong className={classForReturn(row.move_pct)}>{pct(row.move_pct)}</strong></div>
+        <ul>{row.clue_headlines.map((headline) => <li key={headline}>{headline}</li>)}</ul>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function AssetGrid({ assets, team, portfolio, decisions, submittedDecisions, updateDecision, isLeader, isRoundOpen, isComplete }) {
   const submittedByAsset = new Map(submittedDecisions.map((decision) => [decision.asset_id, decision]));
   const submitted = submittedDecisions.length > 0;
   const locked = !team || !isLeader || !isRoundOpen || submitted;
@@ -1016,7 +1040,9 @@ function AssetGrid({ assets, team, portfolio, decisions, submittedDecisions, upd
               <span>Current mark</span>
               <strong>{asset.kind === 'FX' ? number(asset.price, 4) : money(asset.price, asset.price < 10 ? 4 : 0)}</strong>
             </div>
-            {asset.tradable ? (
+            {asset.tradable && isComplete ? (
+              <div className="yf-indicator-note"><i className="fa-solid fa-flag-checkered" /> Final mark revealed</div>
+            ) : asset.tradable ? (
               <div className="yf-card-decision">
                 {(() => {
                   const decision = submittedByAsset.get(asset.id) || decisions[asset.id] || { side: 'hold', quantity: '' };
@@ -1049,7 +1075,11 @@ function DecisionSubmitBar({
   decisionBusy,
   isLeader,
   isRoundOpen,
+  isComplete,
 }) {
+  if (isComplete) {
+    return <section className="yf-decision-submit-bar submitted"><div><b>COMPETITION COMPLETE</b><span>Open Team results to review your final portfolio and performance graph.</span></div></section>;
+  }
   const submitted = submittedDecisions.length > 0;
   const disabled = !team || !isLeader || !isRoundOpen || submitted;
   let disabledReason = '';
@@ -1581,7 +1611,7 @@ function GamemasterDesk({ state, busy, startRound, advanceRound, resetGame }) {
       <section className="yf-panel yf-host-controls">
         <SectionHeading eyebrow="ROUND CONTROL" title={`${game?.current_period?.label || 'Round'} is ${game?.is_round_open ? 'open' : 'paused'}`} note="Advancing reveals the next quarter but leaves trading closed until you start the timer." />
         <div className="yf-control-row">
-          <button type="button" className="start" onClick={startRound} disabled={busy || game?.is_round_open}>
+          <button type="button" className="start" onClick={startRound} disabled={busy || game?.is_round_open || game?.is_complete}>
             <i className="fa-solid fa-play" /><span><b>Start 3-minute timer</b><small>Open decisions for all teams</small></span>
           </button>
           <button type="button" onClick={advanceRound} disabled={busy || game?.is_complete}>

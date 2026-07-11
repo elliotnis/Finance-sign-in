@@ -62,6 +62,7 @@ ASSETS = [
     {
         "id": "stock_a",
         "fake_name": "Pulse Social",
+        "calibration_proxy": "Meta Platforms",
         "kind": "Equity",
         "tradable": True,
         "unit": "share",
@@ -78,6 +79,7 @@ ASSETS = [
     {
         "id": "stock_b",
         "fake_name": "Cedar Ridge Energy",
+        "calibration_proxy": "Occidental Petroleum",
         "kind": "Equity",
         "tradable": True,
         "unit": "share",
@@ -94,6 +96,7 @@ ASSETS = [
     {
         "id": "stock_c",
         "fake_name": "Aster Therapeutics",
+        "calibration_proxy": "Eli Lilly",
         "kind": "Equity",
         "tradable": True,
         "unit": "share",
@@ -110,6 +113,7 @@ ASSETS = [
     {
         "id": "metal_d",
         "fake_name": "Harbor Metal",
+        "calibration_proxy": "Gold spot price (USD per troy ounce)",
         "kind": "Commodity",
         "tradable": True,
         "unit": "oz",
@@ -126,6 +130,7 @@ ASSETS = [
     {
         "id": "energy_e",
         "fake_name": "Meridian Crude",
+        "calibration_proxy": "WTI crude oil spot price",
         "kind": "Commodity",
         "tradable": True,
         "unit": "barrel",
@@ -142,6 +147,7 @@ ASSETS = [
     {
         "id": "fx_f",
         "fake_name": "Atlas Currency Pair",
+        "calibration_proxy": "EUR/USD",
         "kind": "FX",
         "tradable": True,
         "unit": "lot",
@@ -158,6 +164,7 @@ ASSETS = [
     {
         "id": "fear_g",
         "fake_name": "Market Nerves Index",
+        "calibration_proxy": "CBOE VIX",
         "kind": "Indicator",
         "tradable": False,
         "unit": "index",
@@ -544,6 +551,178 @@ NEWS_EVENTS = [
     },
 ]
 
+# Each decision window also receives a compact, forward-looking signal pack.
+# These clues explain the main forces behind the *next* quarterly mark without
+# revealing which fictional asset they map to. Grouped signals keep the reading
+# load manageable for a three-minute high-school team discussion.
+BALANCE_SIGNAL_ROWS = [
+    ("2018q1-growth", "2018Q1", ["stock_a"], "Usage and ad budgets stay resilient",
+     "Privacy questions are growing, but user activity remains strong and large advertisers have not reduced their budgets.",
+     "Smaller advertisers may be increasing spending faster than expected.",
+     "Can strong operating momentum outweigh a serious long-term risk for one more quarter?"),
+    ("2018q1-energy-calm", "2018Q1", ["stock_b", "energy_e", "fear_g"], "Tighter supply meets calmer markets",
+     "Oil inventories are falling while producers remain disciplined. At the same time, broad demand for market protection is easing.",
+     "A few major buyers may be locking in more fuel than usual.",
+     "Which assets benefit when physical supply tightens but financial fear falls?"),
+    ("2018q2-platform-warning", "2018Q2", ["stock_a", "fear_g"], "Growth warning shakes confidence",
+     "A large online platform warns that user growth and future profit margins may slow even though current advertising revenue is healthy.",
+     "Product teams may be spending heavily to address privacy concerns.",
+     "Does a strong current quarter matter if management lowers expectations?"),
+    ("2018q2-health-momentum", "2018Q2", ["stock_c"], "Core medicines carry the quarter",
+     "Established treatments are selling steadily while several research programs continue without a major setback.",
+     "Analysts may be raising long-term estimates before the next formal update.",
+     "How valuable is dependable growth when other sectors are becoming less certain?"),
+    ("2018q3-risk-off", "2018Q3", ["stock_a", "fear_g", "fx_f"], "Rates and trade tension hit risky assets",
+     "Borrowing costs are rising and trade tensions are weakening confidence. Investors are paying more for protection and cutting exposure to expensive growth companies.",
+     "Systematic funds may have more selling to complete.",
+     "Which assets are most sensitive when both rates and fear rise together?"),
+    ("2018q3-oil-glut", "2018Q3", ["stock_b", "energy_e"], "Supply catches up with demand",
+     "Production is rising faster than consumption, and inventories are starting to rebuild after months of tight supply.",
+     "Exporters may compete for market share instead of cutting output quickly.",
+     "How does an unexpected surplus affect both a commodity and a debt-heavy producer?"),
+    ("2018q4-policy-pause", "2018Q4", ["stock_a", "fear_g"], "Policy makers sound more patient",
+     "After a sharp selloff, policy makers signal they can slow future rate increases if growth weakens further.",
+     "Large funds may be preparing to rebuild positions sold during the panic.",
+     "Can a change in policy expectations reverse fear before the economy improves?"),
+    ("2018q4-supply-response", "2018Q4", ["stock_b", "energy_e"], "Producers discuss supply restraint",
+     "After a steep energy-price fall, major producers are considering output cuts while lower prices begin to support demand.",
+     "The announced cuts may be larger than traders expect.",
+     "What usually happens after low prices trigger both less supply and more demand?"),
+    ("2019q1-debt-pressure", "2019Q1", ["stock_b"], "Expansion plan raises financing questions",
+     "An oil producer is pursuing a large acquisition that could increase reserves but leave the combined company with much more debt.",
+     "Some shareholders may oppose the deal unless terms improve.",
+     "When can buying more assets destroy value for existing owners?"),
+    ("2019q1-defensive-split", "2019Q1", ["stock_c", "metal_d", "fear_g"], "Defensive choices send mixed signals",
+     "Medicine-pricing debate pressures healthcare shares while softer growth expectations increase demand for defensive metal and market protection.",
+     "Policy proposals may be harsher in headlines than in final law.",
+     "Why can two defensive assets move in different directions?"),
+    ("2019q2-trade-slowdown", "2019Q2", ["stock_b", "energy_e", "fear_g"], "Trade dispute clouds industrial demand",
+     "Factories and freight indicators are slowing as trade restrictions widen, weakening expected fuel demand and increasing uncertainty.",
+     "Producers may delay investment before they cut current output.",
+     "Which reacts first to weaker demand: the commodity, the producer, or market fear?"),
+    ("2019q2-policy-support", "2019Q2", ["stock_a", "metal_d", "fx_f"], "Central banks prepare support",
+     "Policy makers are discussing lower rates as global growth slows, reducing financing pressure but also changing currency and metal incentives.",
+     "Markets may already expect more easing than officials will deliver.",
+     "Who benefits most when rates fall but expectations are already high?"),
+    ("2019q3-risk-rally", "2019Q3", ["stock_a", "stock_c", "fear_g"], "Lower rates revive risk appetite",
+     "Easier financial conditions support advertising, healthcare valuations, and broader equity demand while the cost of protection falls.",
+     "A temporary trade agreement may be closer than public statements suggest.",
+     "How can one macro change lift very different businesses at the same time?"),
+    ("2019q3-energy-balance", "2019Q3", ["stock_b", "energy_e"], "Supply discipline steadies energy",
+     "Producers are limiting new spending and inventories are no longer rising as quickly, even though demand growth remains modest.",
+     "Independent producers may cut drilling plans again.",
+     "Is stabilization enough to help a highly indebted producer?"),
+    ("2019q4-pandemic-shock", "2019Q4", ["stock_a", "stock_b", "energy_e", "fear_g"], "Health emergency threatens global activity",
+     "Travel, manufacturing, and in-person commerce are suddenly at risk as a new illness spreads across borders and forecasts are cut rapidly.",
+     "Restrictions may last longer than early official estimates.",
+     "Which assets face direct demand destruction, and which mainly face a confidence shock?"),
+    ("2019q4-defensive-offset", "2019Q4", ["stock_c", "metal_d"], "Investors search for resilience and cash",
+     "Healthcare demand looks comparatively stable and defensive metal is wanted as insurance, although forced selling could briefly pressure almost everything.",
+     "Emergency policy support may arrive faster than in past crises.",
+     "Can a defensive asset fall temporarily during a rush for cash?"),
+    ("2020q1-policy-rebound", "2020Q1", ["stock_a", "stock_c", "metal_d", "fear_g"], "Emergency support changes expectations",
+     "Governments and central banks launch large support programs while digital activity and essential healthcare demand remain strong.",
+     "Investors may move from maximum fear to recovery bets before the economy reopens.",
+     "Which assets can recover while the real economy is still weak?"),
+    ("2020q1-energy-reset", "2020Q1", ["stock_b", "energy_e"], "Historic supply cuts follow the collapse",
+     "After storage stress and a demand crash, producers announce deep output cuts and some transport activity begins to recover from extremely low levels.",
+     "Temporary well closures may become permanent supply reductions.",
+     "Can terrible current conditions create the setup for a sharp rebound?"),
+    ("2020q2-digital-ads", "2020Q2", ["stock_a"], "Digital demand recovers unevenly",
+     "Online activity stays elevated and large advertisers return faster than small businesses, improving the outlook for a global ad platform.",
+     "Shopping activity inside social apps may be accelerating.",
+     "Does a shift in where people spend time create a durable advantage?"),
+    ("2020q2-energy-fragility", "2020Q2", ["stock_b", "energy_e", "fear_g"], "Oil rebounds, balance sheets lag",
+     "Crude prices recover from extreme lows, but indebted producers still face weak cash flow and refinancing pressure as market fear gradually declines.",
+     "Lenders may demand asset sales even if the commodity keeps improving.",
+     "Why might the commodity recover before the company that produces it?"),
+    ("2020q3-reopening-trade", "2020Q3", ["stock_b", "energy_e", "fear_g"], "Vaccine progress strengthens reopening bets",
+     "Encouraging vaccine results improve expectations for travel and fuel demand, helping energy markets while reducing demand for protection.",
+     "Distribution could begin sooner than conservative forecasts assume.",
+     "Which prices move first when investors anticipate reopening months ahead?"),
+    ("2020q3-health-pipeline", "2020Q3", ["stock_c"], "Research pipeline broadens beyond the crisis",
+     "A medicines company reports progress across both emergency treatments and longer-term metabolic and neurological programs.",
+     "One non-pandemic program may eventually matter more than the emergency treatment.",
+     "How should investors compare temporary revenue with a durable pipeline?"),
+    ("2020q4-reopening-cashflow", "2020Q4", ["stock_b", "energy_e", "fear_g"], "Reopening improves the cash-flow map",
+     "Vaccinations begin, mobility forecasts rise, and producers hold back spending, creating a better supply-demand outlook and calmer markets.",
+     "Energy inventories may normalize faster than expected.",
+     "How does restrained supply amplify a demand recovery?"),
+    ("2020q4-metabolic-data", "2020Q4", ["stock_c"], "Metabolic treatment clears an important hurdle",
+     "Late-stage data show meaningful improvements in a large chronic-disease market, strengthening confidence in a future product launch.",
+     "Doctors may use the treatment more broadly than the initial label suggests.",
+     "What makes a clinical result commercially important rather than merely interesting?"),
+    ("2021q1-broad-reopening", "2021Q1", ["stock_a", "stock_b", "stock_c", "energy_e", "fear_g"], "Reopening lifts several kinds of demand",
+     "Mobility, advertising, elective healthcare, and industrial activity improve together while market protection becomes less expensive.",
+     "Household savings may support a stronger spending burst than forecasts show.",
+     "Which businesses gain directly, and which gain mainly through confidence?"),
+    ("2021q1-rate-divergence", "2021Q1", ["metal_d", "fx_f"], "Recovery changes the rate debate",
+     "One economy is recovering faster, pushing its bond yields higher and changing the relative appeal of defensive metal and major currencies.",
+     "Policy makers may tolerate higher inflation for longer than bond traders expect.",
+     "How do relative rates connect a currency pair and a defensive metal?"),
+    ("2021q2-variant-risk", "2021Q2", ["fear_g", "energy_e"], "A new variant tests the calm",
+     "A more contagious virus variant creates uncertainty about travel even as vaccination keeps the base-case recovery intact.",
+     "Options traders may be underpricing short-term disruption.",
+     "When does a setback change the trend rather than merely interrupt it?"),
+    ("2021q2-research-catalysts", "2021Q2", ["stock_c"], "Two programs strengthen the growth case",
+     "Positive metabolic data and a regulatory breakthrough designation improve the odds that new medicines can expand future sales.",
+     "Manufacturing capacity may become the next constraint.",
+     "What new risk appears after scientific uncertainty falls?"),
+    ("2021q3-inflation-shift", "2021Q3", ["fear_g", "fx_f", "metal_d"], "Inflation changes policy expectations",
+     "Persistent inflation leads traders to expect earlier tightening, supporting one side of a major currency pair and challenging defensive metal.",
+     "Bond markets may be moving faster than central-bank guidance.",
+     "How can fear rise even when economic growth remains healthy?"),
+    ("2021q3-health-repricing", "2021Q3", ["stock_c"], "Strong data expand the addressable market",
+     "Research results suggest a metabolic treatment could serve a much larger patient group than investors assumed a year ago.",
+     "Early demand forecasts may still underestimate physician interest.",
+     "How should a larger potential market change valuation before launch?"),
+    ("2021q4-energy-scarcity", "2021Q4", ["stock_b", "energy_e"], "Energy supply struggles to match reopening",
+     "Demand has returned near pre-crisis levels while producer investment remains restrained, improving cash flow for efficient oil companies.",
+     "A prominent long-term investor may be accumulating shares in the sector.",
+     "How does scarcity affect the commodity and a leveraged producer differently?"),
+    ("2021q4-growth-reset", "2021Q4", ["stock_a", "fear_g"], "Higher rates expose expensive growth plans",
+     "User growth slows just as rates rise and a consumer platform commits heavily to a long-dated project with uncertain returns.",
+     "Advertising measurement problems may be worse than management first expected.",
+     "Why do higher rates magnify a company-specific execution problem?"),
+    ("2022q1-platform-competition", "2022Q1", ["stock_a"], "Short-form competition pressures engagement",
+     "A mature social platform faces stronger competition for younger users while privacy changes make advertising results harder to measure.",
+     "Management may increase spending before engagement stabilizes.",
+     "Can a profitable core business offset weakening user momentum?"),
+    ("2022q1-obesity-breakthrough", "2022Q1", ["stock_c"], "Trial results point to a very large market",
+     "A late-stage obesity study reports unusually strong results, increasing expectations for demand across metabolic disease treatment.",
+     "Insurers may cover the treatment sooner than expected.",
+     "What must happen after strong science for shareholders to benefit?"),
+    ("2022q2-recession-energy", "2022Q2", ["stock_b", "energy_e"], "Recession fears challenge the energy spike",
+     "Rapid rate increases and slowing activity forecasts reduce expected fuel demand after an extreme war-driven price surge.",
+     "Physical shortages may ease before geopolitical risk disappears.",
+     "Can demand fear overpower a genuine supply problem?"),
+    ("2022q2-dollar-squeeze", "2022Q2", ["stock_a", "metal_d", "fx_f", "fear_g"], "A stronger dollar tightens global conditions",
+     "Faster US rate increases strengthen the dollar, pressure a major currency pair and defensive metal, and keep volatility elevated.",
+     "Crowded dollar positions may eventually become vulnerable to reversal.",
+     "Which move is driven by fundamentals, and which may be driven by positioning?"),
+    ("2022q3-inflation-turn", "2022Q3", ["metal_d", "fx_f", "fear_g"], "Inflation shows early signs of cooling",
+     "Softer inflation data raise hopes that rate increases can slow, weakening the dollar from extreme levels and calming market stress.",
+     "Policy makers may still resist declaring victory.",
+     "Why can markets turn before central banks officially change direction?"),
+    ("2022q3-advertising-slump", "2022Q3", ["stock_a"], "Weak advertising meets heavy spending",
+     "Advertisers cut budgets as economic growth slows, while a consumer platform continues investing heavily in an uncertain long-term project.",
+     "Cost reductions may arrive later than investors want.",
+     "Which matters more during a slowdown: current revenue weakness or future investment discipline?"),
+]
+
+NEWS_EVENTS.extend(
+    {
+        "id": row_id,
+        "period_id": period_id,
+        "asset_ids": asset_ids,
+        "headline": headline,
+        "brief": brief,
+        "rumor": rumor,
+        "question": question,
+    }
+    for row_id, period_id, asset_ids, headline, brief, rumor, question in BALANCE_SIGNAL_ROWS
+)
+
 
 def _asset_price_map(asset: dict[str, Any]) -> dict[str, float]:
     return {PERIODS[i]["id"]: float(price) for i, price in enumerate(asset["prices"])}
@@ -745,6 +924,8 @@ def start_round(admin_email: str):
     if not lock_owner:
         return "game_busy"
     try:
+        if public_game_state()["is_complete"]:
+            return "game_complete"
         trading_game_collection.update_one(
             {"key": "global"},
             {
@@ -1170,13 +1351,48 @@ def _news_payload(period_index: int):
         period = next(p for p in PERIODS if p["id"] == item["period_id"])
         items.append(
             {
-                **{key: value for key, value in item.items() if key != "asset_id"},
+                **{key: value for key, value in item.items() if key not in {"asset_id", "asset_ids"}},
                 "year": period["year"],
                 "quarter": period["quarter"],
                 "period_label": period["label"],
             }
         )
     return items
+
+
+def _debrief_payload(period_index: int):
+    """Reveal the previous decision's clue-to-asset links after prices move."""
+    if period_index <= 0:
+        return None
+    decision_index = period_index - 1
+    decision_period = PERIODS[decision_index]
+    outcome_period = PERIODS[period_index]
+    rows = []
+    for asset in ASSETS:
+        if not asset.get("tradable"):
+            continue
+        related = [
+            event["headline"]
+            for event in NEWS_EVENTS
+            if event["period_id"] == decision_period["id"]
+            and (
+                event.get("asset_id") == asset["id"]
+                or asset["id"] in event.get("asset_ids", [])
+            )
+        ]
+        before = period_price(asset["id"], decision_index)
+        after = period_price(asset["id"], period_index)
+        rows.append({
+            "asset_id": asset["id"],
+            "asset_name": asset["fake_name"],
+            "move_pct": round((after / before - 1) * 100, 2),
+            "clue_headlines": related,
+        })
+    return {
+        "decision_period": decision_period,
+        "outcome_period": outcome_period,
+        "rows": rows,
+    }
 
 
 def leaderboard(period_index: int | None = None):
@@ -1222,6 +1438,7 @@ def team_state(email: str):
         "assets": _asset_payload(game["current_period_index"]),
         "periods": PERIODS,
         "news": _news_payload(game["current_period_index"]),
+        "debrief": _debrief_payload(game["current_period_index"]),
         "leaderboard": leaderboard(game["current_period_index"]),
         "interest_rates": {
             year: rate

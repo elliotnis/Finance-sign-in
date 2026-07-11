@@ -235,6 +235,11 @@ def trading_result_or_error(result):
             status_code=status.HTTP_409_CONFLICT,
             detail="The market is processing another action. Try again.",
         )
+    if result == "game_complete":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The final quarter is a results reveal; there is no later mark to trade toward.",
+        )
     return result
 
 

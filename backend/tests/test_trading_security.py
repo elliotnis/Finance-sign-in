@@ -40,6 +40,37 @@ class TradingDataSafetyTests(unittest.TestCase):
         self.assertTrue(all(item["period_id"].startswith("2018") for item in q4_items))
         self.assertFalse(any(item["period_id"].startswith("2019") for item in q4_items))
 
+    def test_player_news_hides_asset_mapping_and_has_manageable_signal_packs(self):
+        for index, period in enumerate(trading.PERIODS[:-1]):
+            current_items = [
+                item for item in trading._news_payload(index)
+                if item["period_id"] == period["id"]
+            ]
+            self.assertGreaterEqual(len(current_items), 3, period["id"])
+            self.assertLessEqual(len(current_items), 4, period["id"])
+            self.assertTrue(all("asset_id" not in item and "asset_ids" not in item for item in current_items))
+
+    def test_every_material_next_quarter_move_has_a_relevant_clue(self):
+        for index, period in enumerate(trading.PERIODS[:-1]):
+            events = [item for item in trading.NEWS_EVENTS if item["period_id"] == period["id"]]
+            for asset in trading.ASSETS:
+                if not asset["tradable"]:
+                    continue
+                move = asset["prices"][index + 1] / asset["prices"][index] - 1
+                if abs(move) < 0.10:
+                    continue
+                covered = any(
+                    event.get("asset_id") == asset["id"]
+                    or asset["id"] in event.get("asset_ids", [])
+                    for event in events
+                )
+                self.assertTrue(covered, f"{period['id']} {asset['id']} {move:+.1%}")
+
+    def test_real_world_calibration_names_never_reach_player_asset_payload(self):
+        payload = trading._asset_payload(0)
+        self.assertTrue(all("calibration_proxy" not in asset for asset in payload))
+        self.assertNotIn("Meta Platforms", str(payload))
+
     def test_public_leaderboard_does_not_expose_join_codes_or_emails(self):
         teams = Cursor([
             {
@@ -75,6 +106,20 @@ class TradingDataSafetyTests(unittest.TestCase):
 
         self.assertEqual(result, expected)
         order_collection.delete_many.assert_called_once_with({})
+
+    def test_final_reveal_cannot_start_an_unscored_trading_round(self):
+        game_collection = MagicMock()
+        with patch.object(trading, "is_gamemaster", return_value=True), patch.object(
+            trading, "trading_game_collection", game_collection
+        ), patch.object(
+            trading, "public_game_state", return_value={"is_complete": True}
+        ), patch.object(trading, "_acquire_game_lock", return_value="lock-owner"), patch.object(
+            trading, "_release_game_lock"
+        ):
+            result = trading.start_round("host@example.edu")
+
+        self.assertEqual(result, "game_complete")
+        game_collection.update_one.assert_not_called()
 
     def test_mongo_ids_are_json_safe_in_admin_payloads(self):
         value = ObjectId()

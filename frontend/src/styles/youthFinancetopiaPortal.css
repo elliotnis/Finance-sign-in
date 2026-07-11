@@ -1598,6 +1598,37 @@
 .yf-chart-legend { display: flex; flex-wrap: wrap; gap: .7rem; margin: .7rem 0; font-size: .7rem; }.yf-chart-legend span { display: inline-flex; align-items: center; gap: .35rem; }.yf-chart-legend i { width: 10px; height: 10px; border-radius: 50%; }
 .yf-chart-labels { display: flex; justify-content: space-between; gap: .5rem; color: var(--yf-muted); font-size: .62rem; }
 
+.yf-quarter-debrief {
+  border-left: 8px solid var(--yf-blue);
+  background: #edf3ff;
+}
+
+.yf-debrief-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.yf-debrief-grid article {
+  border: 1px solid var(--yf-line);
+  border-radius: 10px;
+  background: var(--yf-white);
+  padding: 0.7rem;
+}
+
+.yf-debrief-grid article > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.yf-debrief-grid ul {
+  margin: 0.45rem 0 0;
+  padding-left: 1rem;
+  color: var(--yf-muted);
+  font-size: 0.68rem;
+}
+
 .yf-notebook {
   display: grid;
   gap: 0.9rem;
@@ -2658,6 +2689,10 @@
   .yf-decision-row {
     grid-template-columns: 1fr;
     gap: 0.4rem;
+  }
+
+  .yf-debrief-grid {
+    grid-template-columns: 1fr;
   }
 
   .yf-performance-chart svg {
