@@ -15,6 +15,15 @@ from bson import ObjectId
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
+YOUTH_DUAL_ACCESS_EMAILS = {
+    "cylaucb@connect.ust.hk",
+    "mikiyeung@ust.hk",
+    "mhman@connect.ust.hk",
+    "firstacforbks@gmail.com",
+    "marcoleung0713@gmail.com",
+    "mayeechunandy@gmail.com",
+}
+
 def get_admin_emails():
     """Comma-separated ADMIN_EMAILS env var → set of normalized emails."""
     raw = os.getenv("ADMIN_EMAILS", "")
@@ -24,13 +33,15 @@ def get_admin_emails():
 def get_gamemaster_emails():
     """Comma-separated GAMEMASTER_EMAILS env var → normalized host emails."""
     raw = os.getenv("GAMEMASTER_EMAILS", "")
-    return {e.strip().lower() for e in raw.split(",") if e.strip()}
+    configured = {e.strip().lower() for e in raw.split(",") if e.strip()}
+    return YOUTH_DUAL_ACCESS_EMAILS | configured
 
 
 def get_trading_participant_emails():
     """Comma-separated participant emails with direct Youth access."""
     raw = os.getenv("TRADING_PARTICIPANT_EMAILS", "")
-    return {e.strip().lower() for e in raw.split(",") if e.strip()}
+    configured = {e.strip().lower() for e in raw.split(",") if e.strip()}
+    return YOUTH_DUAL_ACCESS_EMAILS | configured
 
 
 def is_admin(email):

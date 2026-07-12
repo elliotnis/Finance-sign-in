@@ -268,6 +268,24 @@ class TradingIdentityTests(unittest.TestCase):
             self.assertTrue(utils.is_gamemaster("event-host@example.edu"))
             self.assertTrue(utils.is_trading_player_email_allowed("event-host@example.edu"))
 
+    def test_event_access_list_has_both_roles_for_all_approved_emails(self):
+        approved = {
+            "cylaucb@connect.ust.hk",
+            "mikiyeung@ust.hk",
+            "mhman@connect.ust.hk",
+            "firstacforbks@gmail.com",
+            "marcoleung0713@gmail.com",
+            "mayeechunandy@gmail.com",
+        }
+        with patch.dict(
+            os.environ,
+            {"GAMEMASTER_EMAILS": "", "TRADING_PARTICIPANT_EMAILS": ""},
+            clear=False,
+        ):
+            for email in approved:
+                self.assertTrue(utils.is_gamemaster(email), email)
+                self.assertTrue(utils.is_trading_player_email_allowed(email), email)
+
     def test_invalid_order_mode_is_rejected_before_storage(self):
         team = {"leader_email": "student@example.edu"}
         with patch.object(trading, "is_trading_player_email_allowed", return_value=True), patch.object(
