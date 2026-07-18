@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AppointmentTypeSelect from './AppointmentTypeSelect';
 import DepartmentBrand from './DepartmentBrand';
 import '../styles/tutorCalendar.css';
 import '../styles/registerSession.css';
+
+const ALL_APPOINTMENT_TYPES = 'all';
 
 function RegisterSession() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [currentWeek, setCurrentWeek] = useState(new Date());
     const [sessionTypes, setSessionTypes] = useState([]);
-    const [selectedSessionType, setSelectedSessionType] = useState('');
+    const [selectedSessionType, setSelectedSessionType] = useState(ALL_APPOINTMENT_TYPES);
     const [availableSlots, setAvailableSlots] = useState([]);
+    const [slotsLoading, setSlotsLoading] = useState(true);
+    const [slotsError, setSlotsError] = useState('');
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [registering, setRegistering] = useState(false);
@@ -20,14 +25,14 @@ function RegisterSession() {
 
     // Color palette for sessions (same as TutorCalendar for consistency)
     const sessionColors = [
-        '#4CAF50', '#2196F3', '#FF9800', '#9C27B0', 
-        '#F44336', '#00BCD4', '#FFEB3B', '#795548',
-        '#607D8B', '#E91E63', '#3F51B5', '#009688'
+        '#19745c', '#2f74c0', '#a6531c', '#6541a2',
+        '#ba3f33', '#0d7280', '#806313', '#6b513f',
+        '#46566d', '#94345f', '#3f51a2', '#18715e'
     ];
 
     // Function to get consistent color for session type
     const getSessionColor = (sessionType) => {
-        const hash = sessionType.split('').reduce((a, b) => {
+        const hash = String(sessionType || 'Appointments').split('').reduce((a, b) => {
             a = ((a << 5) - a) + b.charCodeAt(0);
             return a & a;
         }, 0);
@@ -54,31 +59,31 @@ function RegisterSession() {
         setLoading(false);
     }, [navigate]);
 
-    // Fetch available slots whenever session type or week changes
+    // Always fetch every appointment type; the custom control filters this data locally.
     useEffect(() => {
-        if (selectedSessionType) {
-            fetchAvailableSlots();
-        }
-    }, [selectedSessionType, currentWeek]); // eslint-disable-line react-hooks/exhaustive-deps -- the request is keyed by these selections
+        fetchAvailableSlots();
+    }, [currentWeek]);
 
     const fetchSessionTypes = async () => {
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
             const response = await fetch(`${API_URL}/session-types`);
+            if (!response.ok) throw new Error('Could not load appointment types.');
             const data = await response.json();
-            setSessionTypes(data.session_types);
+            setSessionTypes(data.session_types || []);
         } catch (error) {
             console.error('Error fetching session types:', error);
         }
     };
 
     const fetchAvailableSlots = async () => {
+        setSlotsLoading(true);
+        setSlotsError('');
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
             const userEmail = localStorage.getItem('user_email');
             
             const url = new URL(`${API_URL}/student/calendar`);
-            url.searchParams.append('session_type', selectedSessionType);
             if (userEmail) {
                 url.searchParams.append('student_email', userEmail);
             }
@@ -89,11 +94,16 @@ function RegisterSession() {
                 const data = await response.json();
                 setAvailableSlots(data.calendar_slots || []);
             } else {
+                const errorData = await response.json().catch(() => ({}));
+                setSlotsError(errorData.detail || 'Could not load available appointments.');
                 setAvailableSlots([]);
             }
         } catch (error) {
             console.error('Error fetching available slots:', error);
+            setSlotsError('Could not load available appointments. Please try again.');
             setAvailableSlots([]);
+        } finally {
+            setSlotsLoading(false);
         }
     };
 
@@ -143,13 +153,43 @@ function RegisterSession() {
         return checkDate < today;
     };
 
-    // Get available tutors for a specific date and time slot
-    const getAvailableTutors = (date, timeSlot) => {
+    const filteredAvailableSlots = selectedSessionType === ALL_APPOINTMENT_TYPES
+        ? availableSlots
+        : availableSlots.filter((slot) => slot.session_type === selectedSessionType);
+
+    const getAppointmentCount = (slots) => slots.reduce(
+        (total, slot) => total + (slot.available_tutors?.length || 0),
+        0
+    );
+
+    const appointmentTypeOptions = [
+        {
+            value: ALL_APPOINTMENT_TYPES,
+            label: 'All appointment types',
+            description: 'See every open appointment together',
+            count: getAppointmentCount(availableSlots),
+            color: '#003b7a',
+            icon: 'fa-layer-group',
+        },
+        ...sessionTypes.map((type) => {
+            const typeSlots = availableSlots.filter((slot) => slot.session_type === type);
+            const count = getAppointmentCount(typeSlots);
+            return {
+                value: type,
+                label: type,
+                description: count === 1 ? '1 open appointment' : `${count} open appointments`,
+                count,
+                color: getSessionColor(type),
+            };
+        }),
+    ];
+
+    // Get every appointment group for a specific date and time slot.
+    const getAvailableGroups = (date, timeSlot) => {
         const dateStr = formatDate(date);
-        const slot = availableSlots.find(
-            s => s.date === dateStr && s.time_slot === timeSlot && s.session_type === selectedSessionType
+        return filteredAvailableSlots.filter(
+            (slot) => slot.date === dateStr && slot.time_slot === timeSlot
         );
-        return slot ? slot.available_tutors : [];
     };
 
     const getHostNames = (tutors) => tutors
@@ -162,16 +202,21 @@ function RegisterSession() {
         return `${hostNames.slice(0, 2).join(', ')} +${hostNames.length - 2}`;
     };
 
-    // Handle slot click - show tutors modal
-    const handleSlotClick = (date, timeSlot, tutors) => {
-        if (tutors.length === 0 || isPastDate(date)) {
+    const getTypeSummary = (groups) => {
+        if (groups.length <= 2) return groups.map((group) => group.session_type).join(' + ');
+        return `${groups.slice(0, 2).map((group) => group.session_type).join(' + ')} +${groups.length - 2}`;
+    };
+
+    // Handle slot click - show every available appointment in that time.
+    const handleSlotClick = (date, timeSlot, groups) => {
+        if (groups.length === 0 || isPastDate(date)) {
             return;
         }
 
         setSelectedSlot({
             date: formatDate(date),
             timeSlot: timeSlot,
-            tutors: tutors
+            groups,
         });
         setShowConfirmModal(true);
     };
@@ -278,17 +323,14 @@ function RegisterSession() {
                     <div className="calendar-header">
                         <div className="left-controls">
                             <div className="session-type-filter">
-                                <label htmlFor="session-type">Session Type</label>
-                                <select 
+                                <AppointmentTypeSelect
                                     id="session-type"
+                                    label="Appointment type"
                                     value={selectedSessionType}
-                                    onChange={(e) => setSelectedSessionType(e.target.value)}
-                                >
-                                    <option value="">Choose a session type</option>
-                                    {sessionTypes.map(type => (
-                                        <option key={type} value={type}>{type}</option>
-                                    ))}
-                                </select>
+                                    options={appointmentTypeOptions}
+                                    onChange={setSelectedSessionType}
+                                    icon="fa-calendar-check"
+                                />
                             </div>
                             <div className="calendar-nav">
                                 <button 
@@ -314,124 +356,169 @@ function RegisterSession() {
                     </div>
 
                     <div className="instructions">
-                        <p>Select the session type you’re interested in to explore available times.</p>
-                        <p>Colored slots show the tutors who are still available. Click a slot to review tutor details and confirm your booking.</p>
+                        <p>All open appointments are shown by default. Use the type menu whenever you want a more focused view.</p>
+                        <p>Colored slots show the available hosts. Click a slot to compare appointment types and choose who to meet.</p>
                     </div>
 
-                    {selectedSessionType ? (
-                        <>
-                            {availableSlots.length === 0 && (
-                                <div className="register-empty-state">
-                                    <h3>No open slots right now</h3>
-                                    <p>We’re adding more sessions soon. Try another type or check back later.</p>
-                                </div>
-                            )}
-                            <div className="weekly-calendar">
-                                <div className="calendar-month-indicator">
-                                    {getMonthYear(currentWeek)}
-                                </div>
-                                
-                                <div className="calendar-grid">
-                                    <div className="time-column">
-                                        <div className="time-header">Time</div>
-                                        {timeSlots.map(timeSlot => (
-                                            <div key={timeSlot} className="time-slot-label">
-                                                {timeSlot}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    
-                                    {weekDates.map((date, dayIndex) => (
-                                        <div key={dayIndex} className="day-column">
-                                            <div className="day-header">
-                                                <div className="day-name">
-                                                    {date.toLocaleDateString('en-US', { weekday: 'short' })}
-                                                </div>
-                                                <div className="day-date">
-                                                    {date.getDate()}
-                                                </div>
-                                            </div>
-                                            
-                                            {timeSlots.map(timeSlot => {
-                                                const tutors = getAvailableTutors(date, timeSlot);
-                                                const hasTutors = tutors.length > 0;
-                                                const isPast = isPastDate(date);
-                                                const hostNames = getHostNames(tutors);
-                                                
-                                                return (
-                                                    <div 
-                                                        key={`${dayIndex}-${timeSlot}`}
-                                                        className={`time-slot ${hasTutors ? 'available' : ''} ${isPast ? 'past-date' : ''}`}
-                                                        onClick={() => handleSlotClick(date, timeSlot, tutors)}
-                                                        style={{ cursor: hasTutors && !isPast ? 'pointer' : 'default' }}
-                                                    >
-                                                        {hasTutors && !isPast ? (
-                                                            <div 
-                                                                className="available-slot-card"
-                                                                style={{ 
-                                                                    backgroundColor: getSessionColor(selectedSessionType),
-                                                                    opacity: Math.min(0.55 + (tutors.length * 0.12), 1)
-                                                                }}
-                                                            >
-                                                                <div className="slot-host-label">
-                                                                    <i className="fas fa-user" aria-hidden="true"></i>
-                                                                    Hosted by
-                                                                </div>
-                                                                <div className="slot-host-names" title={hostNames.join(', ')}>
-                                                                    {getHostSummary(tutors)}
-                                                                </div>
-                                                                <div className="slot-count">{tutors.length} tutor{tutors.length > 1 ? 's' : ''}</div>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="empty-slot"></div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    ))}
-                                </div>
+                    {slotsError && (
+                        <div className="register-status register-status--error" role="alert">
+                            <div>
+                                <strong>Appointments could not be loaded</strong>
+                                <span>{slotsError}</span>
                             </div>
-                        </>
-                    ) : (
-                        <div className="register-empty-state">
-                            <h3>Select a session type to begin</h3>
-                            <p>Use the filter above to choose the coaching or sharing session you want to join.</p>
+                            <button type="button" onClick={fetchAvailableSlots}>Try again</button>
                         </div>
                     )}
+
+                    {!slotsLoading && !slotsError && filteredAvailableSlots.length === 0 && (
+                        <div className="register-empty-state">
+                            <h3>No open appointments in this view</h3>
+                            <p>
+                                {selectedSessionType === ALL_APPOINTMENT_TYPES
+                                    ? 'We’re adding more appointments soon. Please check back later.'
+                                    : 'Try All appointment types or check this type again later.'}
+                            </p>
+                        </div>
+                    )}
+
+                    <div className={`weekly-calendar ${slotsLoading ? 'is-loading' : ''}`}>
+                        <div className="calendar-month-indicator">
+                            {getMonthYear(currentWeek)}
+                        </div>
+
+                        <div className="calendar-grid">
+                            <div className="time-column">
+                                <div className="time-header">Time</div>
+                                {timeSlots.map(timeSlot => (
+                                    <div key={timeSlot} className="time-slot-label">
+                                        {timeSlot}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {weekDates.map((date, dayIndex) => (
+                                <div key={dayIndex} className="day-column">
+                                    <div className="day-header">
+                                        <div className="day-name">
+                                            {date.toLocaleDateString('en-US', { weekday: 'short' })}
+                                        </div>
+                                        <div className="day-date">
+                                            {date.getDate()}
+                                        </div>
+                                    </div>
+
+                                    {timeSlots.map(timeSlot => {
+                                        const groups = getAvailableGroups(date, timeSlot);
+                                        const tutors = groups.flatMap((group) => group.available_tutors || []);
+                                        const hasAppointments = tutors.length > 0;
+                                        const isPast = isPastDate(date);
+                                        const hostNames = getHostNames(tutors);
+                                        const primaryColor = getSessionColor(groups[0]?.session_type);
+                                        const secondaryColor = getSessionColor(groups[1]?.session_type || groups[0]?.session_type);
+
+                                        return (
+                                            <div
+                                                key={`${dayIndex}-${timeSlot}`}
+                                                className={`time-slot ${hasAppointments ? 'available' : ''} ${isPast ? 'past-date' : ''}`}
+                                            >
+                                                {hasAppointments && !isPast ? (
+                                                    <button
+                                                        type="button"
+                                                        className={`available-slot-card ${groups.length > 1 ? 'has-multiple-types' : ''}`}
+                                                        style={{
+                                                            '--slot-primary': primaryColor,
+                                                            '--slot-secondary': secondaryColor,
+                                                        }}
+                                                        onClick={() => handleSlotClick(date, timeSlot, groups)}
+                                                        aria-label={`${tutors.length} open appointment${tutors.length === 1 ? '' : 's'} for ${getTypeSummary(groups)} at ${timeSlot}`}
+                                                    >
+                                                        <div className="slot-host-label">
+                                                            <i className={`fas ${groups.length > 1 ? 'fa-layer-group' : 'fa-user'}`} aria-hidden="true"></i>
+                                                            {groups.length > 1 ? `${groups.length} appointment types` : groups[0].session_type}
+                                                        </div>
+                                                        <div className="slot-host-names" title={groups.length > 1 ? getTypeSummary(groups) : hostNames.join(', ')}>
+                                                            {groups.length > 1 ? getTypeSummary(groups) : getHostSummary(tutors)}
+                                                        </div>
+                                                        <div className="slot-count">
+                                                            {tutors.length} open appointment{tutors.length > 1 ? 's' : ''}
+                                                        </div>
+                                                    </button>
+                                                ) : (
+                                                    <div className="empty-slot"></div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ))}
+                        </div>
+
+                        {slotsLoading && (
+                            <div className="register-calendar-loading" aria-live="polite">
+                                <i className="fas fa-circle-notch fa-spin" aria-hidden="true"></i>
+                                <span>Finding every open appointment...</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </main>
 
             {showConfirmModal && selectedSlot && (
                 <div className="modal-overlay">
                     <div className="modal-content tutor-selection-modal">
-                        <h3>Choose a Session Host</h3>
+                        <h3>Choose an Appointment</h3>
                         <div className="modal-info">
                             <p><strong>Date:</strong> {selectedSlot.date}</p>
                             <p><strong>Time:</strong> {selectedSlot.timeSlot}</p>
-                            <p><strong>Session Type:</strong> {selectedSessionType}</p>
+                            <p>
+                                <strong>Showing:</strong>{' '}
+                                {selectedSlot.groups.length === 1
+                                    ? selectedSlot.groups[0].session_type
+                                    : `${selectedSlot.groups.length} appointment types`}
+                            </p>
                         </div>
                         
-                        <div className="tutors-list">
-                            <p className="select-instruction">Select the person hosting your session:</p>
-                            {selectedSlot.tutors.map(tutor => (
-                                <div key={tutor.id} className="tutor-card">
-                                    <div className="tutor-info">
-                                        <p className="tutor-host-label">Hosted by</p>
-                                        <h4>{tutor.tutor_name || tutor.tutor_email}</h4>
-                                        <p className="tutor-location"> {tutor.location}</p>
-                                        {tutor.description && (
-                                            <p className="tutor-description"> {tutor.description}</p>
-                                        )}
-                                    </div>
-                                    <button 
-                                        className="register-btn"
-                                        onClick={() => handleRegister(tutor)}
-                                        disabled={registering}
+                        <p className="select-instruction">Compare the available types and hosts, then register:</p>
+                        <div className="appointment-groups">
+                            {selectedSlot.groups.map((group) => (
+                                <section className="appointment-group" key={group.session_type}>
+                                    <div
+                                        className="appointment-group__heading"
+                                        style={{ '--appointment-group-color': getSessionColor(group.session_type) }}
                                     >
-                                        {registering ? 'Registering...' : 'Register'}
-                                    </button>
-                                </div>
+                                        <span className="appointment-group__swatch" aria-hidden="true"></span>
+                                        <div>
+                                            <strong>{group.session_type}</strong>
+                                            <small>
+                                                {group.available_tutors.length} host{group.available_tutors.length === 1 ? '' : 's'} available
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div className="tutors-list">
+                                        {group.available_tutors.map(tutor => (
+                                            <div key={tutor.id} className="tutor-card">
+                                                <div className="tutor-info">
+                                                    <p className="tutor-host-label">Hosted by</p>
+                                                    <h4>{tutor.tutor_name || tutor.tutor_email}</h4>
+                                                    <p className="tutor-location">
+                                                        <i className="fas fa-location-dot" aria-hidden="true"></i>
+                                                        {tutor.location}
+                                                    </p>
+                                                    {tutor.description && (
+                                                        <p className="tutor-description">{tutor.description}</p>
+                                                    )}
+                                                </div>
+                                                <button
+                                                    className="register-btn"
+                                                    onClick={() => handleRegister(tutor)}
+                                                    disabled={registering}
+                                                >
+                                                    {registering ? 'Registering...' : 'Register'}
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
                             ))}
                         </div>
 

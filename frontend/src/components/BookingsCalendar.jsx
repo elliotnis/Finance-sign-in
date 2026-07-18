@@ -1,8 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AppointmentTypeSelect from './AppointmentTypeSelect';
 import '../styles/bookingsCalendar.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const ALL_APPOINTMENT_TYPES = 'all';
+const SESSION_COLORS = [
+  '#19745c', '#2f74c0', '#a6531c', '#6541a2',
+  '#ba3f33', '#0d7280', '#806313', '#6b513f',
+];
+
+function getSessionColor(sessionType) {
+  const hash = String(sessionType || 'Appointments').split('').reduce((total, character) => (
+    ((total << 5) - total) + character.charCodeAt(0)
+  ), 0);
+  return SESSION_COLORS[Math.abs(hash) % SESSION_COLORS.length];
+}
 
 function toYMD(date) {
   const y = date.getFullYear();
@@ -64,16 +77,18 @@ function sortEvents(a, b) {
 
 function normalizeTutoring(registration) {
   const details = registration.session_details || {};
+  const appointmentType = details.session_type || 'Tutoring session';
   return {
     id: `tutoring-${registration.registration_id || registration.availability_id || `${details.date}-${details.time_slot}`}`,
     category: 'Tutoring',
-    title: details.session_type || 'Tutoring session',
+    title: appointmentType,
     subtitle: details.tutor_name ? `Tutor: ${details.tutor_name}` : 'Tutor session',
     date: details.date,
     time_slot: details.time_slot,
     location: details.location,
     description: details.description,
     tone: 'blue',
+    filterValue: `session:${appointmentType}`,
   };
 }
 
@@ -88,6 +103,7 @@ function normalizeClass(cls) {
     location: cls.location,
     description: cls.description,
     tone: 'gold',
+    filterValue: 'classes',
   };
 }
 
@@ -99,6 +115,7 @@ function BookingsCalendar() {
   const [selectedDate, setSelectedDate] = useState(TODAY_KEY);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedAppointmentType, setSelectedAppointmentType] = useState(ALL_APPOINTMENT_TYPES);
 
   useEffect(() => {
     if (!localStorage.getItem('user_id')) {
@@ -155,26 +172,67 @@ function BookingsCalendar() {
 
   const monthCells = useMemo(() => buildMonthCells(currentMonth), [currentMonth]);
 
+  const tutoringTypes = useMemo(() => Array.from(new Set(
+    events
+      .filter((event) => event.category === 'Tutoring')
+      .map((event) => event.title)
+  )).sort((a, b) => a.localeCompare(b)), [events]);
+
+  const appointmentTypeOptions = useMemo(() => [
+    {
+      value: ALL_APPOINTMENT_TYPES,
+      label: 'All appointments',
+      description: 'Tutoring sessions and classes together',
+      count: events.length,
+      color: '#003b7a',
+      icon: 'fa-layer-group',
+    },
+    {
+      value: 'classes',
+      label: 'Classes',
+      description: 'Department classes and events',
+      count: events.filter((event) => event.category === 'Class').length,
+      color: '#c7952b',
+      icon: 'fa-graduation-cap',
+    },
+    ...tutoringTypes.map((type) => {
+      const count = events.filter((event) => event.filterValue === `session:${type}`).length;
+      return {
+        value: `session:${type}`,
+        label: type,
+        description: count === 1 ? '1 booked appointment' : `${count} booked appointments`,
+        count,
+        color: getSessionColor(type),
+      };
+    }),
+  ], [events, tutoringTypes]);
+
+  const filteredEvents = useMemo(() => (
+    selectedAppointmentType === ALL_APPOINTMENT_TYPES
+      ? events
+      : events.filter((event) => event.filterValue === selectedAppointmentType)
+  ), [events, selectedAppointmentType]);
+
   const eventsByDate = useMemo(() => {
     const map = new Map();
-    events.forEach((event) => {
+    filteredEvents.forEach((event) => {
       const list = map.get(event.date) || [];
       list.push(event);
       map.set(event.date, list);
     });
     return map;
-  }, [events]);
+  }, [filteredEvents]);
 
   const selectedEvents = eventsByDate.get(selectedDate) || [];
 
   const monthEvents = useMemo(() => {
     const month = currentMonth.getMonth();
     const year = currentMonth.getFullYear();
-    return events.filter((event) => {
+    return filteredEvents.filter((event) => {
       const date = parseYMD(event.date);
       return date && date.getMonth() === month && date.getFullYear() === year;
     });
-  }, [currentMonth, events]);
+  }, [currentMonth, filteredEvents]);
 
   const tutoringCount = events.filter((event) => event.category === 'Tutoring').length;
   const classCount = events.filter((event) => event.category === 'Class').length;
@@ -186,6 +244,21 @@ function BookingsCalendar() {
   function goToday() {
     setCurrentMonth(new Date());
     setSelectedDate(TODAY_KEY);
+  }
+
+  function handleAppointmentTypeChange(nextType) {
+    setSelectedAppointmentType(nextType);
+
+    const matchingEvents = nextType === ALL_APPOINTMENT_TYPES
+      ? events
+      : events.filter((event) => event.filterValue === nextType);
+    const nextEvent = matchingEvents.find((event) => event.date >= TODAY_KEY) || matchingEvents[0];
+    const nextDate = parseYMD(nextEvent?.date);
+
+    if (nextEvent && nextDate) {
+      setSelectedDate(nextEvent.date);
+      setCurrentMonth(new Date(nextDate.getFullYear(), nextDate.getMonth(), 1));
+    }
   }
 
   if (loading) {
@@ -232,7 +305,23 @@ function BookingsCalendar() {
             <button type="button" className="booking-today" onClick={goToday}>Today</button>
           </div>
 
-          <div className="booking-month-grid" aria-label={`${formatMonth(currentMonth)} bookings`}>
+          <div className="booking-filter-bar">
+            <AppointmentTypeSelect
+              id="calendar-appointment-type"
+              label="Appointments to view"
+              value={selectedAppointmentType}
+              options={appointmentTypeOptions}
+              onChange={handleAppointmentTypeChange}
+              icon="fa-calendar-days"
+              compact
+            />
+            <p aria-live="polite">
+              <strong>{filteredEvents.length}</strong>
+              <span>of {events.length} appointments visible</span>
+            </p>
+          </div>
+
+          <div className="booking-month-grid" aria-label={`${formatMonth(currentMonth)} filtered bookings`}>
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
               <div className="booking-weekday" key={day}>{day}</div>
             ))}

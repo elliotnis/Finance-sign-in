@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AppointmentTypeSelect from './AppointmentTypeSelect';
 import DepartmentBrand from './DepartmentBrand';
 import '../styles/tutorCalendar.css';
 
@@ -456,19 +457,25 @@ function TutorCalendar() {
                         
                         <form onSubmit={handleFormSubmit}>
                             <div className="form-group">
-                                <label>Session Type *</label>
-                                <select 
+                                <AppointmentTypeSelect
+                                    id="create-session-type"
+                                    label="Session Type *"
                                     value={formData.session_type}
-                                    onChange={(e) => setFormData({...formData, session_type: e.target.value})}
-                                    required
-                                    onInvalid={(e) => e.target.setCustomValidity('Please select a session type')}
-                                    onInput={(e) => e.target.setCustomValidity('')}
-                                >
-                                    <option value="">Select a session type</option>
-                                    {sessionTypes.map(type => (
-                                        <option key={type} value={type}>{type}</option>
-                                    ))}
-                                </select>
+                                    options={sessionTypes.map((type) => ({
+                                        value: type,
+                                        label: type,
+                                        description: 'Create this appointment type',
+                                        color: getSessionColor(type),
+                                    }))}
+                                    onChange={(sessionType) => setFormData({
+                                        ...formData,
+                                        session_type: sessionType,
+                                    })}
+                                    placeholder="Select a session type"
+                                    icon="fa-calendar-plus"
+                                    compact
+                                    className="create-session-type-select"
+                                />
                             </div>
                             
                             <div className="form-group">

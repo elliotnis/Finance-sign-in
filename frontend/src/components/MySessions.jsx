@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AppointmentTypeSelect from './AppointmentTypeSelect';
 import '../styles/MySessions.css';
 import { useAuth } from '../contexts/authcontext.jsx';
+
+const ALL_APPOINTMENT_TYPES = 'all';
+const SESSION_COLORS = [
+    '#19745c', '#2f74c0', '#a6531c', '#6541a2',
+    '#ba3f33', '#0d7280', '#806313', '#6b513f',
+];
+
+function getSessionColor(sessionType) {
+    const hash = String(sessionType || 'Appointments').split('').reduce((total, character) => (
+        ((total << 5) - total) + character.charCodeAt(0)
+    ), 0);
+    return SESSION_COLORS[Math.abs(hash) % SESSION_COLORS.length];
+}
 
 function SessionsPage() {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedSessionType, setSelectedSessionType] = useState(ALL_APPOINTMENT_TYPES);
     const navigate = useNavigate();
 
     const { user } = useAuth();
@@ -106,6 +121,41 @@ function SessionsPage() {
         }
     };
 
+    const sessionTypes = Array.from(new Set(
+        sessions
+            .map((registration) => registration.session_details?.session_type)
+            .filter(Boolean)
+    )).sort((a, b) => a.localeCompare(b));
+
+    const filteredSessions = selectedSessionType === ALL_APPOINTMENT_TYPES
+        ? sessions
+        : sessions.filter(
+            (registration) => registration.session_details?.session_type === selectedSessionType
+        );
+
+    const appointmentTypeOptions = [
+        {
+            value: ALL_APPOINTMENT_TYPES,
+            label: 'All appointment types',
+            description: 'View every appointment you have booked',
+            count: sessions.length,
+            color: '#003b7a',
+            icon: 'fa-layer-group',
+        },
+        ...sessionTypes.map((type) => {
+            const count = sessions.filter(
+                (registration) => registration.session_details?.session_type === type
+            ).length;
+            return {
+                value: type,
+                label: type,
+                description: count === 1 ? '1 booked appointment' : `${count} booked appointments`,
+                count,
+                color: getSessionColor(type),
+            };
+        }),
+    ];
+
     // Handle session cancellation
     const handleCancelRegistration = async (registrationId, sessionDetails) => {
         const confirmMessage = `Are you sure you want to cancel this registration?\n\nSession: ${sessionDetails.session_type}\nDate: ${formatDate(sessionDetails.date)}\nTime: ${formatTimeSlot(sessionDetails.time_slot)}`;
@@ -192,18 +242,51 @@ function SessionsPage() {
                     }
                 </p>
             </div>
+
+            {sessions.length > 0 && (
+                <div className="sessions-filter-bar">
+                    <AppointmentTypeSelect
+                        id="my-sessions-type"
+                        label="Appointment type"
+                        value={selectedSessionType}
+                        options={appointmentTypeOptions}
+                        onChange={setSelectedSessionType}
+                        icon="fa-calendar-check"
+                    />
+                    <div className="sessions-filter-summary" aria-live="polite">
+                        <span>Appointments shown</span>
+                        <strong>{filteredSessions.length} of {sessions.length}</strong>
+                        <small>
+                            {selectedSessionType === ALL_APPOINTMENT_TYPES
+                                ? 'Every booked appointment is visible'
+                                : selectedSessionType}
+                        </small>
+                    </div>
+                </div>
+            )}
             
             {sessions.length === 0 ? (
                 <div className="empty-state">
                     <h3>No sessions found</h3>
                     <p>Register for a session to see it here!</p>
-                    <button className="btn-primary" onClick={() => window.history.back()}>
+                    <button className="btn-primary" onClick={() => navigate('/register-session')}>
                         Browse Available Sessions
+                    </button>
+                </div>
+            ) : filteredSessions.length === 0 ? (
+                <div className="empty-state sessions-filter-empty">
+                    <h3>No appointments match this type</h3>
+                    <p>Switch back to All appointment types to see your complete schedule.</p>
+                    <button
+                        className="btn-primary"
+                        onClick={() => setSelectedSessionType(ALL_APPOINTMENT_TYPES)}
+                    >
+                        Show All Appointments
                     </button>
                 </div>
             ) : (
                 <div className="sessions-list">
-                    {sessions.map(registration => (
+                    {filteredSessions.map(registration => (
                         <div key={registration.registration_id} className="session-card">
                             <div className="session-main-info">
                                 <div className="session-tutor">

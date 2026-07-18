@@ -14,6 +14,7 @@
     align-items: flex-end;
     gap: 2rem;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .register-action-section {
@@ -26,36 +27,12 @@
 }
 
 .session-type-filter {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    min-width: 240px;
+    width: min(100%, 380px);
+    min-width: 280px;
 }
 
-.session-type-filter label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #5f6368;
-}
-
-.session-type-filter select {
-    background: #ffffff;
-    border: 1px solid #c6dafc;
-    border-radius: 6px;
-    padding: 0.6rem 0.75rem;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #1a1a1a;
-    box-shadow: 0 1px 2px rgba(26, 115, 232, 0.12);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.session-type-filter select:focus {
-    outline: none;
-    border-color: #1a73e8;
-    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.18);
+.session-type-filter .appointment-type-select {
+    width: 100%;
 }
 
 .register-session-page .instructions {
@@ -86,21 +63,104 @@
     font-weight: 600;
 }
 
+.register-status {
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 0.9rem 1rem;
+    border: 2px solid var(--portal-ink, #172033);
+    border-radius: 8px;
+    background: #fffdf8;
+}
+
+.register-status > div {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.register-status strong,
+.register-status span {
+    display: block;
+}
+
+.register-status span {
+    color: var(--portal-muted, #647086);
+    font-size: 0.86rem;
+}
+
+.register-status button {
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 0 1rem;
+    border: 2px solid var(--portal-ink, #172033);
+    border-radius: 7px;
+    background: var(--portal-ink, #172033);
+    color: #fffaf0;
+    font-weight: 800;
+}
+
+.register-status--error {
+    border-color: var(--portal-red, #ba3f33);
+    background: #fff0ed;
+}
+
+.register-session-page .weekly-calendar {
+    isolation: isolate;
+}
+
+.register-session-page .weekly-calendar.is-loading .calendar-grid {
+    opacity: 0.32;
+}
+
+.register-calendar-loading {
+    position: absolute;
+    inset: 3rem 0 0;
+    z-index: 12;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.65rem;
+    padding-top: 6rem;
+    background: rgba(255, 250, 240, 0.54);
+    color: var(--portal-blue, #003b7a);
+    font-weight: 800;
+    backdrop-filter: blur(2px);
+}
+
 .available-slot-card {
     width: 100%;
     height: 100%;
-    padding: 0.8rem 0.7rem;
-    border-radius: 12px;
+    min-height: 0;
+    padding: 0.35rem 0.3rem;
+    border: 2px solid rgba(23, 32, 51, 0.48);
+    border-radius: 8px;
+    background: var(--slot-primary, #2f74c0);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.25rem;
+    gap: 0.16rem;
     color: #ffffff;
+    font: inherit;
     text-align: center;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    box-shadow: 2px 2px 0 rgba(23, 32, 51, 0.24);
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.available-slot-card.has-multiple-types {
+    background:
+        linear-gradient(
+            135deg,
+            var(--slot-primary, #2f74c0) 0 47%,
+            var(--portal-ink, #172033) 47% 53%,
+            var(--slot-secondary, #19745c) 53% 100%
+        );
 }
 
 .time-slot.available:hover .available-slot-card {
@@ -108,15 +168,24 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
+.available-slot-card:focus-visible {
+    outline: 3px solid var(--portal-gold, #c7952b);
+    outline-offset: 2px;
+}
+
 .available-slot-card .slot-host-label {
+    max-width: 100%;
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    font-size: 0.68rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.58rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.045em;
     text-transform: uppercase;
-    opacity: 0.88;
+    opacity: 0.94;
 }
 
 .available-slot-card .slot-host-names {
@@ -124,22 +193,26 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 0.92rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1.12;
 }
 
 .available-slot-card .slot-count {
-    font-size: 0.8rem;
-    letter-spacing: 0.04em;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.58rem;
+    letter-spacing: 0.025em;
     background: rgba(255, 255, 255, 0.28);
-    padding: 0.25rem 0.75rem;
+    padding: 0.16rem 0.4rem;
     border-radius: 999px;
     text-transform: uppercase;
 }
 
 .register-session-page .tutor-selection-modal {
-    max-width: 640px;
+    max-width: 720px;
 }
 
 .register-session-page .modal-info {
@@ -163,6 +236,66 @@
     box-shadow: 0 4px 14px rgba(26, 115, 232, 0.2);
 }
 
+.register-session-page .select-instruction {
+    margin: 1rem 0 0.65rem;
+    color: var(--portal-muted, #647086);
+    font-weight: 700;
+}
+
+.appointment-groups {
+    display: grid;
+    gap: 1rem;
+}
+
+.appointment-group {
+    overflow: hidden;
+    border: 2px solid var(--portal-ink, #172033);
+    border-radius: 9px;
+    background: #fffdf8;
+}
+
+.appointment-group__heading {
+    --appointment-group-color: var(--portal-blue, #003b7a);
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr);
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.7rem 0.8rem 0.7rem 0;
+    border-bottom: 1px solid rgba(23, 32, 51, 0.15);
+    background: #f6f0e5;
+}
+
+.appointment-group__swatch {
+    display: block;
+    background: var(--appointment-group-color);
+}
+
+.appointment-group__heading div {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.8rem;
+}
+
+.appointment-group__heading strong {
+    color: var(--portal-ink, #172033);
+    font-size: 0.95rem;
+}
+
+.appointment-group__heading small {
+    flex: 0 0 auto;
+    color: var(--portal-muted, #647086);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.appointment-group .tutors-list {
+    display: grid;
+    gap: 0.65rem;
+    padding: 0.75rem;
+}
+
 .register-session-page .tutor-info h4 {
     color: #1a1a1a;
     font-weight: 600;
@@ -175,6 +308,12 @@
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+}
+
+.register-session-page .tutor-location {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
 }
 
 .register-session-page .register-btn {
@@ -251,11 +390,11 @@
 
     .session-type-filter {
         width: 100%;
+        min-width: 0;
     }
 
-    .session-type-filter select {
+    .session-type-filter .appointment-type-select {
         width: 100%;
-        font-size: 16px; /* Prevent zoom on iOS */
     }
     
     .register-session-page .instructions {
@@ -286,21 +425,20 @@
     }
     
     .register-session-page .available-slot-card {
-        padding: 0.5rem 0.4rem;
-        font-size: 0.75rem;
+        padding: 0.25rem 0.2rem;
     }
     
     .register-session-page .available-slot-card .slot-host-label {
-        font-size: 0.58rem;
+        font-size: 0.5rem;
     }
 
     .register-session-page .available-slot-card .slot-host-names {
-        font-size: 0.72rem;
+        font-size: 0.62rem;
     }
     
     .register-session-page .available-slot-card .slot-count {
-        font-size: 0.7rem;
-        padding: 0.2rem 0.5rem;
+        font-size: 0.5rem;
+        padding: 0.12rem 0.3rem;
     }
     
     .register-session-page .modal-content {
@@ -318,6 +456,17 @@
     
     .register-session-page .register-btn {
         width: 100%;
+    }
+
+    .appointment-group__heading div {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+
+    .register-status {
+        align-items: stretch;
+        flex-direction: column;
     }
     
     .register-session-page .modal-actions {

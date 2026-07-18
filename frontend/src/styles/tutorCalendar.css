@@ -478,6 +478,11 @@
     margin-bottom: 1.5rem;
 }
 
+.form-group .create-session-type-select {
+    width: 100%;
+    max-width: none;
+}
+
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
@@ -739,6 +744,7 @@
     bottom: 0;
     background: linear-gradient(45deg, transparent 49%, #1a73e8 50%, transparent 51%);
     opacity: 0;
+    pointer-events: none;
     transition: opacity 0.3s;
 }
 
