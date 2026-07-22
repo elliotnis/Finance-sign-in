@@ -19,7 +19,7 @@ from datetime import datetime, timedelta, timezone
 from pymongo import ReturnDocument
 from pymongo.errors import DuplicateKeyError
 
-from .email_service import send_email
+from .email_service import send_email, smtp_profile_for_access_scope
 from .mongo import (
     magic_link_collection,
     magic_link_request_collection,
@@ -200,7 +200,12 @@ def create_magic_link_for_email(
 
     html_body = _render_email(email, code, _ttl_minutes(), title)
     try:
-        send_email(email, subject, html_body)
+        send_email(
+            email,
+            subject,
+            html_body,
+            smtp_profile=smtp_profile_for_access_scope(access_scope),
+        )
     except Exception:
         magic_link_collection.delete_one(
             {

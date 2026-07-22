@@ -20,7 +20,10 @@ Web app (Vite + React) and API (FastAPI). Data is stored in **MongoDB** through 
 | `FRONTEND_PORT` | No | Host port for the web UI (default `8080`). |
 | `TRADING_SIM_PORT` | No | Host port for the dedicated Youth Financetopia frontend (default `4173`). |
 | `CORS_ORIGINS` | No | Comma-separated origins. If **unset**, the API allows `http://localhost:5173`, `http://localhost:8080`, and a few defaults—see `backend/main.py`. |
-| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_FROM` | Yes for magic-link login | Gmail SMTP credentials. `SMTP_PASSWORD` must be a [Gmail App Password](https://myaccount.google.com/apppasswords), **not** your normal password. |
+| `SMTP_HOST` / `SMTP_PORT` | Yes for email-code login | Shared SMTP endpoint. Production uses `smtp.ust.hk:587` with STARTTLS. |
+| `SMTP_USERFINAUGEVENTS` / `SMTP_PASSWORDFINAUGEVENTS` / `SMTP_FROMFINAUGEVENTS` | Yes for the normal portal | HKUST `finaugevents` project account used for FINA portal sign-in codes. |
+| `SMTP_USERYFC` / `SMTP_PASSWORDYFC` / `SMTP_FROMYFC` | Yes for Youth Financetopia | HKUST `yfc` project account used for participant and gamemaster codes. |
+| `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_FROM` | No | Legacy single-account fallback used only when the relevant dedicated password is absent. |
 | `FRONTEND_URL` | Yes for magic-link login | Public URL of the frontend (e.g. `http://localhost:8080`). Used to build the link inside the email. |
 | `MAGIC_LINK_TTL_MINUTES` | No (default 15) | Minutes before a magic-link token expires. |
 | `MAGIC_LINK_REQUEST_COOLDOWN_SECONDS` | No (default 60) | Minimum delay between sign-in code requests for the same email and access scope, clamped to 15-300 seconds. |
@@ -31,20 +34,26 @@ Web app (Vite + React) and API (FastAPI). Data is stored in **MongoDB** through 
 
 **Local backend only:** copy [`backend/.env.example`](backend/.env.example) to `backend/.env` and run the database service with Docker Compose. The same `SMTP_*`, `FRONTEND_URL`, `MAGIC_LINK_TTL_MINUTES`, `MAGIC_LINK_REQUEST_COOLDOWN_SECONDS`, `TRADING_SESSION_TTL_HOURS`, `ADMIN_EMAILS`, and `GAMEMASTER_EMAILS` variables apply for non-Docker dev.
 
-### Setting up Gmail SMTP (one-time)
+### Setting up project-account SMTP
 
-1. Sign in to a Gmail account and turn on 2-step verification.
-2. Create an App Password at <https://myaccount.google.com/apppasswords> (16-char string).
-3. Set:
+Set the two registered HKUST project accounts independently:
 
-   ```env
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_USER=your-gmail@gmail.com
-   SMTP_PASSWORD=the-16-char-app-password
-   SMTP_FROM=HKUST FINA Portal <your-gmail@gmail.com>
-   FRONTEND_URL=http://localhost:8080   # or your Vercel URL in prod
-   ```
+```env
+SMTP_HOST=smtp.ust.hk
+SMTP_PORT=587
+SMTP_USERFINAUGEVENTS=finaugevents
+SMTP_PASSWORDFINAUGEVENTS=project-account-smtp-password
+SMTP_FROMFINAUGEVENTS=HKUST FINA Portal <finaugevents@ust.hk>
+SMTP_USERYFC=yfc
+SMTP_PASSWORDYFC=project-account-smtp-password
+SMTP_FROMYFC=Youth Financetopia <yfc@ust.hk>
+FRONTEND_URL=http://localhost:8080
+```
+
+Portal email codes use `finaugevents`; Youth Financetopia participant and
+gamemaster codes use `yfc`. Deployments write the two passwords from encrypted
+GitHub Actions secrets into FNZ231's server-only `.env` before recreating the
+Compose stack.
 
 The frontend calls the API using `VITE_API_URL` (defaults to `http://localhost:8000` in code if unset). For `npm run dev`, that matches the backend on port **8000**.
 

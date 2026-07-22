@@ -19,12 +19,19 @@ services:
     environment:
       DATABASE_URI: ${DATABASE_URI:-mongodb://mongo:27017}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
-      # Passwordless email login (Gmail SMTP). All optional but required for the magic-link flow.
+      # Passwordless email login. Dedicated HKUST project accounts are used
+      # when their passwords are configured; legacy SMTP_* remains a fallback.
       SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_USERFINAUGEVENTS: ${SMTP_USERFINAUGEVENTS:-finaugevents}
+      SMTP_PASSWORDFINAUGEVENTS: ${SMTP_PASSWORDFINAUGEVENTS:-}
+      SMTP_FROMFINAUGEVENTS: ${SMTP_FROMFINAUGEVENTS:-HKUST FINA Portal <finaugevents@ust.hk>}
+      SMTP_USERYFC: ${SMTP_USERYFC:-yfc}
+      SMTP_PASSWORDYFC: ${SMTP_PASSWORDYFC:-}
+      SMTP_FROMYFC: ${SMTP_FROMYFC:-Youth Financetopia <yfc@ust.hk>}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
       MAGIC_LINK_TTL_MINUTES: ${MAGIC_LINK_TTL_MINUTES:-15}
       MAGIC_LINK_REQUEST_COOLDOWN_SECONDS: ${MAGIC_LINK_REQUEST_COOLDOWN_SECONDS:-60}

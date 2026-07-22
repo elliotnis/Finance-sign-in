@@ -1,4 +1,4 @@
-"""Send transactional email via SMTP (Gmail by default).
+"""Send transactional email through the configured SMTP account.
 
 Reads SMTP_* env vars at call time so changes to .env take effect on reload.
 Designed to fail loudly with a clear error so the route handler can decide
@@ -19,28 +19,82 @@ class EmailSendError(RuntimeError):
     """Raised when the SMTP server rejects or the connection fails."""
 
 
-def _load_config():
+SMTP_PROFILES = {
+    "finaugevents": {
+        "user_env": "SMTP_USERFINAUGEVENTS",
+        "password_env": "SMTP_PASSWORDFINAUGEVENTS",
+        "from_env": "SMTP_FROMFINAUGEVENTS",
+        "default_user": "finaugevents",
+        "default_from": "HKUST FINA Portal <finaugevents@ust.hk>",
+    },
+    "yfc": {
+        "user_env": "SMTP_USERYFC",
+        "password_env": "SMTP_PASSWORDYFC",
+        "from_env": "SMTP_FROMYFC",
+        "default_user": "yfc",
+        "default_from": "Youth Financetopia <yfc@ust.hk>",
+    },
+}
+
+
+def smtp_profile_for_access_scope(access_scope: str) -> str:
+    """Map Youth challenge scopes to YFC; all other logins use FINA."""
+    return "yfc" if (access_scope or "").startswith("trading") else "finaugevents"
+
+
+def _load_config(profile: str | None = None):
     host = os.getenv("SMTP_HOST", "smtp.gmail.com")
     port = int(os.getenv("SMTP_PORT", "587"))
-    user = os.getenv("SMTP_USER")
-    password = os.getenv("SMTP_PASSWORD")
-    sender = os.getenv("SMTP_FROM") or user
+
+    profile_config = None
+    if profile is not None:
+        profile_config = SMTP_PROFILES.get(profile)
+        if profile_config is None:
+            raise EmailConfigError(f"Unknown SMTP profile: {profile}")
+
+    # A dedicated password opts this flow into its project account. If the
+    # profile has not been configured yet, retain the legacy single-account
+    # variables so an existing deployment continues working during rollout.
+    profile_password = (
+        os.getenv(profile_config["password_env"])
+        if profile_config is not None
+        else None
+    )
+    if profile_config is not None and profile_password:
+        user = os.getenv(profile_config["user_env"]) or profile_config["default_user"]
+        password = profile_password
+        sender = os.getenv(profile_config["from_env"]) or profile_config["default_from"]
+    else:
+        user = os.getenv("SMTP_USER")
+        password = os.getenv("SMTP_PASSWORD")
+        sender = os.getenv("SMTP_FROM") or user
 
     if not user or not password:
+        profile_hint = (
+            f"{profile_config['password_env']} or legacy "
+            if profile_config is not None
+            else ""
+        )
         raise EmailConfigError(
-            "SMTP_USER and SMTP_PASSWORD must be set in the backend environment "
-            "(use a Gmail App Password, not your normal Gmail password)."
+            f"{profile_hint}SMTP_USER and SMTP_PASSWORD must be set in the "
+            "backend environment."
         )
 
     return host, port, user, password, sender
 
 
-def send_email(to_address: str, subject: str, html_body: str, text_body: str | None = None) -> None:
+def send_email(
+    to_address: str,
+    subject: str,
+    html_body: str,
+    text_body: str | None = None,
+    smtp_profile: str | None = None,
+) -> None:
     """Send a single email. Blocks until the SMTP server returns.
 
-    Uses STARTTLS on port 587 (Gmail) or implicit TLS on 465.
+    Uses STARTTLS on port 587 or implicit TLS on 465.
     """
-    host, port, user, password, sender = _load_config()
+    host, port, user, password, sender = _load_config(smtp_profile)
 
     msg = EmailMessage()
     msg["From"] = sender

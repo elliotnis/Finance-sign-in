@@ -46,6 +46,59 @@ jobs:
       DEPLOY_PATH: ${{ vars.VPS_DEPLOY_PATH || '/home/adm1/sign-up-system' }}
       DEPLOY_BRANCH: ${{ github.ref_name }}
     steps:
+      - name: Configure project-account SMTP credentials
+        shell: bash
+        env:
+          SMTP_PASSWORDYFC_SECRET: ${{ secrets.SMTP_PASSWORDYFC }}
+          SMTP_PASSWORDFINAUGEVENTS_SECRET: ${{ secrets.SMTP_PASSWORDFINAUGEVENTS }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$SMTP_PASSWORDYFC_SECRET" || -z "$SMTP_PASSWORDFINAUGEVENTS_SECRET" ]]; then
+            echo "Required project-account SMTP secrets are not configured." >&2
+            exit 1
+          fi
+
+          python3 - "$DEPLOY_PATH/.env" <<'PY'
+          import os
+          import sys
+          from pathlib import Path
+
+          env_path = Path(sys.argv[1])
+          updates = {
+              "SMTP_HOST": "smtp.ust.hk",
+              "SMTP_PORT": "587",
+              "SMTP_USERFINAUGEVENTS": "finaugevents",
+              "SMTP_PASSWORDFINAUGEVENTS": os.environ["SMTP_PASSWORDFINAUGEVENTS_SECRET"],
+              "SMTP_FROMFINAUGEVENTS": '"HKUST FINA Portal <finaugevents@ust.hk>"',
+              "SMTP_USERYFC": "yfc",
+              "SMTP_PASSWORDYFC": os.environ["SMTP_PASSWORDYFC_SECRET"],
+              "SMTP_FROMYFC": '"Youth Financetopia <yfc@ust.hk>"',
+          }
+
+          existing = env_path.read_text().splitlines() if env_path.exists() else []
+          written = set()
+          output = []
+          for line in existing:
+              key = line.split("=", 1)[0].strip() if "=" in line else None
+              if key in updates:
+                  if key not in written:
+                      output.append(f"{key}={updates[key]}")
+                      written.add(key)
+              else:
+                  output.append(line)
+
+          for key, value in updates.items():
+              if key not in written:
+                  output.append(f"{key}={value}")
+
+          temp_path = env_path.with_suffix(".env.tmp")
+          temp_path.write_text("\n".join(output) + "\n")
+          temp_path.chmod(0o600)
+          temp_path.replace(env_path)
+          print("Updated the FNZ231 SMTP profile configuration.")
+          PY
+
       - name: Update the Compose stack
         shell: bash
         run: |
