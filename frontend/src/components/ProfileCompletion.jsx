@@ -41,7 +41,12 @@ function ProfileCompletion() {
     yearOfStudy: '',
     major: '',
     contactNumber: '',
-    studentId: ''
+    studentId: '',
+    graduationYear: '',
+    biography: '',
+    biographyPublic: false,
+    linkedinUrl: '',
+    credentials: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -60,7 +65,7 @@ function ProfileCompletion() {
     setError('');
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
       
       // Create profile data according to backend schema
       const profileData = {
@@ -71,7 +76,12 @@ function ProfileCompletion() {
         study_year: formData.yearOfStudy,
         major: formData.major,
         contact_phone: formData.contactNumber,
-        profile_email: userEmail // Using the same email for profile
+        profile_email: userEmail, // Using the same email for profile
+        graduation_year: formData.graduationYear ? Number(formData.graduationYear) : null,
+        biography: formData.biography,
+        biography_public: formData.biographyPublic,
+        linkedin_url: formData.linkedinUrl || null,
+        credentials: formData.credentials.split('\n').map((item) => item.trim()).filter(Boolean),
       };
 
       const response = await fetch(`${API_URL}/profile`, {
@@ -133,6 +143,32 @@ function ProfileCompletion() {
           />
           <i className="fas fa-user input-icon"></i>
         </div>
+
+        <div className="input-group">
+          <label htmlFor="graduationYear">Expected graduation year</label>
+          <input type="number" id="graduationYear" name="graduationYear" min="2000" max="2200" value={formData.graduationYear} onChange={handleInputChange} placeholder="e.g. 2028" />
+          <i className="fas fa-calendar input-icon"></i>
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="biography">Biography (optional)</label>
+          <textarea id="biography" name="biography" rows="4" value={formData.biography} onChange={handleInputChange} placeholder="Your interests, experience, and what you can help with" />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="credentials">Credentials / highlights (one per line)</label>
+          <textarea id="credentials" name="credentials" rows="3" value={formData.credentials} onChange={handleInputChange} placeholder="CFA level, internship, competition, society role" />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="linkedinUrl">LinkedIn profile (optional)</label>
+          <input type="url" id="linkedinUrl" name="linkedinUrl" value={formData.linkedinUrl} onChange={handleInputChange} placeholder="https://www.linkedin.com/in/..." />
+        </div>
+
+        <label className="checkbox-row">
+          <input type="checkbox" name="biographyPublic" checked={formData.biographyPublic} onChange={(e) => setFormData((prev) => ({ ...prev, biographyPublic: e.target.checked }))} />
+          Make my biography and credentials discoverable in the People directory
+        </label>
 
         <div className="input-group">
           <label htmlFor="preferredName">Preferred Name *</label>

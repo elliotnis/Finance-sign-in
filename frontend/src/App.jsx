@@ -12,6 +12,7 @@ import Verification from './components/Verification';
 import DatabaseManager from './components/DatabaseManager';
 import YouthFinancetopiaPortal, { YouthFinancetopiaGamemasterPortal } from './components/YouthFinancetopiaPortal';
 import BookingsCalendar from './components/BookingsCalendar';
+import PeopleDirectory from './components/PeopleDirectory';
 import { AuthProvider } from './contexts/authcontext';
 import './App.css'
 import './styles/mobile.css'
@@ -47,6 +48,7 @@ function StudentPortalApp() {
         <Route path="/register-session" element={<RegisterSession />} />
         <Route path="/calendar" element={<BookingsCalendar />} />
         <Route path="/classes" element={<ClassesCalendar />} />
+        <Route path="/directory" element={<PeopleDirectory />} />
         <Route path="/verification" element={<Verification />} />
         <Route path="/database" element={<DatabaseManager />} />
         <Route path="/" element={<Navigate to="/login" replace />} />

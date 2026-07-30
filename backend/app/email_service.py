@@ -8,6 +8,7 @@ whether to surface it to the user.
 import os
 import smtplib
 import ssl
+import base64
 from email.message import EmailMessage
 
 
@@ -89,6 +90,7 @@ def send_email(
     html_body: str,
     text_body: str | None = None,
     smtp_profile: str | None = None,
+    attachments: list[dict] | None = None,
 ) -> None:
     """Send a single email. Blocks until the SMTP server returns.
 
@@ -102,6 +104,21 @@ def send_email(
     msg["Subject"] = subject
     msg.set_content(text_body or _strip_html(html_body))
     msg.add_alternative(html_body, subtype="html")
+    for attachment in attachments or []:
+        try:
+            content = base64.b64decode(attachment.get("data_base64", ""), validate=True)
+        except (ValueError, TypeError) as exc:
+            raise EmailSendError("Invalid class attachment encoding") from exc
+        if not content:
+            continue
+        content_type = attachment.get("content_type", "application/octet-stream")
+        maintype, _, subtype = content_type.partition("/")
+        msg.add_attachment(
+            content,
+            maintype=maintype or "application",
+            subtype=subtype or "octet-stream",
+            filename=attachment.get("filename", "attachment"),
+        )
 
     try:
         if port == 465:

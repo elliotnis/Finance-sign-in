@@ -1,5 +1,8 @@
 import asyncio
+import base64
+import io
 import json
+from html import escape
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
@@ -20,14 +23,17 @@ from .utils import (
     submit_reflection,
     # Admin + classes
     is_admin, is_email_allowed, is_gamemaster, is_trading_player_email_allowed, normalize_email_for_access,
-    create_class, list_classes, get_class, delete_class,
+    create_class, list_classes, get_class, get_class_attachment,
+    get_class_notification_data, get_class_notification_recipients, delete_class,
     register_for_class, unregister_from_class, get_my_classes,
+    profile_biography, search_public_profiles,
 )
 from .magic_link import (
     create_magic_link, create_magic_link_for_email, consume_magic_link, MagicLinkError,
     build_email_address, normalize_email,
 )
-from .email_service import EmailConfigError, EmailSendError
+from .email_service import EmailConfigError, EmailSendError, send_email
+from .rag import answer_question
 from .admin_database import (
     list_database_collections,
     list_documents,
@@ -81,6 +87,47 @@ class AdminDatabasePayload(BaseModel):
 
 class AllowedEmailImportPayload(BaseModel):
     text: str
+
+
+class HelpQuestionPayload(BaseModel):
+    question: str
+
+
+def _class_notification(cls, subject, recipients, intro):
+    """Best-effort class email fan-out; a mail outage must not lose the class."""
+    if not cls:
+        return
+    recipients = sorted({normalize_email_for_access(item) for item in (recipients or []) if item})
+    if not recipients:
+        return
+    attachments = get_class_notification_data(cls["id"])
+    html_body = (
+        f"<p>{escape(intro)}</p>"
+        f"<h2>{escape(cls.get('title', 'Class'))}</h2>"
+        f"<p><strong>Date:</strong> {escape(cls.get('date', ''))}<br>"
+        f"<strong>Time:</strong> {escape(cls.get('time_slot', ''))} ({int(cls.get('duration_minutes') or 60)} minutes)<br>"
+        f"<strong>Location:</strong> {escape(cls.get('location', ''))}</p>"
+        f"<p>{escape(cls.get('description') or '')}</p>"
+    )
+    text_body = (
+        f"{intro}\n\n{cls.get('title', 'Class')}\n"
+        f"Date: {cls.get('date', '')}\nTime: {cls.get('time_slot', '')} ({int(cls.get('duration_minutes') or 60)} minutes)\n"
+        f"Location: {cls.get('location', '')}\n{cls.get('description') or ''}"
+    )
+    for recipient in recipients:
+        try:
+            send_email(
+                recipient,
+                subject,
+                html_body,
+                text_body,
+                smtp_profile="finaugevents",
+                attachments=attachments,
+            )
+        except (EmailConfigError, EmailSendError, OSError):
+            # The class itself is already persisted. The next deployment can
+            # repair mail settings without rolling back user data.
+            continue
 
 
 class TradingTeamCreatePayload(BaseModel):
@@ -529,7 +576,12 @@ def create_profile(profile_data: ProfileCreate):
         profile_data.major,
         profile_data.contact_phone,
         profile_data.profile_email,  # Use profile_email for the profile data
-        profile_data.profile_picture
+        profile_data.profile_picture,
+        profile_data.biography,
+        profile_data.biography_public,
+        profile_data.linkedin_url,
+        profile_data.graduation_year,
+        profile_data.credentials,
     )
 
     if result is None:
@@ -590,7 +642,12 @@ def update_profile(login_email: str, profile_update: ProfileUpdate):
         profile_update.major,
         profile_update.contact_phone,
         profile_update.profile_email,  # Use profile_email for the update
-        profile_update.profile_picture
+        profile_update.profile_picture,
+        profile_update.biography,
+        profile_update.biography_public,
+        profile_update.linkedin_url,
+        profile_update.graduation_year,
+        profile_update.credentials,
     )
 
     if result is None:
@@ -644,6 +701,41 @@ def delete_profile(login_email: str):
         "message": "Profile deleted successfully"
     }
 
+
+@router.get("/profile/{login_email}/biography")
+def get_profile_biography(login_email: str, viewer_email: str = None):
+    """Return a generated biography, respecting the owner's visibility choice."""
+    login_email = normalize_email_for_access(login_email)
+    require_allowed_email(login_email)
+    profile = get_user_profile(login_email)
+    if not profile or profile == "Profile not found":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
+    viewer_email = normalize_email_for_access(viewer_email) if viewer_email else login_email
+    if viewer_email != login_email and not profile.get("biography_public", False):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This biography is private")
+    return {
+        "biography": profile_biography(profile),
+        "biography_public": bool(profile.get("biography_public", False)),
+    }
+
+
+@router.get("/profiles/directory")
+def public_profile_directory(viewer_email: str, q: str = "", program: str = ""):
+    """Search the opt-in biography directory without exposing private profiles."""
+    viewer_email = normalize_email_for_access(viewer_email)
+    require_allowed_email(viewer_email)
+    return {
+        "profiles": search_public_profiles(q, program),
+        "query": q,
+        "program": program.upper() if program else "",
+    }
+
+
+@router.post("/help/ask")
+def ask_signup_assistant(payload: HelpQuestionPayload):
+    """Answer a sign-up-flow question using the local indexed help corpus."""
+    return answer_question(payload.question)
+
 # ==================== Tutor Availability Management Endpoints ====================
 
 @router.post("/tutor/availability")
@@ -658,7 +750,9 @@ def create_tutor_availability_endpoint(availability_data: TutorAvailabilityCreat
         availability_data.date,
         availability_data.time_slot,
         availability_data.location,
-        availability_data.description
+        availability_data.description,
+        duration_minutes=availability_data.duration_minutes,
+        audience=availability_data.audience,
     )
     
     return {
@@ -762,6 +856,12 @@ def register_student_for_session(selection_data: StudentSessionSelection):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Availability slot is not active"
+        )
+
+    if result == "This session is not available for your programme":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=result,
         )
     
     if result == "You cannot register for your own session":
@@ -1210,6 +1310,9 @@ def create_class_endpoint(data: ClassCreate):
         location=data.location,
         capacity=data.capacity,
         created_by=data.created_by,
+        duration_minutes=data.duration_minutes,
+        audience=data.audience,
+        attachments=data.attachments,
     )
 
     if isinstance(result, str):
@@ -1217,12 +1320,21 @@ def create_class_endpoint(data: ClassCreate):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=result,
         )
+    _class_notification(
+        result,
+        f"New class available: {result['title']}",
+        get_class_notification_recipients(result.get("audience")),
+        "A new class has been added to the sign-up portal.",
+    )
     return result
 
 
 @router.get("/classes")
-def list_classes_endpoint(date_from: str = None, date_to: str = None):
-    classes = list_classes(date_from=date_from, date_to=date_to)
+def list_classes_endpoint(date_from: str = None, date_to: str = None, viewer_email: str = None):
+    viewer_email = normalize_email_for_access(viewer_email) if viewer_email else None
+    if viewer_email:
+        require_allowed_email(viewer_email)
+    classes = list_classes(date_from=date_from, date_to=date_to, viewer_email=viewer_email)
     return {"classes": classes, "total": len(classes)}
 
 
@@ -1238,9 +1350,33 @@ def my_classes_endpoint(student_email: str):
     }
 
 
+@router.get("/classes/{class_id}/attachments/{attachment_id}")
+def class_attachment_endpoint(class_id: str, attachment_id: str, viewer_email: str):
+    viewer_email = normalize_email_for_access(viewer_email)
+    require_allowed_email(viewer_email)
+    if get_class(class_id, viewer_email=viewer_email) is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attachment not found")
+    attachment = get_class_attachment(class_id, attachment_id)
+    if not attachment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attachment not found")
+    try:
+        content = base64.b64decode(attachment.get("data_base64", ""), validate=True)
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Attachment is corrupted")
+    safe_filename = (
+        attachment["filename"].replace("\\", "_").replace("/", "_")
+        .replace(chr(34), "").replace("\r", "").replace("\n", "")
+    )
+    headers = {"Content-Disposition": f"attachment; filename=\"{safe_filename}\""}
+    return StreamingResponse(io.BytesIO(content), media_type=attachment["content_type"], headers=headers)
+
+
 @router.get("/classes/{class_id}", response_model=ClassResponse)
-def get_class_endpoint(class_id: str):
-    cls = get_class(class_id)
+def get_class_endpoint(class_id: str, viewer_email: str = None):
+    viewer_email = normalize_email_for_access(viewer_email) if viewer_email else None
+    if viewer_email:
+        require_allowed_email(viewer_email)
+    cls = get_class(class_id, viewer_email=viewer_email)
     if cls is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -1256,11 +1392,19 @@ def delete_class_endpoint(class_id: str, requested_by: str):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only admins can cancel classes",
         )
+    existing = get_class(class_id, ignore_audience=True)
     result = delete_class(class_id, requested_by)
     if result is None or result == "Class not found":
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Class not found",
+        )
+    if existing:
+        _class_notification(
+            existing,
+            f"Class cancelled: {existing['title']}",
+            existing.get("registered_students", []),
+            "A class you were registered for has been cancelled.",
         )
     return {"success": True, "message": "Class cancelled"}
 
@@ -1278,12 +1422,22 @@ def register_for_class_endpoint(class_id: str, payload: ClassRegister):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=result)
     if result == "Class is full":
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=result)
+    if result == "Class is not available for your programme":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=result)
     if result != "Registered":
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Could not register for class",
         )
-    cls = get_class(class_id)
+    cls = get_class(class_id, viewer_email=student_email)
+    if cls is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Class was registered but could not be loaded")
+    _class_notification(
+        cls,
+        f"Class registration confirmed: {cls['title']}",
+        [student_email, cls.get("created_by", "")],
+        "Your class registration has been confirmed.",
+    )
     return {"success": True, "message": "Registered for class", "class": cls}
 
 
@@ -1296,5 +1450,12 @@ def unregister_from_class_endpoint(class_id: str, payload: ClassRegister):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=result)
     if result == "Not registered":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result)
-    cls = get_class(class_id)
+    cls = get_class(class_id, viewer_email=student_email)
+    if cls:
+        _class_notification(
+            cls,
+            f"Class registration cancelled: {cls['title']}",
+            [cls.get("created_by", "")],
+            f"{student_email} cancelled their class registration.",
+        )
     return {"success": True, "message": "Unregistered from class", "class": cls}

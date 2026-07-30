@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../styles/youthFinancetopiaPortal.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
 const PLAYER_SESSION_TOKEN_KEY = 'yf_player_session_token';
 const PLAYER_SESSION_EMAIL_KEY = 'yf_player_session_email';
 const GAMEMASTER_SESSION_TOKEN_KEY = 'yf_gamemaster_session_token';

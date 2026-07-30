@@ -4,7 +4,15 @@ import pymongo
 from dotenv import load_dotenv
 
 load_dotenv()
-DATABASE_URI = os.getenv("DATABASE_URI", "mongodb://mongo:27017")
+# Older deployments used MONGODB_URL while Docker Compose now calls the
+# setting DATABASE_URI.  Prefer the current name, but keep the legacy name as
+# a compatibility fallback so the application does not silently connect to a
+# new empty local database and hide existing classes/sessions.
+DATABASE_URI = (
+    os.getenv("DATABASE_URI")
+    or os.getenv("MONGODB_URL")
+    or "mongodb://mongo:27017"
+)
 
 try:
     client = pymongo.MongoClient(DATABASE_URI)

@@ -1,5 +1,7 @@
+import base64
 import os
 import re
+import uuid
 
 from .mongo import (
     user_collection, session_collection, registration_collection,
@@ -76,6 +78,124 @@ def is_gamemaster(email):
 
 def normalize_email_for_access(email):
     return (email or "").strip().lower()
+
+
+PROGRAMS = {"FINA", "QFIN", "SGFN"}
+
+
+def normalize_audience(audience):
+    """Normalize event visibility to a small, backwards-compatible set."""
+    if audience is None:
+        return ["ALL"]
+    if isinstance(audience, str):
+        audience = audience.split(",")
+    values = {str(value).strip().upper() for value in audience if str(value).strip()}
+    values &= PROGRAMS | {"ALL"}
+    return ["ALL"] if not values or "ALL" in values else sorted(values)
+
+
+def profile_program(email):
+    """Return the user's programme code, if their profile has one."""
+    user = user_collection.find_one({"email": normalize_email_for_access(email)}, {"profile.major": 1})
+    major = ((user or {}).get("profile") or {}).get("major", "")
+    major = str(major).strip().upper()
+    if major in PROGRAMS:
+        return major
+    # Accept the longer labels used by older profile records, e.g.
+    # "Quantitative Finance (QFIN)".
+    for program in PROGRAMS:
+        if program in major:
+            return program
+    return None
+
+
+def audience_allows(audience, viewer_email=None):
+    """Whether an event is visible to a viewer under its programme filter."""
+    normalized = normalize_audience(audience)
+    if "ALL" in normalized:
+        return True
+    if not viewer_email:
+        return False
+    return profile_program(viewer_email) in normalized
+
+
+def _clean_credentials(credentials):
+    if credentials is None:
+        return []
+    if isinstance(credentials, str):
+        credentials = credentials.splitlines()
+    return [str(item).strip()[:160] for item in credentials if str(item).strip()][:12]
+
+
+def _clean_profile_fields(
+    biography="", biography_public=False, linkedin_url=None,
+    graduation_year=None, credentials=None,
+):
+    year = None
+    if graduation_year not in (None, ""):
+        try:
+            candidate = int(graduation_year)
+            if 1900 <= candidate <= 2200:
+                year = candidate
+        except (TypeError, ValueError):
+            year = None
+    linkedin = (linkedin_url or "").strip() or None
+    if linkedin and not re.match(r"^https?://(www\.)?linkedin\.com/", linkedin, re.I):
+        linkedin = None
+    return {
+        "biography": str(biography or "").strip()[:3000],
+        "biography_public": bool(biography_public),
+        "linkedin_url": linkedin,
+        "graduation_year": year,
+        "credentials": _clean_credentials(credentials),
+    }
+
+
+def profile_biography(profile):
+    """Build a concise, reusable biography from structured profile fields."""
+    profile = profile or {}
+    name = profile.get("preferred_name") or profile.get("full_name") or "Student"
+    programme = profile.get("major") or "Finance student"
+    year = profile.get("graduation_year")
+    year_text = f"Class of {year}" if year else (f"Year {profile.get('study_year')}" if profile.get("study_year") else "")
+    headline = " · ".join(part for part in (name, programme, year_text) if part)
+    body = profile.get("biography") or ""
+    credentials = profile.get("credentials") or []
+    if credentials:
+        body = f"{body.rstrip()}\n\nCredentials: " + "; ".join(credentials)
+    return f"{headline}\n\n{body}".strip()
+
+
+def search_public_profiles(query="", program=None):
+    """Search only profiles that explicitly opted their biography into the directory."""
+    query = (query or "").strip().lower()
+    program = (program or "").strip().upper()
+    results = []
+    for user in user_collection.find({"profile.biography_public": True}, {"password": 0}):
+        profile = user.get("profile") or {}
+        major = str(profile.get("major", "")).upper()
+        if program and program not in major:
+            continue
+        haystack = " ".join([
+            str(profile.get("full_name", "")),
+            str(profile.get("preferred_name", "")),
+            str(profile.get("major", "")),
+            str(profile.get("biography", "")),
+            " ".join(profile.get("credentials") or []),
+        ]).lower()
+        if query and query not in haystack:
+            continue
+        results.append({
+            "full_name": profile.get("full_name", ""),
+            "preferred_name": profile.get("preferred_name", ""),
+            "major": profile.get("major", ""),
+            "study_year": profile.get("study_year", ""),
+            "graduation_year": profile.get("graduation_year"),
+            "biography": profile_biography(profile),
+            "linkedin_url": profile.get("linkedin_url"),
+            "credentials": _clean_credentials(profile.get("credentials")),
+        })
+    return sorted(results, key=lambda item: (item["preferred_name"] or item["full_name"]).lower())[:100]
 
 
 def is_email_allowed(email):
@@ -195,7 +315,11 @@ def get_all_users():
         user["_id"] = str(user["_id"])
     return users
 
-def create_user_profile(email, SID, full_name, preferred_name, study_year, major, contact_phone, profile_email, profile_picture=None):
+def create_user_profile(
+    email, SID, full_name, preferred_name, study_year, major, contact_phone,
+    profile_email, profile_picture=None, biography="", biography_public=False,
+    linkedin_url=None, graduation_year=None, credentials=None,
+):
     """Create a profile for a user"""
     # First check if user exists
     user = user_collection.find_one({"email": email})
@@ -215,7 +339,10 @@ def create_user_profile(email, SID, full_name, preferred_name, study_year, major
         "major": major,
         "contact_phone": contact_phone,
         "personal_email": profile_email,
-        "profile_picture": profile_picture
+        "profile_picture": profile_picture,
+        **_clean_profile_fields(
+            biography, biography_public, linkedin_url, graduation_year, credentials
+        ),
     }
 
     # Update user with profile
@@ -239,7 +366,12 @@ def get_user_profile(email):
     user["_id"] = str(user["_id"])
     return user["profile"]
 
-def update_user_profile(email, SID=None, full_name=None, preferred_name=None, study_year=None, major=None, contact_phone=None, profile_email=None, profile_picture=None):
+def update_user_profile(
+    email, SID=None, full_name=None, preferred_name=None, study_year=None,
+    major=None, contact_phone=None, profile_email=None, profile_picture=None,
+    biography=None, biography_public=None, linkedin_url=None,
+    graduation_year=None, credentials=None,
+):
     """Update a user's profile"""
     # First check if user exists
     user = user_collection.find_one({"email": email})
@@ -268,6 +400,17 @@ def update_user_profile(email, SID=None, full_name=None, preferred_name=None, st
         update_data["profile.personal_email"] = profile_email  # Note: this is profile_email, not login email
     if profile_picture is not None:
         update_data["profile.profile_picture"] = profile_picture
+    if biography is not None:
+        update_data["profile.biography"] = str(biography).strip()[:3000]
+    if biography_public is not None:
+        update_data["profile.biography_public"] = bool(biography_public)
+    if linkedin_url is not None:
+        clean_linkedin = _clean_profile_fields(linkedin_url=linkedin_url)["linkedin_url"]
+        update_data["profile.linkedin_url"] = clean_linkedin
+    if graduation_year is not None:
+        update_data["profile.graduation_year"] = _clean_profile_fields(graduation_year=graduation_year)["graduation_year"]
+    if credentials is not None:
+        update_data["profile.credentials"] = _clean_credentials(credentials)
 
     if not update_data:
         return "No fields to update"
@@ -302,7 +445,11 @@ def delete_user_profile(email):
 
 # ==================== Tutor Availability Management Functions ====================
 # create tutor availability
-def create_tutor_availability(tutor_email, tutor_name, session_type, date, time_slot, location, description=None, force_cancel_booking=False):
+def create_tutor_availability(
+    tutor_email, tutor_name, session_type, date, time_slot, location,
+    description=None, force_cancel_booking=False, duration_minutes=60,
+    audience=None,
+):
     """Create a new tutor availability slot"""
     
     # Check if the tutor (creator) has already booked a session (as student) at the same time
@@ -342,6 +489,8 @@ def create_tutor_availability(tutor_email, tutor_name, session_type, date, time_
         "time_slot": time_slot,
         "location": location,
         "description": description,
+        "duration_minutes": max(15, min(int(duration_minutes or 60), 480)),
+        "audience": normalize_audience(audience),
         "is_registered": False,  # Track if a student registered for this slot
         "registered_student": None,  # Email of registered student
         "status": "active",
@@ -354,7 +503,9 @@ def create_tutor_availability(tutor_email, tutor_name, session_type, date, time_
 
 def get_tutor_availability(tutor_email=None, date=None, session_type=None, status="active"):
     """Get tutor availability slots with optional filters"""
-    query = {"status": status}
+    # Legacy slots may not have a status field; they are active unless marked
+    # otherwise, just like the student calendar query.
+    query = {"$or": [{"status": status}, {"status": {"$exists": False}}]}
     
     if tutor_email:
         query["tutor_email"] = tutor_email
@@ -369,6 +520,8 @@ def get_tutor_availability(tutor_email=None, date=None, session_type=None, statu
         availability["id"] = availability["_id"]
         availability["is_available"] = not availability.get("is_registered", False)
         availability["student_registered"] = availability.get("registered_student")
+        availability["duration_minutes"] = int(availability.get("duration_minutes") or _slot_duration_minutes(availability.get("time_slot")))
+        availability["audience"] = normalize_audience(availability.get("audience"))
         
         # Add student profile information if someone is registered
         if availability.get("registered_student"):
@@ -421,7 +574,15 @@ def delete_tutor_availability(availability_id, tutor_email):
     
 def get_student_calendar_view(session_type=None, date=None, student_email=None):
     """Get calendar view for students - grouped by date/time with multiple tutor options"""
-    query = {"status": "active", "is_registered": False}  # Only show available slots
+    # Older records predate is_registered/status defaults. Treat missing
+    # availability flags as active and available so shared sessions do not
+    # disappear after a deployment/schema change.
+    query = {
+        "$and": [
+            {"$or": [{"status": "active"}, {"status": {"$exists": False}}]},
+            {"$or": [{"is_registered": False}, {"is_registered": {"$exists": False}}]},
+        ]
+    }
     
     if session_type:
         query["session_type"] = session_type
@@ -438,10 +599,14 @@ def get_student_calendar_view(session_type=None, date=None, student_email=None):
     calendar_slots = {}
     
     for availability in availabilities:
+        if not audience_allows(availability.get("audience"), student_email):
+            continue
         availability["_id"] = str(availability["_id"])
         availability["id"] = availability["_id"]
         availability["is_available"] = True  # All in this query are available
         availability["student_registered"] = None
+        availability["duration_minutes"] = int(availability.get("duration_minutes") or _slot_duration_minutes(availability.get("time_slot")))
+        availability["audience"] = normalize_audience(availability.get("audience"))
         
         # Create a key for grouping
         key = f"{availability['date']}_{availability['time_slot']}_{availability['session_type']}"
@@ -466,8 +631,11 @@ def register_student_for_tutor_slot(student_email, availability_id, force_cancel
         if not availability:
             return "Availability slot not found"
         
-        if availability["status"] != "active":
+        if availability.get("status", "active") != "active":
             return "Availability slot is not active"
+
+        if not audience_allows(availability.get("audience"), student_email):
+            return "This session is not available for your programme"
         
         # Check if student is trying to register for their own session
         if student_email == availability.get("tutor_email"):
@@ -576,6 +744,31 @@ def cancel_student_registration_for_tutor_slot(student_email, availability_id):
 
 # ==================== Session Registration Helper Functions ====================
 
+def _slot_bounds(time_slot):
+    try:
+        start, end = [part.strip() for part in str(time_slot).split("-", 1)]
+        start_minutes = sum(int(part) * factor for part, factor in zip(start.split(":"), (60, 1)))
+        end_minutes = sum(int(part) * factor for part, factor in zip(end.split(":"), (60, 1)))
+        return start_minutes, end_minutes
+    except (TypeError, ValueError):
+        return None, None
+
+
+def _slot_duration_minutes(time_slot):
+    start, end = _slot_bounds(time_slot)
+    if start is None or end is None or end <= start:
+        return 60
+    return end - start
+
+
+def _slots_overlap(left, right):
+    left_start, left_end = _slot_bounds(left)
+    right_start, right_end = _slot_bounds(right)
+    if None in (left_start, left_end, right_start, right_end):
+        return left == right
+    return left_start < right_end and right_start < left_end
+
+
 def check_time_conflict(student_email, date, time_slot):
     """Check if student has a time conflict with existing registrations"""
     # Get all active registrations for the student
@@ -587,7 +780,7 @@ def check_time_conflict(student_email, date, time_slot):
     for reg in registrations:
         # Get session details for each registration
         session = session_collection.find_one({"_id": reg["session_id"]})
-        if session and session["date"] == date and session["time_slot"] == time_slot:
+        if session and session.get("date") == date and _slots_overlap(session.get("time_slot"), time_slot):
             return True  # Conflict found
     
     return False  # No conflict
@@ -600,13 +793,16 @@ def check_creator_time_conflict(student_email, date, time_slot):
         dict: Conflict info with session details
     """
     # Check if the student has created a session (as tutor) at the same time
-    creator_session = session_collection.find_one({
+    creator_sessions = session_collection.find({
         "tutor_email": student_email,
         "date": date,
-        "time_slot": time_slot,
-        "status": "active"
+        "$or": [{"status": "active"}, {"status": {"$exists": False}}],
     })
-    
+    creator_session = next(
+        (session for session in creator_sessions if _slots_overlap(session.get("time_slot"), time_slot)),
+        None,
+    )
+
     if creator_session:
         return {
             "session_id": str(creator_session["_id"]),
@@ -634,7 +830,7 @@ def check_student_booking_conflict(tutor_email, date, time_slot):
     for reg in registrations:
         # Get session details for each registration
         session = session_collection.find_one({"_id": reg["session_id"]})
-        if session and session["date"] == date and session["time_slot"] == time_slot:
+        if session and session.get("date") == date and _slots_overlap(session.get("time_slot"), time_slot):
             # Found a conflict - this person has booked a session at the same time
             return {
                 "registration_id": str(reg["_id"]),
@@ -875,6 +1071,18 @@ def submit_reflection(session_id, submitted_by, role, other_person_name, attitud
 
 # ==================== Classes (admin-created group classes) ====================
 
+def _serialize_attachment(attachment, include_data=False):
+    payload = {
+        "id": str(attachment.get("id") or attachment.get("_id") or ""),
+        "filename": attachment.get("filename", "attachment"),
+        "content_type": attachment.get("content_type", "application/octet-stream"),
+        "size": int(attachment.get("size", 0) or 0),
+    }
+    if include_data:
+        payload["data_base64"] = attachment.get("data_base64", "")
+    return payload
+
+
 def _serialize_class(doc):
     registered = doc.get("registered_students") or []
     capacity = int(doc.get("capacity", 0))
@@ -892,15 +1100,41 @@ def _serialize_class(doc):
         "registered_students": registered,
         "created_by": doc.get("created_by", ""),
         "status": doc.get("status", "active"),
+        "duration_minutes": int(doc.get("duration_minutes") or _slot_duration_minutes(doc.get("time_slot"))),
+        "audience": normalize_audience(doc.get("audience")),
+        "attachments": [_serialize_attachment(item) for item in (doc.get("attachments") or [])],
     }
 
 
-def create_class(title, description, date, time_slot, location, capacity, created_by):
+def create_class(
+    title, description, date, time_slot, location, capacity, created_by,
+    duration_minutes=60, audience=None, attachments=None,
+):
     """Insert a new class. Caller must already have verified admin status."""
     if capacity is None or int(capacity) <= 0:
         return "Capacity must be a positive integer"
 
     now = datetime.utcnow()
+    stored_attachments = []
+    for item in attachments or []:
+        filename = str(item.get("filename") or "attachment").strip()[:180]
+        content_type = str(item.get("content_type") or "application/octet-stream").strip()[:120]
+        data_base64 = str(item.get("data_base64") or "")
+        try:
+            decoded = base64.b64decode(data_base64, validate=True)
+        except (ValueError, TypeError):
+            return "Each attachment must contain valid base64 data"
+        if not decoded or len(decoded) > 5 * 1024 * 1024:
+            return "Each attachment must be between 1 byte and 5 MB"
+        stored_attachments.append({
+            "id": uuid.uuid4().hex,
+            "filename": filename,
+            "content_type": content_type,
+            "size": len(decoded),
+            "data_base64": data_base64,
+        })
+    if len(stored_attachments) > 5:
+        return "A class can include at most five attachments"
     doc = {
         "title": title.strip(),
         "description": (description or "").strip() or None,
@@ -908,6 +1142,9 @@ def create_class(title, description, date, time_slot, location, capacity, create
         "time_slot": time_slot,
         "location": location.strip(),
         "capacity": int(capacity),
+        "duration_minutes": max(15, min(int(duration_minutes or 60), 480)),
+        "audience": normalize_audience(audience),
+        "attachments": stored_attachments,
         "registered_students": [],
         "created_by": created_by.strip().lower(),
         "status": "active",
@@ -919,9 +1156,9 @@ def create_class(title, description, date, time_slot, location, capacity, create
     return _serialize_class(doc)
 
 
-def list_classes(date_from=None, date_to=None, status="active"):
+def list_classes(date_from=None, date_to=None, status="active", viewer_email=None):
     """List classes, optionally filtered to a date range (inclusive, YYYY-MM-DD)."""
-    query = {"status": status}
+    query = {"$or": [{"status": status}, {"status": {"$exists": False}}]}
     if date_from and date_to:
         query["date"] = {"$gte": date_from, "$lte": date_to}
     elif date_from:
@@ -930,17 +1167,49 @@ def list_classes(date_from=None, date_to=None, status="active"):
         query["date"] = {"$lte": date_to}
 
     docs = list(class_collection.find(query).sort([("date", 1), ("time_slot", 1)]))
-    return [_serialize_class(d) for d in docs]
+    return [_serialize_class(d) for d in docs if audience_allows(d.get("audience"), viewer_email)]
 
 
-def get_class(class_id):
+def get_class(class_id, viewer_email=None, ignore_audience=False):
+    try:
+        doc = class_collection.find_one({"_id": ObjectId(class_id)})
+    except Exception:
+        return None
+    if not doc or (not ignore_audience and not audience_allows(doc.get("audience"), viewer_email)):
+        return None
+    return _serialize_class(doc)
+
+
+def get_class_attachment(class_id, attachment_id):
     try:
         doc = class_collection.find_one({"_id": ObjectId(class_id)})
     except Exception:
         return None
     if not doc:
         return None
-    return _serialize_class(doc)
+    for attachment in doc.get("attachments") or []:
+        if str(attachment.get("id")) == str(attachment_id):
+            return _serialize_attachment(attachment, include_data=True)
+    return None
+
+
+def get_class_notification_data(class_id):
+    """Return attachment data for the mailer without exposing it in API lists."""
+    try:
+        doc = class_collection.find_one({"_id": ObjectId(class_id)})
+    except Exception:
+        return []
+    return [_serialize_attachment(item, include_data=True) for item in (doc or {}).get("attachments") or []]
+
+
+def get_class_notification_recipients(audience=None):
+    """Find active portal users eligible for a class announcement."""
+    recipients = set(get_admin_emails())
+    for row in allowed_email_collection.find({"active": {"$ne": False}}, {"email": 1}):
+        email = normalize_email_for_access(row.get("email"))
+        if email and audience_allows(audience, email):
+            recipients.add(email)
+    return sorted(recipients)
 
 
 def delete_class(class_id, requested_by):
@@ -972,8 +1241,10 @@ def register_for_class(class_id, student_email):
     doc = class_collection.find_one({"_id": oid})
     if not doc:
         return "Class not found"
-    if doc.get("status") != "active":
+    if doc.get("status", "active") != "active":
         return "Class is not active"
+    if not audience_allows(doc.get("audience"), student_email):
+        return "Class is not available for your programme"
 
     registered = doc.get("registered_students") or []
     if student_email in registered:
@@ -988,9 +1259,9 @@ def register_for_class(class_id, student_email):
     result = class_collection.update_one(
         {
             "_id": oid,
-            "status": "active",
+            "$or": [{"status": "active"}, {"status": {"$exists": False}}],
             "registered_students": {"$ne": student_email},
-            "$expr": {"$lt": [{"$size": "$registered_students"}, "$capacity"]},
+            "$expr": {"$lt": [{"$size": {"$ifNull": ["$registered_students", []]}}, "$capacity"]},
         },
         {
             "$push": {"registered_students": student_email},
@@ -1033,6 +1304,6 @@ def get_my_classes(student_email):
     student_email = student_email.strip().lower()
     docs = list(class_collection.find({
         "registered_students": student_email,
-        "status": "active",
+        "$or": [{"status": "active"}, {"status": {"$exists": False}}],
     }).sort([("date", 1), ("time_slot", 1)]))
-    return [_serialize_class(d) for d in docs]
+    return [_serialize_class(d) for d in docs if audience_allows(d.get("audience"), student_email)]

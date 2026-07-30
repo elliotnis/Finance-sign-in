@@ -17,7 +17,10 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      DATABASE_URI: ${DATABASE_URI:-mongodb://mongo:27017}
+      # Keep both names available: existing .env files may still define
+      # MONGODB_URL, while newer deployments use DATABASE_URI.
+      DATABASE_URI: ${DATABASE_URI:-}
+      MONGODB_URL: ${MONGODB_URL:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
       # Passwordless email login. Dedicated HKUST project accounts are used
       # when their passwords are configured; legacy SMTP_* remains a fallback.
@@ -56,7 +59,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        # The browser must call the same public origin in production. The
+        # frontend nginx config proxies /api/ to the backend container.
+        VITE_API_URL: ${VITE_API_URL:-/api}
     restart: unless-stopped
     depends_on:
       - backend
@@ -68,7 +73,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        VITE_API_URL: ${VITE_API_URL:-/api}
         VITE_APP_AUDIENCE: youth-financetopia
     restart: unless-stopped
     depends_on:

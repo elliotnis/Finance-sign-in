@@ -16,7 +16,12 @@ function ProfileUpdate() {
     contactNumber: '',
     studentId: '',
     profileEmail: '',
-    profilePicture: null
+    profilePicture: null,
+    graduationYear: '',
+    biography: '',
+    biographyPublic: false,
+    linkedinUrl: '',
+    credentials: ''
   });
   const [currentProfile, setCurrentProfile] = useState(null);
   const [error, setError] = useState('');
@@ -45,7 +50,7 @@ function ProfileUpdate() {
   const fetchPasswordStatus = async () => {
     if (!userEmail) return;
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
       const r = await fetch(
         `${API_URL}/auth/password-status?email=${encodeURIComponent(userEmail)}`
       );
@@ -60,7 +65,7 @@ function ProfileUpdate() {
 
   const fetchCurrentProfile = async () => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
       const response = await fetch(`${API_URL}/profile/${encodeURIComponent(userEmail)}`);
       
       if (response.ok) {
@@ -74,7 +79,12 @@ function ProfileUpdate() {
           contactNumber: profileData.contact_phone || '',
           studentId: profileData.SID || '',
           profileEmail: profileData.personal_email || '',
-          profilePicture: profileData.profile_picture || null
+          profilePicture: profileData.profile_picture || null,
+          graduationYear: profileData.graduation_year || '',
+          biography: profileData.biography || '',
+          biographyPublic: !!profileData.biography_public,
+          linkedinUrl: profileData.linkedin_url || '',
+          credentials: (profileData.credentials || []).join('\n')
         });
         
         // Set profile image preview if exists
@@ -138,7 +148,7 @@ function ProfileUpdate() {
     setSuccess('');
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
       
       // Create profile update data
       const profileUpdateData = {
@@ -149,7 +159,12 @@ function ProfileUpdate() {
         major: formData.major,
         contact_phone: formData.contactNumber,
         profile_email: formData.profileEmail,
-        profile_picture: formData.profilePicture
+        profile_picture: formData.profilePicture,
+        graduation_year: formData.graduationYear ? Number(formData.graduationYear) : null,
+        biography: formData.biography,
+        biography_public: formData.biographyPublic,
+        linkedin_url: formData.linkedinUrl || null,
+        credentials: formData.credentials.split('\n').map((item) => item.trim()).filter(Boolean)
       };
 
       const response = await fetch(`${API_URL}/profile/${encodeURIComponent(userEmail)}`, {
@@ -180,7 +195,12 @@ function ProfileUpdate() {
         major: formData.major,
         contact_phone: formData.contactNumber,
         SID: formData.studentId,
-        personal_email: formData.profileEmail
+        personal_email: formData.profileEmail,
+        graduation_year: formData.graduationYear,
+        biography: formData.biography,
+        biography_public: formData.biographyPublic,
+        linkedin_url: formData.linkedinUrl,
+        credentials: formData.credentials.split('\n').map((item) => item.trim()).filter(Boolean)
       });
 
       // Redirect to dashboard after successful update
@@ -206,7 +226,7 @@ function ProfileUpdate() {
     }
     setPasswordLoading(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
       const r = await fetch(`${API_URL}/auth/set-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -367,6 +387,31 @@ function ProfileUpdate() {
           </select>
           <i className="fas fa-book input-icon"></i>
         </div>
+
+        <div className="input-group">
+          <label htmlFor="graduationYear">Expected graduation year</label>
+          <input type="number" id="graduationYear" name="graduationYear" min="2000" max="2200" value={formData.graduationYear} onChange={handleInputChange} placeholder="e.g. 2028" />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="biography">Biography</label>
+          <textarea id="biography" name="biography" rows="4" value={formData.biography} onChange={handleInputChange} placeholder="Your interests, experience, and what you can help with" />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="credentials">Credentials / highlights (one per line)</label>
+          <textarea id="credentials" name="credentials" rows="3" value={formData.credentials} onChange={handleInputChange} placeholder="Internship, qualification, society role" />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="linkedinUrl">LinkedIn profile</label>
+          <input type="url" id="linkedinUrl" name="linkedinUrl" value={formData.linkedinUrl} onChange={handleInputChange} placeholder="https://www.linkedin.com/in/..." />
+        </div>
+
+        <label className="checkbox-row">
+          <input type="checkbox" name="biographyPublic" checked={formData.biographyPublic} onChange={(e) => setFormData((prev) => ({ ...prev, biographyPublic: e.target.checked }))} />
+          Make my biography and credentials discoverable in the People directory
+        </label>
 
         <div className="input-group">
           <label htmlFor="contactNumber">Contact Number *</label>

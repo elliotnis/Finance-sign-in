@@ -66,7 +66,7 @@ function RegisterSession() {
 
     const fetchSessionTypes = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
             const response = await fetch(`${API_URL}/session-types`);
             if (!response.ok) throw new Error('Could not load appointment types.');
             const data = await response.json();
@@ -80,7 +80,7 @@ function RegisterSession() {
         setSlotsLoading(true);
         setSlotsError('');
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
             const userEmail = localStorage.getItem('user_email');
             
             const url = new URL(`${API_URL}/student/calendar`);
@@ -226,7 +226,7 @@ function RegisterSession() {
         setRegistering(true);
         
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
             const userEmail = localStorage.getItem('user_email');
             
             const response = await fetch(`${API_URL}/student/register`, {
@@ -503,6 +503,10 @@ function RegisterSession() {
                                                     <p className="tutor-location">
                                                         <i className="fas fa-location-dot" aria-hidden="true"></i>
                                                         {tutor.location}
+                                                    </p>
+                                                    <p className="tutor-location">
+                                                        <i className="fas fa-clock" aria-hidden="true"></i>
+                                                        {tutor.duration_minutes || 60} minutes · {(tutor.audience || ['ALL']).join(', ')}
                                                     </p>
                                                     {tutor.description && (
                                                         <p className="tutor-description">{tutor.description}</p>
