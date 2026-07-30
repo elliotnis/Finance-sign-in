@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, List
+from pydantic import Field
 
 # User Signup and Login
 class UserSignup(BaseModel):
@@ -41,6 +42,11 @@ class ProfileCreate(BaseModel):
     contact_phone: str
     profile_email: str  # User's profile email (may different from login email)
     profile_picture: Optional[str] = None  # Base64 encoded image or file path
+    biography: str = ""
+    biography_public: bool = False
+    linkedin_url: Optional[str] = None
+    graduation_year: Optional[int] = None
+    credentials: List[str] = Field(default_factory=list)
 
 class ProfileUpdate(BaseModel):
     login_email: Optional[str] = None  # User's registered email (used to find the user)
@@ -52,16 +58,26 @@ class ProfileUpdate(BaseModel):
     contact_phone: Optional[str] = None
     profile_email: Optional[str] = None  # User's profile email
     profile_picture: Optional[str] = None  # Base64 encoded image or file path
+    biography: Optional[str] = None
+    biography_public: Optional[bool] = None
+    linkedin_url: Optional[str] = None
+    graduation_year: Optional[int] = None
+    credentials: Optional[List[str]] = None
 
 class ProfileResponse(BaseModel):
-    full_name: str
-    preferred_name: str
-    SID: str    
-    study_year: str
-    major: str
-    contact_phone: str
-    personal_email: str  # Keep consistent with database field name
+    full_name: str = ""
+    preferred_name: str = ""
+    SID: str = ""
+    study_year: str = ""
+    major: str = ""
+    contact_phone: str = ""
+    personal_email: str = ""  # Keep consistent with database field name
     profile_picture: Optional[str] = None  # Base64 encoded image or file path
+    biography: str = ""
+    biography_public: bool = False
+    linkedin_url: Optional[str] = None
+    graduation_year: Optional[int] = None
+    credentials: List[str] = Field(default_factory=list)
 
     class Config:
         # Allow extra fields and provide defaults for missing fields
@@ -91,6 +107,8 @@ class TutorAvailabilityCreate(BaseModel):
     time_slot: str  # Format: "HH:MM-HH:MM"
     location: str
     description: Optional[str] = None
+    duration_minutes: int = 60
+    audience: List[str] = Field(default_factory=lambda: ["ALL"])
 
 class TutorAvailabilityResponse(BaseModel):
     id: str
@@ -104,6 +122,8 @@ class TutorAvailabilityResponse(BaseModel):
     is_available: bool  # True if no student registered yet
     student_registered: Optional[str] = None
     status: str
+    duration_minutes: int = 60
+    audience: List[str] = Field(default_factory=lambda: ["ALL"])
 
 # Student Session Selection
 class StudentSessionSelection(BaseModel):
@@ -152,6 +172,9 @@ class ClassCreate(BaseModel):
     location: str
     capacity: int
     created_by: str  # admin email
+    duration_minutes: int = 60
+    audience: List[str] = Field(default_factory=lambda: ["ALL"])
+    attachments: List[dict] = Field(default_factory=list)
 
 class ClassUpdate(BaseModel):
     title: Optional[str] = None
@@ -176,6 +199,9 @@ class ClassResponse(BaseModel):
     registered_students: List[str]
     created_by: str
     status: str
+    duration_minutes: int = 60
+    audience: List[str] = Field(default_factory=lambda: ["ALL"])
+    attachments: List[dict] = Field(default_factory=list)
 
 class ClassRegister(BaseModel):
     student_email: str

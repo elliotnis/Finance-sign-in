@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AppointmentTypeSelect from './AppointmentTypeSelect';
 import '../styles/bookingsCalendar.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
 const ALL_APPOINTMENT_TYPES = 'all';
 const SESSION_COLORS = [
   '#19745c', '#2f74c0', '#a6531c', '#6541a2',

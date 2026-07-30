@@ -15,7 +15,7 @@ function SignupForm() {
     console.log('Form submitted with:', { email, password });
     
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
       console.log('API URL:', API_URL);
       
       const response = await fetch(`${API_URL}/signup`, {

@@ -17,7 +17,9 @@ function TutorCalendar() {
     const [formData, setFormData] = useState({
         session_type: '',
         location: '',
-        description: ''
+        description: '',
+        duration_minutes: 60,
+        audience: ['ALL'],
     });
 
     // Color palette for sessions
@@ -79,6 +81,31 @@ function TutorCalendar() {
         '21:00-22:00', '22:00-23:00'
     ];
 
+    const buildTimeSlot = (slot, duration) => {
+        const [start] = slot.split('-');
+        const [hours, minutes] = start.split(':').map(Number);
+        const endTotal = hours * 60 + minutes + Number(duration || 60);
+        const endHours = Math.floor(endTotal / 60) % 24;
+        const endMinutes = endTotal % 60;
+        return `${start}-${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
+    };
+
+    const slotBounds = (slot) => {
+        const toMinutes = (value) => {
+            const [hours, minutes] = String(value || '').split(':').map(Number);
+            return Number.isFinite(hours) && Number.isFinite(minutes) ? hours * 60 + minutes : null;
+        };
+        const [start, end] = String(slot || '').split('-');
+        return [toMinutes(start), toMinutes(end)];
+    };
+
+    const slotsOverlap = (left, right) => {
+        const [leftStart, leftEnd] = slotBounds(left);
+        const [rightStart, rightEnd] = slotBounds(right);
+        if ([leftStart, leftEnd, rightStart, rightEnd].some((value) => value === null)) return left === right;
+        return leftStart < rightEnd && rightStart < leftEnd;
+    };
+
     useEffect(() => {
         const user_id = localStorage.getItem('user_id');
         if (!user_id) {
@@ -94,7 +121,7 @@ function TutorCalendar() {
 
     const fetchSessionTypes = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
             const response = await fetch(`${API_URL}/session-types`);
             const data = await response.json();
             setSessionTypes(data.session_types);
@@ -105,7 +132,7 @@ function TutorCalendar() {
 
     const fetchExistingSessions = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
             const userEmail = localStorage.getItem('user_email');
             
             if (!userEmail) return;
@@ -153,7 +180,7 @@ function TutorCalendar() {
     const hasExistingSession = (date, timeSlot) => {
         const dateStr = formatDate(date);
         return existingSessions.some(session => 
-            session.date === dateStr && session.time_slot === timeSlot
+            session.date === dateStr && slotsOverlap(session.time_slot, timeSlot)
         );
     };
 
@@ -161,7 +188,7 @@ function TutorCalendar() {
     const getExistingSession = (date, timeSlot) => {
         const dateStr = formatDate(date);
         return existingSessions.find(session => 
-            session.date === dateStr && session.time_slot === timeSlot
+            session.date === dateStr && slotsOverlap(session.time_slot, timeSlot)
         );
     };
 
@@ -230,7 +257,7 @@ function TutorCalendar() {
         const userEmail = localStorage.getItem('user_email'); // Use actual email
         
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
             const promises = Array.from(selectedTimeSlots).map(async (slotKey) => {
                 const [date, timeSlot] = slotKey.split('_');
                 
@@ -244,9 +271,11 @@ function TutorCalendar() {
                         tutor_name: username,
                         session_type: formData.session_type,
                         date: date,
-                        time_slot: timeSlot,
-                        location: formData.location,
-                        description: formData.description
+                    time_slot: buildTimeSlot(timeSlot, formData.duration_minutes),
+                    location: formData.location,
+                    description: formData.description,
+                    duration_minutes: Number(formData.duration_minutes),
+                    audience: formData.audience,
                     })
                 });
 
@@ -265,7 +294,9 @@ function TutorCalendar() {
             setFormData({
                 session_type: '',
                 location: '',
-                description: ''
+                description: '',
+                duration_minutes: 60,
+                audience: ['ALL'],
             });
             
             // Refresh existing sessions
@@ -279,7 +310,7 @@ function TutorCalendar() {
 
     const handleDeleteSession = async (sessionId) => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
             const userEmail = localStorage.getItem('user_email');
             
             const response = await fetch(`${API_URL}/tutor/availability/${sessionId}?tutor_email=${encodeURIComponent(userEmail)}`, {
@@ -428,6 +459,9 @@ function TutorCalendar() {
                                                         <div className="session-time">{timeSlot.split('-')[0]}</div>
                                                         <div className="session-title">{getSessionDisplayName(existingSession.session_type)}</div>
                                                         <div className="session-location">{existingSession.location}</div>
+                                                        <div className="session-location">
+                                                            {existingSession.duration_minutes || 60} min · {(existingSession.audience || ['ALL']).join(', ')}
+                                                        </div>
                                                         {existingSession.student_registered && (
                                                             <div className="session-booked-indicator">●</div>
                                                         )}
@@ -500,6 +534,34 @@ function TutorCalendar() {
                                     rows="3"
                                 />
                             </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label htmlFor="session-duration">Duration</label>
+                                    <select
+                                        id="session-duration"
+                                        value={formData.duration_minutes}
+                                        onChange={(e) => setFormData({ ...formData, duration_minutes: Number(e.target.value) })}
+                                    >
+                                        {[30, 45, 60, 90, 120, 180].map((minutes) => (
+                                            <option key={minutes} value={minutes}>{minutes} minutes</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="session-audience">Visible to</label>
+                                    <select
+                                        id="session-audience"
+                                        value={formData.audience[0]}
+                                        onChange={(e) => setFormData({ ...formData, audience: [e.target.value] })}
+                                    >
+                                        <option value="ALL">All finance students</option>
+                                        <option value="FINA">FINA students</option>
+                                        <option value="QFIN">QFIN students</option>
+                                        <option value="SGFN">SGFN students</option>
+                                    </select>
+                                </div>
+                            </div>
                             
                             <div className="modal-actions">
                                 <button 
@@ -537,6 +599,9 @@ function TutorCalendar() {
                             </div>
                             <div className="conflict-info">
                                 <strong>Location:</strong> {conflictSlot.session.location}
+                            </div>
+                            <div className="conflict-info">
+                                <strong>Duration:</strong> {conflictSlot.session.duration_minutes || 60} minutes
                             </div>
                             {conflictSlot.session.description && (
                                 <div className="conflict-info">

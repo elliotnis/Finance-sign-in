@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/authcontext';
 import DepartmentBrand from './DepartmentBrand';
 import '../styles/dashboard.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
 
 function toYMD(date) {
     const year = date.getFullYear();
@@ -104,6 +104,7 @@ function Dashboard(){
     const { logout } = useAuth();
     const [loading, setLoading] = useState(true);
     const [profilePicture, setProfilePicture] = useState(null);
+    const [profileSummary, setProfileSummary] = useState({ major: '', studyYear: '', graduationYear: '' });
     const [profileLoading, setProfileLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
     const [bookings, setBookings] = useState([]);
@@ -154,6 +155,11 @@ function Dashboard(){
                     localStorage.setItem('preferred_name', profileData.preferred_name);
                     setDisplayName(profileData.preferred_name);
                 }
+                setProfileSummary({
+                    major: profileData.major || '',
+                    studyYear: profileData.study_year || '',
+                    graduationYear: profileData.graduation_year || '',
+                });
             }
         } catch (error) {
             console.error('Error fetching profile:', error);
@@ -296,6 +302,13 @@ function Dashboard(){
             onClick: handleMySessionsClick,
         },
         {
+            title: 'People Directory',
+            description: 'Find public biographies, credentials, and LinkedIn profiles.',
+            icon: 'fa-address-card',
+            accent: 'purple',
+            onClick: () => navigate('/directory'),
+        },
+        {
             title: 'Verification',
             description: 'Complete or check your student verification.',
             icon: 'fa-shield-halved',
@@ -396,6 +409,9 @@ function Dashboard(){
                         <span className="hero-card-label">Signed in as</span>
                         <strong>{displayName}</strong>
                         <small>{userEmail}</small>
+                        {(profileSummary.major || profileSummary.graduationYear || profileSummary.studyYear) && (
+                            <small>{profileSummary.major || 'Finance'} · {profileSummary.graduationYear ? `Class of ${profileSummary.graduationYear}` : `Year ${profileSummary.studyYear}`}</small>
+                        )}
                     </div>
                 </aside>
             </section>

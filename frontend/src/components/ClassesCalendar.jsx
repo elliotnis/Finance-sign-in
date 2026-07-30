@@ -5,7 +5,7 @@ import '../styles/dashboard.css';
 import '../styles/tutorCalendar.css';
 import '../styles/classesCalendar.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
 
 const TIME_SLOTS = [
   '09:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-13:00',
@@ -19,6 +19,13 @@ const formatDateYMD = (date) => {
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
+};
+
+const buildTimeSlot = (slot, duration) => {
+  const [start] = String(slot || '').split('-');
+  const [hours, minutes] = start.split(':').map(Number);
+  const endTotal = hours * 60 + minutes + Number(duration || 60);
+  return `${start}-${String(Math.floor(endTotal / 60) % 24).padStart(2, '0')}:${String(endTotal % 60).padStart(2, '0')}`;
 };
 
 const isPastDate = (date) => {
@@ -83,6 +90,7 @@ function ClassesCalendar() {
       const url = new URL(`${API_URL}/classes`);
       url.searchParams.append('date_from', weekFrom);
       url.searchParams.append('date_to', weekTo);
+      url.searchParams.append('viewer_email', userEmail);
       const r = await fetch(url.toString());
       if (!r.ok) throw new Error('Could not load classes');
       const data = await r.json();
@@ -316,7 +324,9 @@ function ClassDetailsModal({
         <div className="modal-meta">
           <div><strong>Date:</strong> {cls.date}</div>
           <div><strong>Time:</strong> {cls.time_slot}</div>
+          <div><strong>Duration:</strong> {cls.duration_minutes || 60} minutes</div>
           <div><strong>Location:</strong> {cls.location}</div>
+          <div><strong>Audience:</strong> {(cls.audience || ['ALL']).join(', ')}</div>
           <div>
             <strong>Seats:</strong> {cls.registered_count} / {cls.capacity}
             {cls.is_full && <span className="badge badge-full">Full</span>}
@@ -326,6 +336,20 @@ function ClassDetailsModal({
             <div className="modal-description">
               <strong>Details:</strong>
               <p>{cls.description}</p>
+            </div>
+          )}
+          {cls.attachments?.length > 0 && (
+            <div className="modal-description">
+              <strong>Attachments:</strong>
+              <ul>
+                {cls.attachments.map((attachment) => (
+                  <li key={attachment.id}>
+                    <a href={`${API_URL}/classes/${cls.id}/attachments/${attachment.id}?viewer_email=${encodeURIComponent(userEmail)}`} target="_blank" rel="noreferrer">
+                      {attachment.filename}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
@@ -363,8 +387,38 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
   const [timeSlot, setTimeSlot] = useState(TIME_SLOTS[0]);
   const [location, setLocation] = useState('');
   const [capacity, setCapacity] = useState(20);
+  const [durationMinutes, setDurationMinutes] = useState(60);
+  const [audience, setAudience] = useState('ALL');
+  const [attachments, setAttachments] = useState([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  const readAttachment = (file) => new Promise((resolve, reject) => {
+    if (file.size > 5 * 1024 * 1024) {
+      reject(new Error(`${file.name} is larger than 5 MB`));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => resolve({
+      filename: file.name,
+      content_type: file.type || 'application/octet-stream',
+      data_base64: String(reader.result).split(',')[1] || '',
+    });
+    reader.onerror = () => reject(new Error(`Could not read ${file.name}`));
+    reader.readAsDataURL(file);
+  });
+
+  const handleFiles = async (event) => {
+    try {
+      const selected = Array.from(event.target.files || []);
+      if (selected.length > 5) throw new Error('Choose at most five attachments');
+      setAttachments(await Promise.all(selected.map(readAttachment)));
+      setError('');
+    } catch (err) {
+      setAttachments([]);
+      setError(err.message);
+    }
+  };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -375,9 +429,12 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title, description, date, time_slot: timeSlot,
+          title, description, date, time_slot: buildTimeSlot(timeSlot, durationMinutes),
           location, capacity: Number(capacity),
           created_by: adminEmail,
+          duration_minutes: Number(durationMinutes),
+          audience: [audience],
+          attachments,
         }),
       });
       if (!r.ok) {
@@ -420,6 +477,12 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
                 {TIME_SLOTS.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </label>
+            <label>
+              Duration
+              <select value={durationMinutes} onChange={(e) => setDurationMinutes(Number(e.target.value))}>
+                {[30, 45, 60, 90, 120, 180].map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}
+              </select>
+            </label>
           </div>
           <div className="form-row">
             <label>
@@ -437,6 +500,22 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
               />
             </label>
           </div>
+          <div className="form-row">
+            <label>
+              Visible to
+              <select value={audience} onChange={(e) => setAudience(e.target.value)}>
+                <option value="ALL">All finance students</option>
+                <option value="FINA">FINA students</option>
+                <option value="QFIN">QFIN students</option>
+                <option value="SGFN">SGFN students</option>
+              </select>
+            </label>
+            <label>
+              Files (optional, max 5 × 5 MB)
+              <input type="file" multiple onChange={handleFiles} />
+            </label>
+          </div>
+          {attachments.length > 0 && <small>{attachments.map((file) => file.filename).join(', ')}</small>}
 
           <div className="modal-actions">
             <button type="button" className="secondary-btn" onClick={onClose} disabled={busy}>

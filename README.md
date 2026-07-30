@@ -16,7 +16,8 @@ Web app (Vite + React) and API (FastAPI). Data is stored in **MongoDB** through 
 
 | Variable | Required | Notes |
 |----------|----------|--------|
-| `VITE_API_URL` | No | API base URL **as the browser sees it** (default `http://localhost:8000`). |
+| `VITE_API_URL` | No | API base URL **as the browser sees it** (Docker default `/api`, local Vite fallback `http://localhost:8000`). |
+| `DATABASE_URI` / `MONGODB_URL` | No | MongoDB connection; `DATABASE_URI` is preferred and the older `MONGODB_URL` name remains supported. |
 | `FRONTEND_PORT` | No | Host port for the web UI (default `8080`). |
 | `TRADING_SIM_PORT` | No | Host port for the dedicated Youth Financetopia frontend (default `4173`). |
 | `CORS_ORIGINS` | No | Comma-separated origins. If **unset**, the API allows `http://localhost:5173`, `http://localhost:8080`, and a few defaults—see `backend/main.py`. |

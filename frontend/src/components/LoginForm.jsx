@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/authcontext';
 import PortalAuthShell from './PortalAuthShell';
 import '../styles/auth.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
 const EMAIL_DOMAINS = ['connect.ust.hk', 'ust.hk'];
 
 function getSafeReturnTo(location) {

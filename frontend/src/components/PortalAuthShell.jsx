@@ -1,4 +1,5 @@
 import PortalAuthCarousel from './PortalAuthCarousel';
+import SignupAssistant from './SignupAssistant';
 
 const STAGES = [
   { key: 'access', number: '01', label: 'Access' },
@@ -45,7 +46,10 @@ function PortalAuthShell({ currentStage = 'access', children }) {
         </div>
       </aside>
 
-      <main className="portal-auth-main">{children}</main>
+      <main className="portal-auth-main">
+        {children}
+        <SignupAssistant />
+      </main>
     </div>
   );
 }

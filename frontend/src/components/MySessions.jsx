@@ -41,7 +41,7 @@ function SessionsPage() {
         try {
             setLoading(true);
             setError(null);
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
             const url = `${API_URL}/my-sessions/${encodeURIComponent(user.email)}`;
             console.log('Fetching sessions from:', url);
             console.log('User email being used:', user.email);
@@ -162,7 +162,7 @@ function SessionsPage() {
         
         if (window.confirm(confirmMessage)) {
             try {
-                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
                 const response = await fetch(`${API_URL}/student/register`, {
                     method: 'DELETE',
                     headers: {
@@ -215,7 +215,7 @@ function SessionsPage() {
                     <p>Debug info:</p>
                     <ul style={{ textAlign: 'left' }}>
                         <li>User email: {user?.email || 'Not found'}</li>
-                        <li>API URL: {import.meta.env.VITE_API_URL || 'http://localhost:8000'}</li>
+                        <li>API URL: {import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api')}</li>
                     </ul>
                     <button onClick={fetchMySessions} className="btn-primary">
                         Try Again

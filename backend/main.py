@@ -17,6 +17,10 @@ else:
         "http://127.0.0.1:4173",
         "http://127.0.0.1:8080",
         "https://fina-sign-up-system.vercel.app",
+        # Current HKUST development host. The normal browser path is same
+        # origin through /api, but keeping it in the fallback CORS list also
+        # supports direct API calls during the transition from Drupal.
+        "https://yfc.docker-dev01.ust.hk",
     ]
 
 # Optional regex for managed hosts (e.g. Cloud Run: https://*.a.run.app)
