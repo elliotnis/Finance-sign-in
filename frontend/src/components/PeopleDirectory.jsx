@@ -22,7 +22,7 @@ function PeopleDirectory() {
     setLoading(true);
     setError('');
     try {
-      const url = new URL(`${API_URL}/profiles/directory`);
+      const url = new URL(`${API_URL}/profiles/directory`, window.location.origin);
       url.searchParams.set('viewer_email', viewerEmail);
       url.searchParams.set('q', query);
       if (program) url.searchParams.set('program', program);

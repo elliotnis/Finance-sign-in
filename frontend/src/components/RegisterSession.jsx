@@ -83,7 +83,7 @@ function RegisterSession() {
             const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
             const userEmail = localStorage.getItem('user_email');
             
-            const url = new URL(`${API_URL}/student/calendar`);
+            const url = new URL(`${API_URL}/student/calendar`, window.location.origin);
             if (userEmail) {
                 url.searchParams.append('student_email', userEmail);
             }
