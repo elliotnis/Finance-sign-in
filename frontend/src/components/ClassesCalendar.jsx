@@ -87,7 +87,7 @@ function ClassesCalendar() {
 
   const fetchClasses = async () => {
     try {
-      const url = new URL(`${API_URL}/classes`);
+      const url = new URL(`${API_URL}/classes`, window.location.origin);
       url.searchParams.append('date_from', weekFrom);
       url.searchParams.append('date_to', weekTo);
       url.searchParams.append('viewer_email', userEmail);
@@ -164,7 +164,7 @@ function ClassesCalendar() {
     if (!window.confirm('Cancel this class for everyone? This cannot be undone.')) return;
     setBusy(true);
     try {
-      const url = new URL(`${API_URL}/classes/${selectedClass.id}`);
+      const url = new URL(`${API_URL}/classes/${selectedClass.id}`, window.location.origin);
       url.searchParams.append('requested_by', userEmail);
       const r = await fetch(url.toString(), { method: 'DELETE' });
       if (!r.ok) {
