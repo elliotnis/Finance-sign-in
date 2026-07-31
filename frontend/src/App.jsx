@@ -13,6 +13,7 @@ import DatabaseManager from './components/DatabaseManager';
 import YouthFinancetopiaPortal, { YouthFinancetopiaGamemasterPortal } from './components/YouthFinancetopiaPortal';
 import BookingsCalendar from './components/BookingsCalendar';
 import PeopleDirectory from './components/PeopleDirectory';
+import SignupAssistant from './components/SignupAssistant';
 import { AuthProvider } from './contexts/authcontext';
 import './App.css'
 import './styles/mobile.css'
@@ -29,6 +30,7 @@ function YouthFinancetopiaApp() {
         <Route path="/youth-financetopia/gamemaster" element={<YouthFinancetopiaGamemasterPortal />} />
         <Route path="*" element={<Navigate to="/youth-financetopia" replace />} />
       </Routes>
+      <SignupAssistant />
     </Router>
   );
 }
@@ -54,6 +56,7 @@ function StudentPortalApp() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+      <SignupAssistant />
     </Router>
   </AuthProvider>
   )
