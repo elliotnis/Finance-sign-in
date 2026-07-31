@@ -395,12 +395,14 @@
 @media (max-width: 720px) {
     .classes-page .classes-grid {
         --classes-time-column: 64px;
-        min-width: 624px;
+        width: 100%;
+        min-width: 0;
         overflow-x: auto;
     }
 
     .classes-page .classes-grid-header,
     .classes-page .classes-grid-row {
+        min-width: 624px;
         grid-template-columns: var(--classes-time-column) repeat(7, minmax(80px, 1fr));
     }
     .form-row { grid-template-columns: 1fr; }
