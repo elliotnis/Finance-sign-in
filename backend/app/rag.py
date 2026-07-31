@@ -1,13 +1,24 @@
-"""Small retrieval-augmented help agent for the sign-up flow.
+"""Portal help agent with local retrieval and optional OpenRouter tools.
 
-This intentionally stays deterministic and local: the portal can answer the
-common access/profile/session questions without sending student data to a
-third-party model. The retrieved source snippets make the answer auditable and
-leave room to replace the scorer with a hosted model later.
+The model is kept behind the backend so the OpenRouter credential never reaches
+the browser.  When the credential is unavailable (or a provider is down), the
+small indexed corpus still gives a useful deterministic answer.
 """
 
-import re
+from __future__ import annotations
 
+import json
+import os
+import re
+import urllib.error
+import urllib.request
+from datetime import datetime
+
+from .utils import get_student_calendar_view, get_student_registrations, list_classes
+
+
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+DEFAULT_MODEL = "openai/gpt-oss-120b"
 
 KNOWLEDGE = [
     {
@@ -38,17 +49,81 @@ KNOWLEDGE = [
 ]
 
 
+PAGE_ROUTES = {
+    "dashboard": {"path": "/dashboard", "label": "Open dashboard"},
+    "profile": {"path": "/profile", "label": "Open my profile"},
+    "classes": {"path": "/classes", "label": "Open classes"},
+    "tutoring": {"path": "/register-session", "label": "Find tutoring sessions"},
+    "host_session": {"path": "/tutor-calendar", "label": "Host a tutoring session"},
+    "directory": {"path": "/directory", "label": "Open people directory"},
+}
+
+
+TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "search_classes",
+            "description": "Find visible classes and events in the portal. Use this when a student asks what classes are available or asks about an event date.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "date_from": {"type": "string", "description": "Inclusive date in YYYY-MM-DD format, if known."},
+                    "date_to": {"type": "string", "description": "Inclusive date in YYYY-MM-DD format, if known."},
+                    "program": {"type": "string", "enum": ["ALL", "FINA", "QFIN", "SGFN"]},
+                    "query": {"type": "string", "description": "Optional words to match in title, description, location, or audience."},
+                },
+                "additionalProperties": False,
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_tutoring_sessions",
+            "description": "Find currently available tutoring slots. Use this for scheduling help; never invent a slot when this tool returns no match.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "date": {"type": "string", "description": "Date in YYYY-MM-DD format, if known."},
+                    "session_type": {"type": "string", "description": "Optional category such as Course Tutoring or Market News sharing."},
+                    "program": {"type": "string", "enum": ["ALL", "FINA", "QFIN", "SGFN"]},
+                },
+                "additionalProperties": False,
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_my_schedule",
+            "description": "Read the signed-in student's existing tutoring registrations so the assistant can avoid suggesting conflicts.",
+            "parameters": {"type": "object", "properties": {}, "additionalProperties": False},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "open_portal_page",
+            "description": "Offer a link to a portal page when the student asks to open a section or wants to continue a scheduling task. This only returns a navigation suggestion; it never changes data.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "page": {"type": "string", "enum": list(PAGE_ROUTES)},
+                },
+                "required": ["page"],
+                "additionalProperties": False,
+            },
+        },
+    },
+]
+
+
 def _tokens(text):
     return set(re.findall(r"[a-z0-9]{2,}", (text or "").lower()))
 
 
-def answer_question(question):
-    question = (question or "").strip()
-    if not question:
-        return {
-            "answer": "Ask me about signing in, completing your profile, finding sessions, classes, or public biographies.",
-            "sources": [],
-        }
+def _selected_sources(question):
     query_tokens = _tokens(question)
     scored = []
     for entry in KNOWLEDGE:
@@ -56,14 +131,257 @@ def answer_question(question):
         if score:
             scored.append((score, entry))
     scored.sort(key=lambda item: item[0], reverse=True)
-    selected = [entry for _, entry in scored[:2]]
+    return [entry for _, entry in scored[:3]]
+
+
+def _source_payload(entries):
+    return [{"id": entry["id"], "title": entry["title"]} for entry in entries]
+
+
+def _local_answer(question, selected):
+    if not question:
+        return "Ask me about signing in, completing your profile, finding sessions, classes, or public biographies."
     if not selected:
-        return {
-            "answer": "I could not find that in the sign-up guide. Try asking about access codes, profiles, sessions, classes, or the People directory.",
-            "sources": [],
-        }
-    answer = " ".join(entry["text"] for entry in selected)
+        return "I could not find that in the sign-up guide. Try asking about access codes, profiles, sessions, classes, or the People directory."
+    return " ".join(entry["text"] for entry in selected)
+
+
+def _clean_date(value):
+    value = str(value or "").strip()
+    if not value:
+        return None
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+    except ValueError:
+        return None
+    return value
+
+
+def _clean_program(value):
+    value = str(value or "").strip().upper()
+    return value if value in {"ALL", "FINA", "QFIN", "SGFN"} else None
+
+
+def _matches_program(item, program):
+    if not program or program == "ALL":
+        return True
+    audience = {str(value).upper() for value in item.get("audience") or ["ALL"]}
+    return "ALL" in audience or program in audience
+
+
+def _class_summary(item):
     return {
-        "answer": answer,
-        "sources": [{"id": entry["id"], "title": entry["title"]} for entry in selected],
+        "id": item.get("id"),
+        "title": item.get("title"),
+        "date": item.get("date"),
+        "time_slot": item.get("time_slot"),
+        "duration_minutes": item.get("duration_minutes", 60),
+        "location": item.get("location"),
+        "capacity": item.get("capacity"),
+        "registered": len(item.get("registered_students") or []),
+        "is_full": bool(item.get("is_full")),
+        "audience": item.get("audience") or ["ALL"],
+        "description": item.get("description"),
     }
+
+
+def _session_summary(slot, tutor):
+    return {
+        "id": tutor.get("id"),
+        "date": slot.get("date"),
+        "time_slot": slot.get("time_slot"),
+        "duration_minutes": tutor.get("duration_minutes", 60),
+        "session_type": slot.get("session_type"),
+        "tutor_name": tutor.get("tutor_name"),
+        "location": tutor.get("location"),
+        "description": tutor.get("description"),
+        "audience": tutor.get("audience") or ["ALL"],
+    }
+
+
+def _execute_tool(name, arguments, user_email):
+    """Execute only read-only portal tools and return serializable data."""
+    arguments = arguments if isinstance(arguments, dict) else {}
+    viewer_email = (user_email or "").strip().lower() or None
+
+    if name == "search_classes":
+        program = _clean_program(arguments.get("program"))
+        date_from = _clean_date(arguments.get("date_from"))
+        date_to = _clean_date(arguments.get("date_to"))
+        records = list_classes(date_from=date_from, date_to=date_to, viewer_email=viewer_email)
+        query = str(arguments.get("query") or "").strip().lower()
+        if query:
+            records = [
+                item for item in records
+                if query in " ".join(str(item.get(key) or "") for key in ("title", "description", "location")).lower()
+                or query in " ".join(str(value) for value in item.get("audience") or []).lower()
+            ]
+        records = [item for item in records if _matches_program(item, program)]
+        return {"events": [_class_summary(item) for item in records[:10]], "count": len(records)}
+
+    if name == "search_tutoring_sessions":
+        program = _clean_program(arguments.get("program"))
+        date = _clean_date(arguments.get("date"))
+        session_type = str(arguments.get("session_type") or "").strip() or None
+        slots = get_student_calendar_view(session_type=session_type, date=date, student_email=viewer_email)
+        results = []
+        for slot in slots:
+            for tutor in slot.get("available_tutors") or []:
+                if _matches_program(tutor, program):
+                    results.append(_session_summary(slot, tutor))
+        return {"sessions": results[:10], "count": len(results)}
+
+    if name == "get_my_schedule":
+        if not viewer_email:
+            return {"error": "A signed-in email is needed to check an existing schedule."}
+        registrations = get_student_registrations(viewer_email)
+        return {
+            "registrations": [
+                {
+                    "id": item.get("id"),
+                    "date": item.get("date"),
+                    "time_slot": item.get("time_slot"),
+                    "duration_minutes": item.get("duration_minutes", 60),
+                    "session_type": item.get("session_type"),
+                    "tutor_name": item.get("tutor_name"),
+                    "location": item.get("location"),
+                    "status": item.get("status"),
+                }
+                for item in registrations[:10]
+            ],
+            "count": len(registrations),
+        }
+
+    if name == "open_portal_page":
+        page = str(arguments.get("page") or "").strip()
+        route = PAGE_ROUTES.get(page)
+        if not route:
+            return {"error": "That portal page is not available."}
+        return {"action": {"type": "navigate", "path": route["path"], "label": route["label"]}}
+
+    return {"error": "Unknown assistant tool."}
+
+
+def _openrouter_key():
+    return os.getenv("OPENROUTER_API_KEY", "").strip()
+
+
+def _openrouter_model():
+    return os.getenv("OPENROUTER_MODEL", DEFAULT_MODEL).strip() or DEFAULT_MODEL
+
+
+def _openrouter_request(payload):
+    request = urllib.request.Request(
+        OPENROUTER_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {_openrouter_key()}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": os.getenv("OPENROUTER_SITE_URL", "http://localhost:8080"),
+            "X-Title": os.getenv("OPENROUTER_APP_NAME", "HKUST Finance Portal"),
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=35) as response:
+        body = response.read().decode("utf-8")
+    data = json.loads(body)
+    if data.get("error"):
+        raise RuntimeError(str(data["error"].get("message") or "OpenRouter request failed"))
+    return data
+
+
+def _history_messages(history):
+    safe = []
+    for item in (history or [])[-8:]:
+        if not isinstance(item, dict) or item.get("role") not in {"user", "assistant"}:
+            continue
+        content = str(item.get("content") or "").strip()
+        if content:
+            safe.append({"role": item["role"], "content": content[:1600]})
+    return safe
+
+
+def _openrouter_answer(question, selected, user_email=None, history=None, context_path=None):
+    source_text = "\n".join(f"- {entry['title']}: {entry['text']}" for entry in selected)
+    system = (
+        "You are the HKUST Finance student portal guide. Be concise, warm, and concrete. "
+        "Use the indexed guide as your source of truth. Never invent availability, registration status, "
+        "people, or deadlines. When a student asks about classes, tutoring, or scheduling, call the relevant "
+        "read-only tool first. You may suggest opening a portal page, but you must not create, cancel, register, "
+        "or change anything. Ask the student to use the page's explicit confirmation controls for changes. "
+        "If a tool returns no result, say so clearly and offer the next useful step.\n\n"
+        f"Indexed guide:\n{source_text or '- No matching guide entry; use the tools or explain the limitation.'}"
+    )
+    messages = [{"role": "system", "content": system}]
+    messages.extend(_history_messages(history))
+    messages.append({"role": "user", "content": question})
+    actions = []
+
+    for _ in range(3):
+        response = _openrouter_request({
+            "model": _openrouter_model(),
+            "messages": messages,
+            "tools": TOOLS,
+            "tool_choice": "auto",
+            "parallel_tool_calls": False,
+            "temperature": 0.2,
+            "max_tokens": 700,
+        })
+        choice = (response.get("choices") or [{}])[0]
+        message = choice.get("message") or {}
+        tool_calls = message.get("tool_calls") or []
+        if not tool_calls:
+            content = message.get("content")
+            if isinstance(content, list):
+                content = " ".join(str(part.get("text") or "") for part in content if isinstance(part, dict))
+            return {
+                "answer": str(content or "").strip(),
+                "sources": _source_payload(selected),
+                "actions": actions,
+                "provider": "openrouter",
+                "model": _openrouter_model(),
+                "context_path": context_path,
+            }
+
+        assistant_message = {"role": "assistant", "content": message.get("content") or "", "tool_calls": tool_calls}
+        messages.append(assistant_message)
+        for call in tool_calls:
+            function = call.get("function") or {}
+            name = function.get("name") or ""
+            try:
+                arguments = json.loads(function.get("arguments") or "{}")
+            except (TypeError, ValueError):
+                arguments = {}
+            result = _execute_tool(name, arguments, user_email)
+            action = result.get("action") if isinstance(result, dict) else None
+            if action:
+                actions.append(action)
+            public_result = {key: value for key, value in (result or {}).items() if key != "action"}
+            messages.append({
+                "role": "tool",
+                "tool_call_id": call.get("id") or f"tool-{len(messages)}",
+                "name": name,
+                "content": json.dumps(public_result, ensure_ascii=False),
+            })
+
+    raise RuntimeError("Assistant tool loop exceeded its limit")
+
+
+def answer_question(question, user_email=None, history=None, context_path=None):
+    question = (question or "").strip()[:2000]
+    selected = _selected_sources(question)
+    fallback = {
+        "answer": _local_answer(question, selected),
+        "sources": _source_payload(selected),
+        "actions": [],
+        "provider": "local",
+        "model": None,
+        "context_path": context_path,
+    }
+    if not question or not _openrouter_key():
+        return fallback
+    try:
+        result = _openrouter_answer(question, selected, user_email=user_email, history=history, context_path=context_path)
+        return result if result.get("answer") else fallback
+    except (OSError, RuntimeError, ValueError, urllib.error.URLError, json.JSONDecodeError):
+        return fallback

@@ -3,11 +3,11 @@ import base64
 import io
 import json
 from html import escape
-from typing import Literal
+from typing import List, Literal, Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from .utils import (
     check_email_exists, create_user, verify_user_credentials, get_all_users,
     user_password_status, set_password_if_passwordless,
@@ -91,6 +91,9 @@ class AllowedEmailImportPayload(BaseModel):
 
 class HelpQuestionPayload(BaseModel):
     question: str
+    user_email: Optional[str] = None
+    history: List[dict] = Field(default_factory=list)
+    context_path: Optional[str] = None
 
 
 def _class_notification(cls, subject, recipients, intro):
@@ -733,8 +736,13 @@ def public_profile_directory(viewer_email: str, q: str = "", program: str = ""):
 
 @router.post("/help/ask")
 def ask_signup_assistant(payload: HelpQuestionPayload):
-    """Answer a sign-up-flow question using the local indexed help corpus."""
-    return answer_question(payload.question)
+    """Answer a portal question with retrieval, OpenRouter, and safe read-only tools."""
+    return answer_question(
+        payload.question,
+        user_email=payload.user_email,
+        history=payload.history,
+        context_path=payload.context_path,
+    )
 
 # ==================== Tutor Availability Management Endpoints ====================
 

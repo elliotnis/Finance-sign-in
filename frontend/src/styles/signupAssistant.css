@@ -1,0 +1,161 @@
+.signup-assistant {
+  position: fixed;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: max-content;
+  max-width: calc(100vw - 1rem);
+  pointer-events: none;
+  user-select: none;
+}
+
+.signup-assistant > * { pointer-events: auto; }
+
+.signup-assistant-launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 3.2rem;
+  border: 2px solid #172033;
+  border-radius: 999px;
+  padding: 0.72rem 1rem 0.72rem 0.78rem;
+  background: #164f91;
+  color: #fffaf0;
+  box-shadow: 5px 5px 0 rgba(23, 32, 51, 0.22);
+  cursor: grab;
+  font: 800 0.82rem/1 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: 0.01em;
+  touch-action: none;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.signup-assistant-launcher:hover,
+.signup-assistant-launcher:focus-visible {
+  background: #0a3b75;
+  transform: translate(-1px, -1px);
+  box-shadow: 7px 7px 0 rgba(23, 32, 51, 0.22);
+}
+
+.signup-assistant-launcher:active { cursor: grabbing; transform: translate(1px, 1px); box-shadow: 3px 3px 0 rgba(23, 32, 51, 0.22); }
+.signup-assistant-launcher:focus-visible,
+.signup-assistant-minimize:focus-visible,
+.signup-assistant-form input:focus-visible,
+.signup-assistant-form button:focus-visible,
+.signup-assistant-starters button:focus-visible,
+.signup-assistant-action:focus-visible { outline: 3px solid rgba(198, 146, 20, 0.68); outline-offset: 3px; }
+
+.signup-assistant-launcher-icon {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 2px solid #172033;
+  border-radius: 50%;
+  background: #f3c969;
+  color: #172033;
+  font-size: 0.92rem;
+}
+
+.signup-assistant-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(23rem, calc(100vw - 1rem));
+  max-height: min(70vh, 36rem);
+  margin-bottom: 0.8rem;
+  overflow: hidden;
+  border: 2px solid #172033;
+  border-radius: 12px;
+  background: #fffaf0;
+  box-shadow: 8px 8px 0 rgba(23, 32, 51, 0.2);
+  color: #172033;
+  user-select: text;
+  animation: signup-assistant-rise 180ms ease-out both;
+}
+
+.signup-assistant-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.9rem 0.95rem 0.75rem;
+  border-bottom: 2px solid #172033;
+  background: #efe6d7;
+  cursor: grab;
+  touch-action: none;
+}
+
+.signup-assistant-heading:active { cursor: grabbing; }
+.signup-assistant-brand { display: flex; align-items: center; gap: 0.65rem; }
+.signup-assistant-mark { color: #164f91; font-size: 1.35rem; line-height: 1; }
+.signup-assistant-heading h2 { margin: 0.14rem 0 0; color: #172033; font: 800 1.16rem/1.05 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.signup-assistant-kicker { color: #8b5d13; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.signup-assistant-minimize {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid #172033;
+  border-radius: 7px;
+  background: #fffaf0;
+  color: #172033;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.signup-assistant-minimize:hover { background: #f3c969; }
+.signup-assistant-intro { margin: 0; padding: 0.75rem 0.95rem 0.65rem; color: #586578; font-size: 0.78rem; line-height: 1.4; }
+
+.signup-assistant-log {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 7rem;
+  max-height: 18rem;
+  overflow-y: auto;
+  padding: 0 0.95rem 0.75rem;
+  scrollbar-width: thin;
+}
+
+.signup-assistant-empty { display: grid; gap: 0.3rem; padding: 0.8rem; border: 1px dashed #a7b3c4; background: #f7f0e5; color: #172033; font-size: 0.78rem; line-height: 1.4; }
+.signup-assistant-empty span { color: #586578; }
+.signup-assistant-message { max-width: 92%; padding: 0.65rem 0.72rem; border: 1px solid rgba(23, 32, 51, 0.18); border-radius: 9px; font-size: 0.78rem; line-height: 1.45; }
+.signup-assistant-message p { margin: 0; white-space: pre-wrap; }
+.signup-assistant-message small { display: block; margin-top: 0.45rem; color: #586578; font-size: 0.66rem; }
+.signup-assistant-message.is-user { align-self: flex-end; background: #164f91; border-color: #172033; color: #fffaf0; }
+.signup-assistant-message.is-user small { color: #dce9f8; }
+.signup-assistant-message.is-assistant { align-self: flex-start; background: #fff; color: #172033; }
+.signup-assistant-message.is-loading { color: #586578; font-style: italic; }
+.signup-assistant-action { display: inline-flex; margin-top: 0.55rem; border: 1px solid #172033; border-radius: 999px; padding: 0.35rem 0.55rem; background: #f3c969; color: #172033; cursor: pointer; font-size: 0.68rem; font-weight: 800; }
+.signup-assistant-action:hover { background: #e8b842; }
+
+.signup-assistant-starters { display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0 0.95rem 0.7rem; }
+.signup-assistant-starters button { border: 1px solid #a7b3c4; border-radius: 999px; padding: 0.35rem 0.5rem; background: #f7f0e5; color: #164f91; cursor: pointer; font-size: 0.67rem; text-align: left; }
+.signup-assistant-starters button:hover:not(:disabled) { border-color: #172033; background: #fff; }
+.signup-assistant-starters button:disabled { cursor: wait; opacity: 0.5; }
+
+.signup-assistant-form { display: flex; gap: 0.4rem; padding: 0.7rem 0.95rem; border-top: 2px solid #172033; background: #efe6d7; }
+.signup-assistant-form input { min-width: 0; flex: 1; border: 1px solid #77879d; border-radius: 7px; padding: 0.62rem 0.65rem; background: #fff; color: #172033; font: 600 0.76rem/1.2 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.signup-assistant-form button { border: 2px solid #172033; border-radius: 7px; padding: 0.55rem 0.7rem; background: #164f91; color: #fffaf0; cursor: pointer; font-weight: 800; }
+.signup-assistant-form button:disabled { cursor: wait; opacity: 0.48; }
+.signup-assistant-error { margin: 0; padding: 0 0.95rem 0.65rem; color: #a33a2a; font-size: 0.72rem; }
+.signup-assistant-drag-hint { margin: 0; padding: 0 0.95rem 0.72rem; color: #7a8698; font-size: 0.64rem; cursor: grab; touch-action: none; }
+
+@keyframes signup-assistant-rise {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 640px) {
+  .signup-assistant { max-width: calc(100vw - 0.75rem); }
+  .signup-assistant-launcher { min-height: 2.9rem; padding-right: 0.82rem; }
+  .signup-assistant-panel { width: min(23rem, calc(100vw - 0.75rem)); max-height: 66vh; }
+  .signup-assistant-starters button { font-size: 0.62rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signup-assistant-panel, .signup-assistant-launcher { animation: none; transition: none; }
+}

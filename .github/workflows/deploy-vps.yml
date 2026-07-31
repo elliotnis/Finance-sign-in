@@ -51,6 +51,8 @@ jobs:
         env:
           SMTP_PASSWORDYFC_SECRET: ${{ secrets.SMTP_PASSWORDYFC }}
           SMTP_PASSWORDFINAUGEVENTS_SECRET: ${{ secrets.SMTP_PASSWORDFINAUGEVENTS }}
+          OPENROUTER_API_KEY_SECRET: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL_VALUE: ${{ vars.OPENROUTER_MODEL || 'openai/gpt-oss-120b' }}
         run: |
           set -euo pipefail
 
@@ -74,6 +76,10 @@ jobs:
               "SMTP_USERYFC": "yfc",
               "SMTP_PASSWORDYFC": os.environ["SMTP_PASSWORDYFC_SECRET"],
               "SMTP_FROMYFC": '"Youth Financetopia <yfc@ust.hk>"',
+              "OPENROUTER_API_KEY": os.environ.get("OPENROUTER_API_KEY_SECRET", ""),
+              "OPENROUTER_MODEL": os.environ.get("OPENROUTER_MODEL_VALUE", "openai/gpt-oss-120b"),
+              "OPENROUTER_SITE_URL": "http://143.89.175.90",
+              "OPENROUTER_APP_NAME": "HKUST Finance Portal",
           }
 
           existing = env_path.read_text().splitlines() if env_path.exists() else []
