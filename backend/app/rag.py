@@ -14,7 +14,12 @@ import urllib.error
 import urllib.request
 from datetime import datetime
 
-from .utils import get_student_calendar_view, get_student_registrations, list_classes
+from .utils import (
+    get_student_calendar_view,
+    get_student_registrations,
+    list_classes,
+    search_public_profiles,
+)
 
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -80,6 +85,21 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "search_people_directory",
+            "description": "Search the opt-in People directory for public biographies, credentials, and self-provided LinkedIn links. Never expose private profiles.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Name, programme, credential, or biography words to search."},
+                    "program": {"type": "string", "enum": ["ALL", "FINA", "QFIN", "SGFN"]},
+                },
+                "additionalProperties": False,
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "search_tutoring_sessions",
             "description": "Find currently available tutoring slots. Use this for scheduling help; never invent a slot when this tool returns no match.",
             "parameters": {
@@ -99,6 +119,39 @@ TOOLS = [
             "name": "get_my_schedule",
             "description": "Read the signed-in student's existing tutoring registrations so the assistant can avoid suggesting conflicts.",
             "parameters": {"type": "object", "properties": {}, "additionalProperties": False},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "prepare_session_registration",
+            "description": "Prepare a handoff to review one available tutoring slot. This opens the registration page and selects the slot, but never submits a booking.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "date": {"type": "string", "description": "Slot date in YYYY-MM-DD format."},
+                    "time_slot": {"type": "string", "description": "Exact slot time such as 13:00-14:00."},
+                    "session_type": {"type": "string", "description": "Optional appointment type to narrow the handoff."},
+                },
+                "required": ["date", "time_slot"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "highlight_portal_content",
+            "description": "Navigate to a portal page and visually highlight a matching button, heading, class, session, or search result. Use this when the student asks where something is or wants help while navigating.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "page": {"type": "string", "enum": list(PAGE_ROUTES)},
+                    "target": {"type": "string", "description": "Short visible text to highlight on the destination page."},
+                },
+                "required": ["page", "target"],
+                "additionalProperties": False,
+            },
         },
     },
     {
@@ -147,7 +200,13 @@ def _local_answer(question, selected):
 
 
 def _clean_date(value):
-    value = str(value or "").strip()
+    value = (
+        str(value or "")
+        .strip()
+        .replace("‑", "-")
+        .replace("–", "-")
+        .replace("—", "-")
+    )
     if not value:
         return None
     try:
@@ -155,6 +214,30 @@ def _clean_date(value):
     except ValueError:
         return None
     return value
+
+
+def _clean_time_slot(value):
+    return (
+        str(value or "")
+        .strip()
+        .replace("‑", "-")
+        .replace("–", "-")
+        .replace("—", "-")
+        .replace(" ", "")
+    )
+
+
+def _session_type_matches(actual, requested):
+    """Match friendly labels such as `free chat` to `FINA free chat`."""
+    requested = str(requested or "").strip().lower()
+    actual = str(actual or "").strip().lower()
+    if not requested:
+        return True
+    if not actual:
+        return False
+    requested_tokens = re.findall(r"[a-z0-9]+", requested)
+    actual_tokens = re.findall(r"[a-z0-9]+", actual)
+    return requested in actual or all(token in actual_tokens for token in requested_tokens)
 
 
 def _clean_program(value):
@@ -219,13 +302,35 @@ def _execute_tool(name, arguments, user_email):
         records = [item for item in records if _matches_program(item, program)]
         return {"events": [_class_summary(item) for item in records[:10]], "count": len(records)}
 
+    if name == "search_people_directory":
+        program = _clean_program(arguments.get("program"))
+        query = str(arguments.get("query") or "").strip()
+        records = search_public_profiles(query=query, program=None if program in {None, "ALL"} else program)
+        return {
+            "profiles": [
+                {
+                    "name": item.get("preferred_name") or item.get("full_name"),
+                    "programme": item.get("major"),
+                    "study_year": item.get("study_year"),
+                    "graduation_year": item.get("graduation_year"),
+                    "credentials": item.get("credentials") or [],
+                    "biography": item.get("biography"),
+                    "linkedin_url": item.get("linkedin_url"),
+                }
+                for item in records[:10]
+            ],
+            "count": len(records),
+        }
+
     if name == "search_tutoring_sessions":
         program = _clean_program(arguments.get("program"))
         date = _clean_date(arguments.get("date"))
         session_type = str(arguments.get("session_type") or "").strip() or None
-        slots = get_student_calendar_view(session_type=session_type, date=date, student_email=viewer_email)
+        slots = get_student_calendar_view(date=date, student_email=viewer_email)
         results = []
         for slot in slots:
+            if not _session_type_matches(slot.get("session_type"), session_type):
+                continue
             for tutor in slot.get("available_tutors") or []:
                 if _matches_program(tutor, program):
                     results.append(_session_summary(slot, tutor))
@@ -252,12 +357,57 @@ def _execute_tool(name, arguments, user_email):
             "count": len(registrations),
         }
 
+    if name == "prepare_session_registration":
+        date = _clean_date(arguments.get("date"))
+        time_slot = _clean_time_slot(arguments.get("time_slot"))
+        session_type = str(arguments.get("session_type") or "").strip() or None
+        if not date or not time_slot:
+            return {"error": "A valid date and time slot are required."}
+        slots = get_student_calendar_view(date=date, student_email=viewer_email)
+        match = next(
+            (
+                slot
+                for slot in slots
+                if _clean_time_slot(slot.get("time_slot")) == time_slot
+                and _session_type_matches(slot.get("session_type"), session_type)
+            ),
+            None,
+        )
+        if not match or not match.get("available_tutors"):
+            return {"error": "That tutoring slot is no longer available."}
+        return {
+            "action": {
+                "type": "navigate",
+                "path": PAGE_ROUTES["tutoring"]["path"],
+                "query": {"assistant_date": date, "assistant_time": time_slot},
+                "label": f"Review {date} · {time_slot}",
+            },
+            "date": date,
+            "time_slot": time_slot,
+            "session_type": match.get("session_type"),
+        }
+
     if name == "open_portal_page":
         page = str(arguments.get("page") or "").strip()
         route = PAGE_ROUTES.get(page)
         if not route:
             return {"error": "That portal page is not available."}
         return {"action": {"type": "navigate", "path": route["path"], "label": route["label"]}}
+
+    if name == "highlight_portal_content":
+        page = str(arguments.get("page") or "").strip()
+        target = str(arguments.get("target") or "").strip()[:120]
+        route = PAGE_ROUTES.get(page)
+        if not route or not target:
+            return {"error": "A valid portal page and visible target are required."}
+        return {
+            "action": {
+                "type": "highlight",
+                "path": route["path"],
+                "target": target,
+                "label": f"Show {target}",
+            }
+        }
 
     return {"error": "Unknown assistant tool."}
 
@@ -307,8 +457,12 @@ def _openrouter_answer(question, selected, user_email=None, history=None, contex
         "You are the HKUST Finance student portal guide. Be concise, warm, and concrete. "
         "Use the indexed guide as your source of truth. Never invent availability, registration status, "
         "people, or deadlines. When a student asks about classes, tutoring, or scheduling, call the relevant "
-        "read-only tool first. You may suggest opening a portal page, but you must not create, cancel, register, "
-        "or change anything. Ask the student to use the page's explicit confirmation controls for changes. "
+        "read-only tool first. For a specific slot handoff, search first and then call "
+        "prepare_session_registration with the exact date and time_slot returned by the search. When they ask where "
+        "something is, use the navigation or highlight tool so the "
+        "portal can take them to the relevant page. You may help prepare a scheduling handoff, but you must not "
+        "create, cancel, register, or change anything. Ask the student to use the page's explicit confirmation "
+        "controls for changes. "
         "If a tool returns no result, say so clearly and offer the next useful step.\n\n"
         f"Indexed guide:\n{source_text or '- No matching guide entry; use the tools or explain the limitation.'}"
     )

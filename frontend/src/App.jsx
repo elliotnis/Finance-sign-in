@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import LoginForm from './components/LoginForm'
 import SignupForm from './components/SignupForm'
 import ProfileCompletion from './components/ProfileCompletion'
@@ -21,6 +22,40 @@ import './styles/portalDesign.css'
 
 const isYouthFinancetopiaBuild = import.meta.env.VITE_APP_AUDIENCE === 'youth-financetopia';
 
+function AssistantHighlight() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const target = new URLSearchParams(location.search).get('assistant_highlight')?.trim().toLowerCase();
+    if (!target) return undefined;
+
+    let timeoutId;
+    let attempts = 0;
+    const findAndHighlight = () => {
+      attempts += 1;
+      const candidates = document.querySelectorAll(
+        'main button, main a, main h1, main h2, main h3, main [role="button"], main [data-assistant-anchor]',
+      );
+      const match = Array.from(candidates).find((element) => {
+        const text = (element.textContent || '').trim().toLowerCase();
+        return text === target || text.includes(target);
+      });
+      if (match) {
+        match.classList.add('assistant-highlight-target');
+        match.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        timeoutId = window.setTimeout(() => match.classList.remove('assistant-highlight-target'), 4200);
+        return;
+      }
+      if (attempts < 8) timeoutId = window.setTimeout(findAndHighlight, 250);
+    };
+
+    findAndHighlight();
+    return () => window.clearTimeout(timeoutId);
+  }, [location.pathname, location.search]);
+
+  return null;
+}
+
 function YouthFinancetopiaApp() {
   return (
     <Router>
@@ -30,6 +65,7 @@ function YouthFinancetopiaApp() {
         <Route path="/youth-financetopia/gamemaster" element={<YouthFinancetopiaGamemasterPortal />} />
         <Route path="*" element={<Navigate to="/youth-financetopia" replace />} />
       </Routes>
+      <AssistantHighlight />
       <SignupAssistant />
     </Router>
   );
@@ -56,6 +92,7 @@ function StudentPortalApp() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+      <AssistantHighlight />
       <SignupAssistant />
     </Router>
   </AuthProvider>
