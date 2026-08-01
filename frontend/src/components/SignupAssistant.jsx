@@ -62,9 +62,9 @@ function getSizeLimits() {
   const viewport = getViewportSize();
   return {
     widthMin: 280,
-    widthMax: Math.max(280, Math.min(560, viewport.width - 16)),
+    widthMax: Math.max(280, viewport.width - 16),
     heightMin: 320,
-    heightMax: Math.max(320, Math.min(760, viewport.height - 32)),
+    heightMax: Math.max(320, viewport.height - 80),
   };
 }
 
@@ -284,7 +284,7 @@ function SignupAssistant() {
     dragRef.current = null;
   };
 
-  const startResize = (event) => {
+  const startResize = (event, edge = 'left') => {
     if (event.button !== 0) return;
     event.preventDefault();
     event.stopPropagation();
@@ -294,6 +294,7 @@ function SignupAssistant() {
       startY: event.clientY,
       startWidth: size.width,
       startHeight: size.height,
+      edge,
     };
     event.currentTarget.setPointerCapture?.(event.pointerId);
   };
@@ -302,7 +303,7 @@ function SignupAssistant() {
     const resize = resizeRef.current;
     if (!resize || resize.pointerId !== event.pointerId) return;
     const nextSize = clampSize({
-      width: resize.startWidth + (event.clientX - resize.startX),
+      width: resize.startWidth + (resize.edge === 'left' ? resize.startX - event.clientX : event.clientX - resize.startX),
       height: resize.startHeight + (event.clientY - resize.startY),
     });
     setState((current) => ({ ...current, size: nextSize }));
@@ -489,13 +490,13 @@ function SignupAssistant() {
             onPointerUp={endDrag}
             onPointerCancel={endDrag}
           >
-            Drag the header or launcher to move me. Resize from the lower-right grip.
+            Drag the header or launcher to move me. Resize from the lower-left grip.
           </p>
           <button
             type="button"
             className="signup-assistant-resize-handle"
-            aria-label="Resize portal assistant"
-            onPointerDown={startResize}
+            aria-label="Resize portal assistant from the lower-left corner"
+            onPointerDown={(event) => startResize(event, 'left')}
             onPointerMove={moveResize}
             onPointerUp={endResize}
             onPointerCancel={endResize}

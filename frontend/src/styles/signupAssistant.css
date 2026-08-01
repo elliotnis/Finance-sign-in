@@ -65,7 +65,7 @@
   min-width: 17.5rem;
   min-height: 20rem;
   max-width: calc(100vw - 1rem);
-  max-height: min(78vh, 44rem);
+  max-height: calc(100vh - 5rem);
   resize: both;
   margin-bottom: 0.8rem;
   overflow: hidden;
@@ -119,7 +119,6 @@
   flex-direction: column;
   gap: 0.55rem;
   min-height: 7rem;
-  max-height: 18rem;
   overflow-y: auto;
   padding: 0 0.95rem 0.75rem;
   scrollbar-width: thin;
@@ -160,10 +159,10 @@
 .signup-assistant-form button:disabled { cursor: wait; opacity: 0.48; }
 .signup-assistant-error { margin: 0; padding: 0 0.95rem 0.65rem; color: #a33a2a; font-size: 0.72rem; }
 .signup-assistant-drag-hint { margin: 0; padding: 0 0.95rem 0.72rem; color: #7a8698; font-size: 0.64rem; cursor: grab; touch-action: none; }
-.signup-assistant-resize-handle { position: absolute; right: 0.28rem; bottom: 0.28rem; width: 1.2rem; height: 1.2rem; border: 0; padding: 0; background: transparent; cursor: nwse-resize; pointer-events: none; touch-action: none; }
+.signup-assistant-resize-handle { position: absolute; left: 0.28rem; bottom: 0.28rem; z-index: 2; width: 1.2rem; height: 1.2rem; border: 0; padding: 0; background: transparent; cursor: nesw-resize; pointer-events: auto; touch-action: none; }
 .signup-assistant-resize-handle::before,
-.signup-assistant-resize-handle::after { position: absolute; right: 0.08rem; bottom: 0.2rem; width: 0.72rem; height: 2px; background: #164f91; content: ''; transform: rotate(-45deg); transform-origin: right center; }
-.signup-assistant-resize-handle::after { right: 0.08rem; bottom: 0.48rem; width: 0.5rem; }
+.signup-assistant-resize-handle::after { position: absolute; left: 0.08rem; bottom: 0.2rem; width: 0.72rem; height: 2px; background: #164f91; content: ''; transform: rotate(45deg); transform-origin: left center; }
+.signup-assistant-resize-handle::after { left: 0.08rem; bottom: 0.48rem; width: 0.5rem; }
 .signup-assistant-resize-handle:focus-visible { outline: 3px solid rgba(198, 146, 20, 0.68); outline-offset: 2px; }
 
 .assistant-highlight-target { position: relative; z-index: 2; scroll-margin-top: 7rem; outline: 4px solid #f3c969 !important; box-shadow: 0 0 0 7px rgba(243, 201, 105, 0.32), 7px 7px 0 rgba(23, 32, 51, 0.2) !important; animation: assistant-highlight-pulse 900ms ease-in-out 2; }
@@ -180,7 +179,7 @@
 @media (max-width: 640px) {
   .signup-assistant { max-width: calc(100vw - 0.75rem); }
   .signup-assistant-launcher { min-height: 2.9rem; padding-right: 0.82rem; }
-  .signup-assistant-panel { max-width: calc(100vw - 0.75rem); max-height: 66vh; }
+  .signup-assistant-panel { max-width: calc(100vw - 0.75rem); max-height: calc(100vh - 5rem); }
   .signup-assistant-starters button { font-size: 0.62rem; }
 }
 
