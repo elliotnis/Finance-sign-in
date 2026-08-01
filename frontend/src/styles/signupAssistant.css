@@ -58,10 +58,15 @@
 }
 
 .signup-assistant-panel {
+  position: relative;
   display: flex;
   flex-direction: column;
-  width: min(23rem, calc(100vw - 1rem));
-  max-height: min(70vh, 36rem);
+  box-sizing: border-box;
+  min-width: 17.5rem;
+  min-height: 20rem;
+  max-width: calc(100vw - 1rem);
+  max-height: min(78vh, 44rem);
+  resize: both;
   margin-bottom: 0.8rem;
   overflow: hidden;
   border: 2px solid #172033;
@@ -123,7 +128,19 @@
 .signup-assistant-empty { display: grid; gap: 0.3rem; padding: 0.8rem; border: 1px dashed #a7b3c4; background: #f7f0e5; color: #172033; font-size: 0.78rem; line-height: 1.4; }
 .signup-assistant-empty span { color: #586578; }
 .signup-assistant-message { max-width: 92%; padding: 0.65rem 0.72rem; border: 1px solid rgba(23, 32, 51, 0.18); border-radius: 9px; font-size: 0.78rem; line-height: 1.45; }
-.signup-assistant-message p { margin: 0; white-space: pre-wrap; }
+.signup-assistant-rich-text { display: grid; gap: 0.55rem; min-width: 0; }
+.signup-assistant-rich-text p { margin: 0; white-space: pre-wrap; }
+.signup-assistant-rich-text code { border: 1px solid #c4cfdb; border-radius: 4px; padding: 0.08rem 0.25rem; background: #eef2f5; color: #0a3b75; font-size: 0.72rem; }
+.signup-assistant-list { display: grid; gap: 0.25rem; margin: 0; padding-left: 1.05rem; }
+.signup-assistant-table-wrap { max-width: 100%; overflow-x: auto; border: 1px solid #a7b3c4; border-radius: 7px; background: #fff; scrollbar-width: thin; }
+.signup-assistant-table { width: 100%; min-width: 33rem; border-collapse: separate; border-spacing: 0; color: #172033; font-size: 0.7rem; line-height: 1.35; }
+.signup-assistant-table th,
+.signup-assistant-table td { border-right: 1px solid #d8e0e8; border-bottom: 1px solid #d8e0e8; padding: 0.48rem 0.55rem; text-align: left; vertical-align: top; }
+.signup-assistant-table th { position: sticky; top: 0; z-index: 1; background: #164f91; color: #fffaf0; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.signup-assistant-table tr:nth-child(even) td { background: #f7f0e5; }
+.signup-assistant-table tr:last-child td { border-bottom: 0; }
+.signup-assistant-table th:last-child,
+.signup-assistant-table td:last-child { border-right: 0; }
 .signup-assistant-message small { display: block; margin-top: 0.45rem; color: #586578; font-size: 0.66rem; }
 .signup-assistant-message.is-user { align-self: flex-end; background: #164f91; border-color: #172033; color: #fffaf0; }
 .signup-assistant-message.is-user small { color: #dce9f8; }
@@ -143,16 +160,27 @@
 .signup-assistant-form button:disabled { cursor: wait; opacity: 0.48; }
 .signup-assistant-error { margin: 0; padding: 0 0.95rem 0.65rem; color: #a33a2a; font-size: 0.72rem; }
 .signup-assistant-drag-hint { margin: 0; padding: 0 0.95rem 0.72rem; color: #7a8698; font-size: 0.64rem; cursor: grab; touch-action: none; }
+.signup-assistant-resize-handle { position: absolute; right: 0.28rem; bottom: 0.28rem; width: 1.2rem; height: 1.2rem; border: 0; padding: 0; background: transparent; cursor: nwse-resize; pointer-events: none; touch-action: none; }
+.signup-assistant-resize-handle::before,
+.signup-assistant-resize-handle::after { position: absolute; right: 0.08rem; bottom: 0.2rem; width: 0.72rem; height: 2px; background: #164f91; content: ''; transform: rotate(-45deg); transform-origin: right center; }
+.signup-assistant-resize-handle::after { right: 0.08rem; bottom: 0.48rem; width: 0.5rem; }
+.signup-assistant-resize-handle:focus-visible { outline: 3px solid rgba(198, 146, 20, 0.68); outline-offset: 2px; }
+
+.assistant-highlight-target { position: relative; z-index: 2; scroll-margin-top: 7rem; outline: 4px solid #f3c969 !important; box-shadow: 0 0 0 7px rgba(243, 201, 105, 0.32), 7px 7px 0 rgba(23, 32, 51, 0.2) !important; animation: assistant-highlight-pulse 900ms ease-in-out 2; }
 
 @keyframes signup-assistant-rise {
   from { opacity: 0; transform: translateY(8px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes assistant-highlight-pulse {
+  50% { outline-color: #164f91 !important; }
+}
+
 @media (max-width: 640px) {
   .signup-assistant { max-width: calc(100vw - 0.75rem); }
   .signup-assistant-launcher { min-height: 2.9rem; padding-right: 0.82rem; }
-  .signup-assistant-panel { width: min(23rem, calc(100vw - 0.75rem)); max-height: 66vh; }
+  .signup-assistant-panel { max-width: calc(100vw - 0.75rem); max-height: 66vh; }
   .signup-assistant-starters button { font-size: 0.62rem; }
 }
 

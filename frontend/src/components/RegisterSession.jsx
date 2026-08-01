@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AppointmentTypeSelect from './AppointmentTypeSelect';
 import DepartmentBrand from './DepartmentBrand';
 import '../styles/tutorCalendar.css';
@@ -9,6 +9,7 @@ const ALL_APPOINTMENT_TYPES = 'all';
 
 function RegisterSession() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [loading, setLoading] = useState(true);
     const [currentWeek, setCurrentWeek] = useState(new Date());
     const [sessionTypes, setSessionTypes] = useState([]);
@@ -22,6 +23,7 @@ function RegisterSession() {
     const [showCreatorConflictModal, setShowCreatorConflictModal] = useState(false);
     const [creatorConflictInfo, setCreatorConflictInfo] = useState(null);
     const [pendingTutor, setPendingTutor] = useState(null);
+    const assistantHandoffHandledRef = useRef(false);
 
     // Color palette for sessions (same as TutorCalendar for consistency)
     const sessionColors = [
@@ -191,6 +193,27 @@ function RegisterSession() {
             (slot) => slot.date === dateStr && slot.time_slot === timeSlot
         );
     };
+
+    // The portal assistant can prepare a safe scheduling handoff by opening
+    // this page with the chosen slot ready for the student's review.
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const assistantDate = params.get('assistant_date');
+        const assistantTime = params.get('assistant_time');
+        if (!assistantDate || !assistantTime || !availableSlots.length || showConfirmModal || assistantHandoffHandledRef.current) return;
+
+        const targetDate = new Date(`${assistantDate}T12:00:00`);
+        const groups = filteredAvailableSlots.filter(
+            (slot) => slot.date === assistantDate && slot.time_slot === assistantTime,
+        );
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (groups.length > 0 && targetDate >= today) {
+            assistantHandoffHandledRef.current = true;
+            setSelectedSlot({ date: assistantDate, timeSlot: assistantTime, groups });
+            setShowConfirmModal(true);
+        }
+    }, [availableSlots, filteredAvailableSlots, location.search, showConfirmModal]);
 
     const getHostNames = (tutors) => tutors
         .map((tutor) => tutor.tutor_name?.trim() || tutor.tutor_email?.split('@')[0] || 'Tutor')
