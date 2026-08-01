@@ -521,6 +521,43 @@ def _openrouter_answer(question, selected, user_email=None, history=None, contex
     raise RuntimeError("Assistant tool loop exceeded its limit")
 
 
+def _deterministic_schedule_handoff(question, user_email):
+    """Keep an explicit date/time request actionable during an LLM outage."""
+    text = str(question or "")
+    lowered = text.lower()
+    if not any(word in lowered for word in ("schedule", "register", "book", "prepare", "slot", "appointment")):
+        return None
+    date_match = re.search(r"\b\d{4}[-‑–—]\d{2}[-‑–—]\d{2}\b", text)
+    time_match = re.search(r"\b\d{1,2}:\d{2}\s*[-‑–—]\s*\d{1,2}:\d{2}\b", text)
+    if not date_match or not time_match:
+        return None
+    session_type = None
+    for label in ("fina free chat", "qfin free chat", "sgfn free chat"):
+        if label in lowered:
+            session_type = label
+            break
+    result = _execute_tool(
+        "prepare_session_registration",
+        {
+            "date": date_match.group(0),
+            "time_slot": time_match.group(0),
+            "session_type": session_type,
+        },
+        user_email,
+    )
+    action = result.get("action") if isinstance(result, dict) else None
+    if not action:
+        return None
+    return {
+        "answer": (
+            f"I prepared the {result.get('session_type') or 'tutoring'} slot on "
+            f"{result['date']} from {result['time_slot']} for your review. "
+            "No booking was submitted."
+        ),
+        "action": action,
+    }
+
+
 def answer_question(question, user_email=None, history=None, context_path=None):
     question = (question or "").strip()[:2000]
     selected = _selected_sources(question)
@@ -533,9 +570,20 @@ def answer_question(question, user_email=None, history=None, context_path=None):
         "context_path": context_path,
     }
     if not question or not _openrouter_key():
+        handoff = _deterministic_schedule_handoff(question, user_email)
+        if handoff:
+            return {**fallback, "answer": handoff["answer"], "actions": [handoff["action"]]}
         return fallback
     try:
         result = _openrouter_answer(question, selected, user_email=user_email, history=history, context_path=context_path)
+        if result.get("answer") and result.get("actions"):
+            return result
+        handoff = _deterministic_schedule_handoff(question, user_email)
+        if handoff:
+            return {**result, "answer": handoff["answer"], "actions": [handoff["action"]]}
         return result if result.get("answer") else fallback
     except (OSError, RuntimeError, ValueError, urllib.error.URLError, json.JSONDecodeError):
+        handoff = _deterministic_schedule_handoff(question, user_email)
+        if handoff:
+            return {**fallback, "answer": handoff["answer"], "actions": [handoff["action"]]}
         return fallback
