@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/signupAssistant.css';
+import { clampSize } from './signupAssistantLayout.js';
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
 const STORAGE_KEY = 'portal_assistant_state_v2';
@@ -55,24 +56,6 @@ function getPositionLimits(width, height) {
     rightMax,
     bottomMin: Math.min(8, bottomMax),
     bottomMax,
-  };
-}
-
-function getSizeLimits() {
-  const viewport = getViewportSize();
-  return {
-    widthMin: 280,
-    widthMax: Math.max(280, viewport.width - 16),
-    heightMin: 320,
-    heightMax: Math.max(320, viewport.height - 80),
-  };
-}
-
-function clampSize(size) {
-  const limits = getSizeLimits();
-  return {
-    width: Math.round(clamp(Number(size?.width) || DEFAULT_SIZE.width, limits.widthMin, limits.widthMax)),
-    height: Math.round(clamp(Number(size?.height) || DEFAULT_SIZE.height, limits.heightMin, limits.heightMax)),
   };
 }
 
@@ -187,6 +170,7 @@ function SignupAssistant() {
 
   const { open, position, size, messages } = state;
   const currentPath = useMemo(() => location.pathname, [location.pathname]);
+  const clampCurrentSize = (nextSize) => clampSize(nextSize, getViewportSize());
 
   useEffect(() => {
     try {
@@ -202,7 +186,7 @@ function SignupAssistant() {
 
   useEffect(() => {
     const keepOnScreen = () => {
-      const nextSize = clampSize(size);
+      const nextSize = clampCurrentSize(size);
       const rect = assistantRef.current?.getBoundingClientRect();
       const width = rect?.width || 368;
       const height = rect?.height || 580;
@@ -230,7 +214,7 @@ function SignupAssistant() {
     const panel = panelRef.current;
     if (!panel || typeof ResizeObserver === 'undefined') return undefined;
     const observer = new ResizeObserver(() => {
-      const nextSize = clampSize({ width: panel.offsetWidth, height: panel.offsetHeight });
+      const nextSize = clampCurrentSize({ width: panel.offsetWidth, height: panel.offsetHeight });
       setState((current) => {
         if (current.size.width === nextSize.width && current.size.height === nextSize.height) return current;
         return { ...current, size: nextSize };
@@ -302,7 +286,7 @@ function SignupAssistant() {
   const moveResize = (event) => {
     const resize = resizeRef.current;
     if (!resize || resize.pointerId !== event.pointerId) return;
-    const nextSize = clampSize({
+    const nextSize = clampCurrentSize({
       width: resize.startWidth + (resize.edge === 'left' ? resize.startX - event.clientX : event.clientX - resize.startX),
       height: resize.startHeight + (event.clientY - resize.startY),
     });
@@ -327,7 +311,7 @@ function SignupAssistant() {
     event.preventDefault();
     setState((current) => ({
       ...current,
-      size: clampSize({ width: current.size.width + widthDelta, height: current.size.height + heightDelta }),
+      size: clampCurrentSize({ width: current.size.width + widthDelta, height: current.size.height + heightDelta }),
     }));
   };
 
@@ -504,20 +488,22 @@ function SignupAssistant() {
           />
         </section>
       )}
-      <button
-        type="button"
-        className="signup-assistant-launcher"
-        onPointerDown={startDrag}
-        onPointerMove={moveDrag}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        onClick={toggleFromLauncher}
-        aria-expanded={open}
-        aria-label={open ? 'Minimize portal assistant' : 'Open portal assistant'}
-      >
-        <span className="signup-assistant-launcher-icon" aria-hidden="true">✦</span>
-        <span>Portal guide</span>
-      </button>
+      {!open && (
+        <button
+          type="button"
+          className="signup-assistant-launcher"
+          onPointerDown={startDrag}
+          onPointerMove={moveDrag}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onClick={toggleFromLauncher}
+          aria-expanded={open}
+          aria-label="Open portal assistant"
+        >
+          <span className="signup-assistant-launcher-icon" aria-hidden="true">✦</span>
+          <span>Portal guide</span>
+        </button>
+      )}
     </aside>
   );
 }
