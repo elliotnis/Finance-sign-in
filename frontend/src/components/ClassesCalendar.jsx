@@ -507,7 +507,6 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
                 <option value="ALL">All finance students</option>
                 <option value="FINA">FINA students</option>
                 <option value="QFIN">QFIN students</option>
-                <option value="SGFN">SGFN students</option>
               </select>
             </label>
             <label>

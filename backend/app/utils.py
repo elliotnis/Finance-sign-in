@@ -80,7 +80,7 @@ def normalize_email_for_access(email):
     return (email or "").strip().lower()
 
 
-PROGRAMS = {"FINA", "QFIN", "SGFN"}
+PROGRAMS = {"FINA", "QFIN"}
 
 
 def normalize_audience(audience):

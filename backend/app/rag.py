@@ -39,7 +39,7 @@ KNOWLEDGE = [
     {
         "id": "sessions",
         "title": "Tutoring sessions",
-        "text": "Choose Register Session to browse open tutoring times. Hosts can select a start time and a duration rather than being limited to one hour. A session may be visible only to its selected FINA, QFIN or SGFN programme audience.",
+        "text": "Choose Register Session to browse open tutoring times. Hosts can select a start time and a duration rather than being limited to one hour. A session may be visible only to its selected FINA or QFIN programme audience.",
     },
     {
         "id": "classes",
@@ -75,7 +75,7 @@ TOOLS = [
                 "properties": {
                     "date_from": {"type": "string", "description": "Inclusive date in YYYY-MM-DD format, if known."},
                     "date_to": {"type": "string", "description": "Inclusive date in YYYY-MM-DD format, if known."},
-                    "program": {"type": "string", "enum": ["ALL", "FINA", "QFIN", "SGFN"]},
+                    "program": {"type": "string", "enum": ["ALL", "FINA", "QFIN"]},
                     "query": {"type": "string", "description": "Optional words to match in title, description, location, or audience."},
                 },
                 "additionalProperties": False,
@@ -91,7 +91,7 @@ TOOLS = [
                 "type": "object",
                 "properties": {
                     "query": {"type": "string", "description": "Name, programme, credential, or biography words to search."},
-                    "program": {"type": "string", "enum": ["ALL", "FINA", "QFIN", "SGFN"]},
+                    "program": {"type": "string", "enum": ["ALL", "FINA", "QFIN"]},
                 },
                 "additionalProperties": False,
             },
@@ -107,7 +107,7 @@ TOOLS = [
                 "properties": {
                     "date": {"type": "string", "description": "Date in YYYY-MM-DD format, if known."},
                     "session_type": {"type": "string", "description": "Optional category such as Course Tutoring or Market News sharing."},
-                    "program": {"type": "string", "enum": ["ALL", "FINA", "QFIN", "SGFN"]},
+                    "program": {"type": "string", "enum": ["ALL", "FINA", "QFIN"]},
                 },
                 "additionalProperties": False,
             },
@@ -242,7 +242,7 @@ def _session_type_matches(actual, requested):
 
 def _clean_program(value):
     value = str(value or "").strip().upper()
-    return value if value in {"ALL", "FINA", "QFIN", "SGFN"} else None
+    return value if value in {"ALL", "FINA", "QFIN"} else None
 
 
 def _matches_program(item, program):
@@ -532,7 +532,7 @@ def _deterministic_schedule_handoff(question, user_email):
     if not date_match or not time_match:
         return None
     session_type = None
-    for label in ("fina free chat", "qfin free chat", "sgfn free chat"):
+    for label in ("fina free chat", "qfin free chat"):
         if label in lowered:
             session_type = label
             break

@@ -58,7 +58,6 @@ function PeopleDirectory() {
               <option value="">All programmes</option>
               <option value="FINA">FINA</option>
               <option value="QFIN">QFIN</option>
-              <option value="SGFN">SGFN</option>
             </select>
             <button className="primary-btn" type="submit">Search</button>
           </form>

@@ -23,7 +23,7 @@ function PortalAuthShell({ currentStage = 'access', children }) {
         </div>
 
         <div className="portal-auth-statement">
-          <span>FINA / QFIN / SGFN</span>
+          <span>FINA / QFIN</span>
           <h1>Student services, arranged around your week.</h1>
         </div>
 

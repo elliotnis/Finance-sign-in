@@ -229,7 +229,6 @@ function ProfileCompletion() {
             <option value="">Select Major</option>
             <option value="QFIN">Quantitative Finance (QFIN)</option>
             <option value="FINA">Finance (FINA)</option>
-            <option value="SGFN">Sustainable and Green Finance (SGFN)</option>
           </select>
           <i className="fas fa-book input-icon"></i>
         </div>
