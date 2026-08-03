@@ -268,7 +268,7 @@ function SignupAssistant() {
     dragRef.current = null;
   };
 
-  const startResize = (event, edge = 'left') => {
+  const startResize = (event, edge = 'top-left') => {
     if (event.button !== 0) return;
     event.preventDefault();
     event.stopPropagation();
@@ -286,9 +286,11 @@ function SignupAssistant() {
   const moveResize = (event) => {
     const resize = resizeRef.current;
     if (!resize || resize.pointerId !== event.pointerId) return;
+    const resizeFromLeft = resize.edge.includes('left');
+    const resizeFromTop = resize.edge.includes('top');
     const nextSize = clampCurrentSize({
-      width: resize.startWidth + (resize.edge === 'left' ? resize.startX - event.clientX : event.clientX - resize.startX),
-      height: resize.startHeight + (event.clientY - resize.startY),
+      width: resize.startWidth + (resizeFromLeft ? resize.startX - event.clientX : event.clientX - resize.startX),
+      height: resize.startHeight + (resizeFromTop ? resize.startY - event.clientY : event.clientY - resize.startY),
     });
     setState((current) => ({ ...current, size: nextSize }));
   };
@@ -303,10 +305,10 @@ function SignupAssistant() {
     const step = event.shiftKey ? 40 : 16;
     let widthDelta = 0;
     let heightDelta = 0;
-    if (event.key === 'ArrowRight') widthDelta = step;
-    if (event.key === 'ArrowLeft') widthDelta = -step;
-    if (event.key === 'ArrowDown') heightDelta = step;
-    if (event.key === 'ArrowUp') heightDelta = -step;
+    if (event.key === 'ArrowLeft') widthDelta = step;
+    if (event.key === 'ArrowRight') widthDelta = -step;
+    if (event.key === 'ArrowUp') heightDelta = step;
+    if (event.key === 'ArrowDown') heightDelta = -step;
     if (!widthDelta && !heightDelta) return;
     event.preventDefault();
     setState((current) => ({
@@ -474,13 +476,13 @@ function SignupAssistant() {
             onPointerUp={endDrag}
             onPointerCancel={endDrag}
           >
-            Drag the header or launcher to move me. Resize from the lower-left grip.
+            Drag the header or launcher to move me. Resize from the top-left grip.
           </p>
           <button
             type="button"
             className="signup-assistant-resize-handle"
-            aria-label="Resize portal assistant from the lower-left corner"
-            onPointerDown={(event) => startResize(event, 'left')}
+            aria-label="Resize portal assistant from the top-left corner"
+            onPointerDown={(event) => startResize(event, 'top-left')}
             onPointerMove={moveResize}
             onPointerUp={endResize}
             onPointerCancel={endResize}
