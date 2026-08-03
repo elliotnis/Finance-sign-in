@@ -95,7 +95,7 @@
 .signup-assistant-brand { display: flex; align-items: center; gap: 0.65rem; }
 .signup-assistant-mark { color: #164f91; font-size: 1.35rem; line-height: 1; }
 .signup-assistant-heading h2 { margin: 0.14rem 0 0; color: #172033; font: 800 1.16rem/1.05 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-.signup-assistant-kicker { color: #8b5d13; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.signup-assistant-kicker { color: #8b5d13; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
 
 .signup-assistant-minimize {
   display: grid;
@@ -112,7 +112,7 @@
 }
 
 .signup-assistant-minimize:hover { background: #f3c969; }
-.signup-assistant-intro { margin: 0; padding: 0.75rem 0.95rem 0.65rem; color: #586578; font-size: 0.78rem; line-height: 1.4; }
+.signup-assistant-intro { margin: 0; padding: 0.78rem 0.95rem 0.7rem; color: #586578; font-size: 0.92rem; line-height: 1.45; }
 
 .signup-assistant-log {
   display: flex;
@@ -125,41 +125,41 @@
   scrollbar-width: thin;
 }
 
-.signup-assistant-empty { display: grid; gap: 0.3rem; padding: 0.8rem; border: 1px dashed #a7b3c4; background: #f7f0e5; color: #172033; font-size: 0.78rem; line-height: 1.4; }
+.signup-assistant-empty { display: grid; gap: 0.35rem; padding: 0.8rem; border: 1px dashed #a7b3c4; background: #f7f0e5; color: #172033; font-size: 0.92rem; line-height: 1.48; }
 .signup-assistant-empty span { color: #586578; }
-.signup-assistant-message { max-width: 92%; padding: 0.65rem 0.72rem; border: 1px solid rgba(23, 32, 51, 0.18); border-radius: 9px; font-size: 0.78rem; line-height: 1.45; }
-.signup-assistant-rich-text { display: grid; gap: 0.55rem; min-width: 0; }
+.signup-assistant-message { max-width: 92%; padding: 0.72rem 0.78rem; border: 1px solid rgba(23, 32, 51, 0.18); border-radius: 9px; font-size: 0.92rem; line-height: 1.52; }
+.signup-assistant-rich-text { display: grid; gap: 0.62rem; min-width: 0; }
 .signup-assistant-rich-text p { margin: 0; white-space: pre-wrap; }
-.signup-assistant-rich-text code { border: 1px solid #c4cfdb; border-radius: 4px; padding: 0.08rem 0.25rem; background: #eef2f5; color: #0a3b75; font-size: 0.72rem; }
+.signup-assistant-rich-text code { border: 1px solid #c4cfdb; border-radius: 4px; padding: 0.08rem 0.25rem; background: #eef2f5; color: #0a3b75; font-size: 0.82rem; }
 .signup-assistant-list { display: grid; gap: 0.25rem; margin: 0; padding-left: 1.05rem; }
 .signup-assistant-table-wrap { max-width: 100%; overflow-x: auto; border: 1px solid #a7b3c4; border-radius: 7px; background: #fff; scrollbar-width: thin; }
-.signup-assistant-table { width: 100%; min-width: 33rem; border-collapse: separate; border-spacing: 0; color: #172033; font-size: 0.7rem; line-height: 1.35; }
+.signup-assistant-table { width: 100%; min-width: 33rem; border-collapse: separate; border-spacing: 0; color: #172033; font-size: 0.82rem; line-height: 1.45; }
 .signup-assistant-table th,
 .signup-assistant-table td { border-right: 1px solid #d8e0e8; border-bottom: 1px solid #d8e0e8; padding: 0.48rem 0.55rem; text-align: left; vertical-align: top; }
-.signup-assistant-table th { position: sticky; top: 0; z-index: 1; background: #164f91; color: #fffaf0; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.signup-assistant-table th { position: sticky; top: 0; z-index: 1; background: #164f91; color: #fffaf0; font-size: 0.76rem; letter-spacing: 0.04em; text-transform: uppercase; }
 .signup-assistant-table tr:nth-child(even) td { background: #f7f0e5; }
 .signup-assistant-table tr:last-child td { border-bottom: 0; }
 .signup-assistant-table th:last-child,
 .signup-assistant-table td:last-child { border-right: 0; }
-.signup-assistant-message small { display: block; margin-top: 0.45rem; color: #586578; font-size: 0.66rem; }
+.signup-assistant-message small { display: block; margin-top: 0.5rem; color: #586578; font-size: 0.76rem; }
 .signup-assistant-message.is-user { align-self: flex-end; background: #164f91; border-color: #172033; color: #fffaf0; }
 .signup-assistant-message.is-user small { color: #dce9f8; }
 .signup-assistant-message.is-assistant { align-self: flex-start; background: #fff; color: #172033; }
 .signup-assistant-message.is-loading { color: #586578; font-style: italic; }
-.signup-assistant-action { display: inline-flex; margin-top: 0.55rem; border: 1px solid #172033; border-radius: 999px; padding: 0.35rem 0.55rem; background: #f3c969; color: #172033; cursor: pointer; font-size: 0.68rem; font-weight: 800; }
+.signup-assistant-action { display: inline-flex; margin-top: 0.6rem; border: 1px solid #172033; border-radius: 999px; padding: 0.42rem 0.62rem; background: #f3c969; color: #172033; cursor: pointer; font-size: 0.8rem; font-weight: 800; }
 .signup-assistant-action:hover { background: #e8b842; }
 
 .signup-assistant-starters { display: flex; flex-wrap: wrap; gap: 0.35rem; max-height: 6rem; min-height: 0; overflow-y: auto; padding: 0 0.95rem 0.7rem; scrollbar-width: thin; }
-.signup-assistant-starters button { border: 1px solid #a7b3c4; border-radius: 999px; padding: 0.35rem 0.5rem; background: #f7f0e5; color: #164f91; cursor: pointer; font-size: 0.67rem; text-align: left; }
+.signup-assistant-starters button { border: 1px solid #a7b3c4; border-radius: 999px; padding: 0.42rem 0.58rem; background: #f7f0e5; color: #164f91; cursor: pointer; font-size: 0.8rem; text-align: left; }
 .signup-assistant-starters button:hover:not(:disabled) { border-color: #172033; background: #fff; }
 .signup-assistant-starters button:disabled { cursor: wait; opacity: 0.5; }
 
 .signup-assistant-form { display: flex; gap: 0.4rem; min-width: 0; padding: 0.7rem 0.95rem; border-top: 2px solid #172033; background: #efe6d7; }
-.signup-assistant-form input { min-width: 0; flex: 1; border: 1px solid #77879d; border-radius: 7px; padding: 0.62rem 0.65rem; background: #fff; color: #172033; font: 600 0.76rem/1.2 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-.signup-assistant-form button { border: 2px solid #172033; border-radius: 7px; padding: 0.55rem 0.7rem; background: #164f91; color: #fffaf0; cursor: pointer; font-weight: 800; }
+.signup-assistant-form input { min-width: 0; flex: 1; border: 1px solid #77879d; border-radius: 7px; padding: 0.68rem 0.72rem; background: #fff; color: #172033; font: 600 0.92rem/1.25 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.signup-assistant-form button { border: 2px solid #172033; border-radius: 7px; padding: 0.58rem 0.78rem; background: #164f91; color: #fffaf0; cursor: pointer; font-size: 0.88rem; font-weight: 800; }
 .signup-assistant-form button:disabled { cursor: wait; opacity: 0.48; }
-.signup-assistant-error { margin: 0; padding: 0 0.95rem 0.65rem; color: #a33a2a; font-size: 0.72rem; }
-.signup-assistant-drag-hint { margin: 0; padding: 0 0.95rem 0.72rem; color: #7a8698; font-size: 0.64rem; cursor: grab; touch-action: none; }
+.signup-assistant-error { margin: 0; padding: 0 0.95rem 0.65rem; color: #a33a2a; font-size: 0.82rem; }
+.signup-assistant-drag-hint { margin: 0; padding: 0 0.95rem 0.72rem; color: #7a8698; font-size: 0.72rem; cursor: grab; touch-action: none; }
 .signup-assistant-resize-handle { position: absolute; top: 0.28rem; left: 0.28rem; z-index: 2; width: 1.2rem; height: 1.2rem; border: 0; padding: 0; background: transparent; cursor: nwse-resize; pointer-events: auto; touch-action: none; }
 .signup-assistant-resize-handle::before,
 .signup-assistant-resize-handle::after { position: absolute; left: 0.08rem; top: 0.2rem; width: 0.72rem; height: 2px; background: #164f91; content: ''; transform: rotate(-45deg); transform-origin: left center; }
@@ -181,7 +181,7 @@
   .signup-assistant { max-width: calc(100vw - 0.75rem); }
   .signup-assistant-launcher { min-height: 2.9rem; padding-right: 0.82rem; }
   .signup-assistant-panel { max-width: calc(100vw - 0.75rem); max-height: calc(100vh - 0.75rem); }
-  .signup-assistant-starters button { font-size: 0.62rem; }
+  .signup-assistant-starters button { font-size: 0.76rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
