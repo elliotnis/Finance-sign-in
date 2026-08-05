@@ -69,6 +69,7 @@ function PeopleDirectory() {
                   <h2>{profile.preferred_name || profile.full_name}</h2>
                   <p><strong>{profile.major || 'Finance'} · </strong>{profile.graduation_year ? `Class of ${profile.graduation_year}` : profile.study_year ? `Year ${profile.study_year}` : ''}</p>
                   <p>{profile.biography}</p>
+                  {profile.interests?.length > 0 && <p><strong>Interests:</strong> {profile.interests.join(', ')}</p>}
                   {profile.credentials?.length > 0 && <ul>{profile.credentials.map((credential) => <li key={credential}>{credential}</li>)}</ul>}
                   {profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" rel="noreferrer">Open LinkedIn</a>}
                 </article>

@@ -46,7 +46,9 @@ function ProfileCompletion() {
     biography: '',
     biographyPublic: false,
     linkedinUrl: '',
-    credentials: ''
+    credentials: '',
+    interests: '',
+    preferences: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -82,6 +84,8 @@ function ProfileCompletion() {
         biography_public: formData.biographyPublic,
         linkedin_url: formData.linkedinUrl || null,
         credentials: formData.credentials.split('\n').map((item) => item.trim()).filter(Boolean),
+        interests: formData.interests.split(',').map((item) => item.trim()).filter(Boolean),
+        preferences: formData.preferences.split(',').map((item) => item.trim()).filter(Boolean),
       };
 
       const response = await fetch(`${API_URL}/profile`, {
@@ -158,6 +162,16 @@ function ProfileCompletion() {
         <div className="input-group">
           <label htmlFor="credentials">Credentials / highlights (one per line)</label>
           <textarea id="credentials" name="credentials" rows="3" value={formData.credentials} onChange={handleInputChange} placeholder="CFA level, internship, competition, society role" />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="interests">Interests (comma-separated)</label>
+          <input id="interests" name="interests" value={formData.interests} onChange={handleInputChange} placeholder="Investment, fintech, sustainability" />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="preferences">Portal preferences (comma-separated)</label>
+          <input id="preferences" name="preferences" value={formData.preferences} onChange={handleInputChange} placeholder="Seminars, tutoring, careers" />
         </div>
 
         <div className="input-group">

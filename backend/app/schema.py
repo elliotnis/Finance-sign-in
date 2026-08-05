@@ -47,6 +47,8 @@ class ProfileCreate(BaseModel):
     linkedin_url: Optional[str] = None
     graduation_year: Optional[int] = None
     credentials: List[str] = Field(default_factory=list)
+    interests: List[str] = Field(default_factory=list)
+    preferences: List[str] = Field(default_factory=list)
 
 class ProfileUpdate(BaseModel):
     login_email: Optional[str] = None  # User's registered email (used to find the user)
@@ -63,6 +65,8 @@ class ProfileUpdate(BaseModel):
     linkedin_url: Optional[str] = None
     graduation_year: Optional[int] = None
     credentials: Optional[List[str]] = None
+    interests: Optional[List[str]] = None
+    preferences: Optional[List[str]] = None
 
 class ProfileResponse(BaseModel):
     full_name: str = ""
@@ -78,6 +82,8 @@ class ProfileResponse(BaseModel):
     linkedin_url: Optional[str] = None
     graduation_year: Optional[int] = None
     credentials: List[str] = Field(default_factory=list)
+    interests: List[str] = Field(default_factory=list)
+    preferences: List[str] = Field(default_factory=list)
 
     class Config:
         # Allow extra fields and provide defaults for missing fields
@@ -175,6 +181,14 @@ class ClassCreate(BaseModel):
     duration_minutes: int = 60
     audience: List[str] = Field(default_factory=lambda: ["ALL"])
     attachments: List[dict] = Field(default_factory=list)
+    organizer: str = "FINA"
+    announcement_type: str = "Event"
+    event_end_date: Optional[str] = None
+    registration_deadline: Optional[str] = None
+    contact_name: Optional[str] = None
+    contact_email: Optional[str] = None
+    contact_phone: Optional[str] = None
+    notify_students: bool = True
 
 class ClassUpdate(BaseModel):
     title: Optional[str] = None
@@ -198,6 +212,57 @@ class ClassResponse(BaseModel):
     is_full: bool
     registered_students: List[str]
     created_by: str
+    duration_minutes: int = 60
+    audience: List[str] = Field(default_factory=lambda: ["ALL"])
+    attachments: List[dict] = Field(default_factory=list)
+    organizer: str = "FINA"
+    announcement_type: str = "Event"
+    event_end_date: Optional[str] = None
+    registration_deadline: Optional[str] = None
+    contact_name: Optional[str] = None
+    contact_email: Optional[str] = None
+    contact_phone: Optional[str] = None
+
+
+# ==================== Finance student services ====================
+
+class ResumeBookEntry(BaseModel):
+    student_email: str
+    headline: str = ""
+    education: str = ""
+    experience: str = ""
+    skills: List[str] = Field(default_factory=list)
+    certifications: List[str] = Field(default_factory=list)
+    cv_text: str = ""
+    cv_file_name: Optional[str] = None
+    status: Literal["draft", "submitted", "withdrawn"] = "draft"
+
+
+class BusinessCardOrder(BaseModel):
+    student_email: str
+    name: str
+    title: str = ""
+    programme: str = "FINA"
+    email: str = ""
+    phone: str = ""
+    linkedin_url: Optional[str] = None
+    quantity: int = 1
+    payment_link: Optional[str] = None
+
+
+class EventRegistration(BaseModel):
+    student_email: str
+    event_id: str
+    response: Literal["yes", "no", "withdraw"]
+
+
+class MerchOrder(BaseModel):
+    student_email: str
+    item: str
+    size: str = ""
+    quantity: int = 1
+    notes: str = ""
+    payment_link: Optional[str] = None
     status: str
     duration_minutes: int = 60
     audience: List[str] = Field(default_factory=lambda: ["ALL"])

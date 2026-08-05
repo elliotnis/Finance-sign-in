@@ -1,12 +1,14 @@
 import asyncio
 import base64
+import csv
 import io
 import json
 from html import escape
 from typing import List, Literal, Optional
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from .utils import (
     check_email_exists, create_user, verify_user_credentials, get_all_users,
@@ -27,6 +29,8 @@ from .utils import (
     get_class_notification_data, get_class_notification_recipients, delete_class,
     register_for_class, unregister_from_class, get_my_classes,
     profile_biography, search_public_profiles,
+    resume_book_collection, business_card_order_collection,
+    event_registration_collection, merch_order_collection,
 )
 from .magic_link import (
     create_magic_link, create_magic_link_for_email, consume_magic_link, MagicLinkError,
@@ -75,6 +79,7 @@ from .schema import (
     ReflectionSubmit, ReflectionResponse, VerificationSessionResponse,
     # Classes
     ClassCreate, ClassRegister, ClassResponse,
+    ResumeBookEntry, BusinessCardOrder, EventRegistration, MerchOrder,
 )
 
 
@@ -96,6 +101,14 @@ class HelpQuestionPayload(BaseModel):
     context_path: Optional[str] = None
 
 
+class ResumeBookImportPayload(BaseModel):
+    text: str
+
+
+class ResumeBookOrderPayload(BaseModel):
+    student_emails: List[str]
+
+
 def _class_notification(cls, subject, recipients, intro):
     """Best-effort class email fan-out; a mail outage must not lose the class."""
     if not cls:
@@ -109,13 +122,18 @@ def _class_notification(cls, subject, recipients, intro):
         f"<h2>{escape(cls.get('title', 'Class'))}</h2>"
         f"<p><strong>Date:</strong> {escape(cls.get('date', ''))}<br>"
         f"<strong>Time:</strong> {escape(cls.get('time_slot', ''))} ({int(cls.get('duration_minutes') or 60)} minutes)<br>"
-        f"<strong>Location:</strong> {escape(cls.get('location', ''))}</p>"
+        f"<strong>Location:</strong> {escape(cls.get('location', ''))}<br>"
+        f"<strong>Organizer:</strong> {escape(cls.get('organizer', 'FINA'))}<br>"
+        f"<strong>Registration closes:</strong> {escape(cls.get('registration_deadline') or 'At event time')}</p>"
+        f"<p><strong>Contact:</strong> {escape(cls.get('contact_name') or cls.get('contact_email') or cls.get('created_by', ''))}</p>"
         f"<p>{escape(cls.get('description') or '')}</p>"
     )
     text_body = (
         f"{intro}\n\n{cls.get('title', 'Class')}\n"
         f"Date: {cls.get('date', '')}\nTime: {cls.get('time_slot', '')} ({int(cls.get('duration_minutes') or 60)} minutes)\n"
-        f"Location: {cls.get('location', '')}\n{cls.get('description') or ''}"
+        f"Location: {cls.get('location', '')}\nOrganizer: {cls.get('organizer', 'FINA')}\n"
+        f"Registration closes: {cls.get('registration_deadline') or 'At event time'}\n"
+        f"Contact: {cls.get('contact_name') or cls.get('contact_email') or cls.get('created_by', '')}\n{cls.get('description') or ''}"
     )
     for recipient in recipients:
         try:
@@ -585,6 +603,8 @@ def create_profile(profile_data: ProfileCreate):
         profile_data.linkedin_url,
         profile_data.graduation_year,
         profile_data.credentials,
+        profile_data.interests,
+        profile_data.preferences,
     )
 
     if result is None:
@@ -651,6 +671,8 @@ def update_profile(login_email: str, profile_update: ProfileUpdate):
         profile_update.linkedin_url,
         profile_update.graduation_year,
         profile_update.credentials,
+        profile_update.interests,
+        profile_update.preferences,
     )
 
     if result is None:
@@ -1321,6 +1343,13 @@ def create_class_endpoint(data: ClassCreate):
         duration_minutes=data.duration_minutes,
         audience=data.audience,
         attachments=data.attachments,
+        organizer=data.organizer,
+        announcement_type=data.announcement_type,
+        event_end_date=data.event_end_date,
+        registration_deadline=data.registration_deadline,
+        contact_name=data.contact_name,
+        contact_email=data.contact_email,
+        contact_phone=data.contact_phone,
     )
 
     if isinstance(result, str):
@@ -1330,9 +1359,9 @@ def create_class_endpoint(data: ClassCreate):
         )
     _class_notification(
         result,
-        f"New class available: {result['title']}",
+        f"New portal event: {result['title']}",
         get_class_notification_recipients(result.get("audience")),
-        "A new class has been added to the sign-up portal.",
+        "A new event or announcement has been added to the HKUST Finance Portal.",
     )
     return result
 
@@ -1430,6 +1459,8 @@ def register_for_class_endpoint(class_id: str, payload: ClassRegister):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=result)
     if result == "Class is full":
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=result)
+    if result == "Registration is closed":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=result)
     if result == "Class is not available for your programme":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=result)
     if result != "Registered":
@@ -1467,3 +1498,198 @@ def unregister_from_class_endpoint(class_id: str, payload: ClassRegister):
             f"{student_email} cancelled their class registration.",
         )
     return {"success": True, "message": "Unregistered from class", "class": cls}
+
+
+# ==================== Finance student services ====================
+
+def _service_doc(doc):
+    if not doc:
+        return None
+    return {
+        **{key: value for key, value in doc.items() if key not in {"_id", "password"}},
+        "id": str(doc.get("_id")),
+        **({"created_at": doc["created_at"].isoformat()} if isinstance(doc.get("created_at"), datetime) else {}),
+        **({"updated_at": doc["updated_at"].isoformat()} if isinstance(doc.get("updated_at"), datetime) else {}),
+    }
+
+
+@router.post("/resume-book")
+def save_resume_book(entry: ResumeBookEntry):
+    email = normalize_email_for_access(entry.student_email)
+    require_allowed_email(email)
+    now = datetime.utcnow()
+    payload = entry.model_dump() if hasattr(entry, "model_dump") else entry.dict()
+    payload["student_email"] = email
+    payload["updated_at"] = now
+    payload.setdefault("created_at", now)
+    result = resume_book_collection.update_one(
+        {"student_email": email},
+        {"$set": payload, "$setOnInsert": {"created_at": now}},
+        upsert=True,
+    )
+    doc = resume_book_collection.find_one({"student_email": email})
+    return {"success": True, "entry": _service_doc(doc)}
+
+
+@router.get("/resume-book/student/{student_email}")
+def get_resume_book(student_email: str):
+    email = normalize_email_for_access(student_email)
+    require_allowed_email(email)
+    return {"entry": _service_doc(resume_book_collection.find_one({"student_email": email}))}
+
+
+@router.get("/resume-book/student/{student_email}/print", response_class=HTMLResponse)
+def print_resume_book(student_email: str):
+    email = normalize_email_for_access(student_email)
+    require_allowed_email(email)
+    entry = resume_book_collection.find_one({"student_email": email}) or {}
+    skills = ", ".join(entry.get("skills") or [])
+    certifications = ", ".join(entry.get("certifications") or [])
+    html = f"""<!doctype html><html><head><title>Resume — {escape(entry.get('headline') or email)}</title><style>body{{font:16px system-ui;max-width:760px;margin:48px auto;color:#17223f}}h1{{font-family:Georgia,serif}}hr{{border:0;border-top:1px solid #ccd4e0}}@media print{{button{{display:none}}}}</style></head><body><button onclick='print()'>Print / Save as PDF</button><h1>{escape(entry.get('headline') or 'Finance student')}</h1><p>{escape(email)}</p><hr><h2>Education</h2><p>{escape(entry.get('education') or '')}</p><h2>Experience</h2><p>{escape(entry.get('experience') or '')}</p><h2>Skills</h2><p>{escape(skills)}</p><h2>Certifications</h2><p>{escape(certifications)}</p><pre>{escape(entry.get('cv_text') or '')}</pre></body></html>"""
+    return HTMLResponse(html)
+
+
+@router.get("/resume-book")
+def list_resume_book(admin_email: str):
+    require_admin(admin_email)
+    docs = list(resume_book_collection.find({}).sort([("display_order", 1), ("updated_at", -1)]))
+    return {"entries": [_service_doc(doc) for doc in docs], "total": len(docs)}
+
+
+@router.get("/resume-book/export.csv")
+def export_resume_book(admin_email: str):
+    require_admin(admin_email)
+    rows = list(resume_book_collection.find({}).sort([("student_email", 1)]))
+    output = io.StringIO()
+    output.write("student_email,status,headline,education,experience,skills,certifications,cv_file_name\n")
+    for doc in rows:
+        values = [doc.get("student_email", ""), doc.get("status", "draft"), doc.get("headline", ""),
+                  doc.get("education", ""), doc.get("experience", ""), "; ".join(doc.get("skills") or []),
+                  "; ".join(doc.get("certifications") or []), doc.get("cv_file_name", "")]
+        output.write(",".join('"' + str(value).replace('"', '""') + '"' for value in values) + "\n")
+    return StreamingResponse(iter([output.getvalue()]), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=resume-book.csv"})
+
+
+@router.post("/resume-book/import")
+def import_resume_book(payload: ResumeBookImportPayload, admin_email: str):
+    require_admin(admin_email)
+    reader = csv.DictReader(io.StringIO(payload.text))
+    added = 0
+    for row in reader:
+        email = normalize_email_for_access(row.get("student_email") or row.get("email"))
+        if not email:
+            continue
+        now = datetime.utcnow()
+        resume_book_collection.update_one(
+            {"student_email": email},
+            {"$setOnInsert": {"student_email": email, "status": "draft", "created_at": now}, "$set": {"updated_at": now}},
+            upsert=True,
+        )
+        added += 1
+    return {"success": True, "added": added}
+
+
+@router.post("/resume-book/reorder")
+def reorder_resume_book(payload: ResumeBookOrderPayload, admin_email: str):
+    require_admin(admin_email)
+    for order, email in enumerate(payload.student_emails):
+        resume_book_collection.update_one({"student_email": normalize_email_for_access(email)}, {"$set": {"display_order": order, "updated_at": datetime.utcnow()}})
+    return {"success": True, "ordered": len(payload.student_emails)}
+
+
+@router.post("/resume-book/polish")
+def polish_resume_book(entry: ResumeBookEntry):
+    require_allowed_email(entry.student_email)
+    # A safe, review-first polish: it never overwrites the student's draft.
+    headline = entry.headline.strip() or "Finance student"
+    polished = f"{headline}. {entry.experience.strip()}".strip(" .")
+    if entry.skills:
+        polished += f" Skilled in {', '.join(entry.skills[:8])}."
+    return {"polished_text": polished, "requires_acceptance": True}
+
+
+@router.post("/business-cards")
+def create_business_card_order(order: BusinessCardOrder):
+    email = normalize_email_for_access(order.student_email)
+    require_allowed_email(email)
+    now = datetime.utcnow()
+    payload = order.model_dump() if hasattr(order, "model_dump") else order.dict()
+    payload.update({"student_email": email, "status": "pending", "created_at": now, "updated_at": now})
+    result = business_card_order_collection.insert_one(payload)
+    payload["_id"] = result.inserted_id
+    return {"success": True, "order": _service_doc(payload)}
+
+
+@router.get("/business-cards")
+def list_business_card_orders(student_email: str = None, admin_email: str = None):
+    if admin_email:
+        require_admin(admin_email)
+        query = {}
+    else:
+        email = normalize_email_for_access(student_email)
+        require_allowed_email(email)
+        query = {"student_email": email}
+    docs = list(business_card_order_collection.find(query).sort([("created_at", -1)]))
+    return {"orders": [_service_doc(doc) for doc in docs], "total": len(docs)}
+
+
+@router.post("/event-registrations")
+def set_event_registration(registration: EventRegistration):
+    email = normalize_email_for_access(registration.student_email)
+    require_allowed_email(email)
+    event = get_class(registration.event_id, viewer_email=email)
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+    if registration.response != "withdraw" and event.get("registration_deadline") and datetime.utcnow().date().isoformat() > str(event["registration_deadline"])[:10]:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Registration is closed")
+    now = datetime.utcnow()
+    if registration.response == "withdraw":
+        event_registration_collection.delete_one({"event_id": registration.event_id, "student_email": email})
+        return {"success": True, "response": "withdraw"}
+    payload = {"event_id": registration.event_id, "student_email": email, "response": registration.response, "updated_at": now}
+    event_registration_collection.update_one(
+        {"event_id": registration.event_id, "student_email": email},
+        {"$set": payload, "$setOnInsert": {"created_at": now}},
+        upsert=True,
+    )
+    return {"success": True, "response": registration.response}
+
+
+@router.get("/event-registrations")
+def list_event_registrations(student_email: str = None, event_id: str = None, admin_email: str = None):
+    if admin_email:
+        require_admin(admin_email)
+        query = {key: value for key, value in (("event_id", event_id),) if value}
+    else:
+        email = normalize_email_for_access(student_email)
+        require_allowed_email(email)
+        query = {"student_email": email}
+        if event_id:
+            query["event_id"] = event_id
+    docs = list(event_registration_collection.find(query).sort([("updated_at", -1)]))
+    return {"registrations": [_service_doc(doc) for doc in docs], "total": len(docs)}
+
+
+@router.post("/merchandise/orders")
+def create_merch_order(order: MerchOrder):
+    email = normalize_email_for_access(order.student_email)
+    require_allowed_email(email)
+    now = datetime.utcnow()
+    payload = order.model_dump() if hasattr(order, "model_dump") else order.dict()
+    payload.update({"student_email": email, "status": "pending", "created_at": now, "updated_at": now})
+    result = merch_order_collection.insert_one(payload)
+    payload["_id"] = result.inserted_id
+    return {"success": True, "order": _service_doc(payload)}
+
+
+@router.get("/merchandise/orders")
+def list_merch_orders(student_email: str = None, admin_email: str = None):
+    if admin_email:
+        require_admin(admin_email)
+        query = {}
+    else:
+        email = normalize_email_for_access(student_email)
+        require_allowed_email(email)
+        query = {"student_email": email}
+    docs = list(merch_order_collection.find(query).sort([("created_at", -1)]))
+    return {"orders": [_service_doc(doc) for doc in docs], "total": len(docs)}

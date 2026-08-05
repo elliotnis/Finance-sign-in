@@ -21,7 +21,9 @@ function ProfileUpdate() {
     biography: '',
     biographyPublic: false,
     linkedinUrl: '',
-    credentials: ''
+    credentials: '',
+    interests: '',
+    preferences: ''
   });
   const [currentProfile, setCurrentProfile] = useState(null);
   const [error, setError] = useState('');
@@ -84,7 +86,9 @@ function ProfileUpdate() {
           biography: profileData.biography || '',
           biographyPublic: !!profileData.biography_public,
           linkedinUrl: profileData.linkedin_url || '',
-          credentials: (profileData.credentials || []).join('\n')
+          credentials: (profileData.credentials || []).join('\n'),
+          interests: (profileData.interests || []).join(', '),
+          preferences: (profileData.preferences || []).join(', ')
         });
         
         // Set profile image preview if exists
@@ -164,7 +168,9 @@ function ProfileUpdate() {
         biography: formData.biography,
         biography_public: formData.biographyPublic,
         linkedin_url: formData.linkedinUrl || null,
-        credentials: formData.credentials.split('\n').map((item) => item.trim()).filter(Boolean)
+        credentials: formData.credentials.split('\n').map((item) => item.trim()).filter(Boolean),
+        interests: formData.interests.split(',').map((item) => item.trim()).filter(Boolean),
+        preferences: formData.preferences.split(',').map((item) => item.trim()).filter(Boolean)
       };
 
       const response = await fetch(`${API_URL}/profile/${encodeURIComponent(userEmail)}`, {
@@ -200,7 +206,9 @@ function ProfileUpdate() {
         biography: formData.biography,
         biography_public: formData.biographyPublic,
         linkedin_url: formData.linkedinUrl,
-        credentials: formData.credentials.split('\n').map((item) => item.trim()).filter(Boolean)
+        credentials: formData.credentials.split('\n').map((item) => item.trim()).filter(Boolean),
+        interests: formData.interests.split(',').map((item) => item.trim()).filter(Boolean),
+        preferences: formData.preferences.split(',').map((item) => item.trim()).filter(Boolean)
       });
 
       // Redirect to dashboard after successful update
@@ -400,6 +408,16 @@ function ProfileUpdate() {
         <div className="input-group">
           <label htmlFor="credentials">Credentials / highlights (one per line)</label>
           <textarea id="credentials" name="credentials" rows="3" value={formData.credentials} onChange={handleInputChange} placeholder="Internship, qualification, society role" />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="interests">Interests (comma-separated)</label>
+          <input id="interests" name="interests" value={formData.interests} onChange={handleInputChange} placeholder="Investment, fintech, sustainability" />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="preferences">Portal preferences (comma-separated)</label>
+          <input id="preferences" name="preferences" value={formData.preferences} onChange={handleInputChange} placeholder="Seminars, tutoring, careers" />
         </div>
 
         <div className="input-group">

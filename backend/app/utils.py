@@ -8,6 +8,8 @@ from .mongo import (
     reflection_collection, class_collection, allowed_email_collection,
     admin_access_collection, trading_allowed_email_collection,
     trading_gamemaster_access_collection,
+    resume_book_collection, business_card_order_collection,
+    event_registration_collection, merch_order_collection,
 )
 from datetime import datetime
 from bson import ObjectId
@@ -81,6 +83,10 @@ def normalize_email_for_access(email):
 
 
 PROGRAMS = {"FINA", "QFIN"}
+AUDIENCE_LABELS = PROGRAMS | {
+    "FINA_YEAR_1", "FINA_YEAR_2", "FINA_YEAR_3", "FINA_ALUMNI",
+    "QFIN_YEAR_1", "QFIN_YEAR_2", "QFIN_YEAR_3", "QFIN_ALUMNI", "ALL",
+}
 
 
 def normalize_audience(audience):
@@ -90,7 +96,7 @@ def normalize_audience(audience):
     if isinstance(audience, str):
         audience = audience.split(",")
     values = {str(value).strip().upper() for value in audience if str(value).strip()}
-    values &= PROGRAMS | {"ALL"}
+    values &= AUDIENCE_LABELS
     return ["ALL"] if not values or "ALL" in values else sorted(values)
 
 
@@ -116,7 +122,20 @@ def audience_allows(audience, viewer_email=None):
         return True
     if not viewer_email:
         return False
-    return profile_program(viewer_email) in normalized
+    program = profile_program(viewer_email)
+    if program in normalized:
+        return True
+    profile = get_user_profile(viewer_email)
+    if not isinstance(profile, dict) or not program:
+        return False
+    study_year = str(profile.get("study_year") or "").strip().upper()
+    graduated = study_year in {"ALUMNI", "GRADUATE", "GRADUATED"}
+    if not graduated:
+        try:
+            graduated = bool(profile.get("graduation_year") and int(profile["graduation_year"]) <= datetime.utcnow().year)
+        except (TypeError, ValueError):
+            graduated = False
+    return f"{program}_{'ALUMNI' if graduated else f'YEAR_{study_year}'}" in normalized
 
 
 def _clean_credentials(credentials):
@@ -129,7 +148,7 @@ def _clean_credentials(credentials):
 
 def _clean_profile_fields(
     biography="", biography_public=False, linkedin_url=None,
-    graduation_year=None, credentials=None,
+    graduation_year=None, credentials=None, interests=None, preferences=None,
 ):
     year = None
     if graduation_year not in (None, ""):
@@ -148,6 +167,8 @@ def _clean_profile_fields(
         "linkedin_url": linkedin,
         "graduation_year": year,
         "credentials": _clean_credentials(credentials),
+        "interests": _clean_credentials(interests),
+        "preferences": _clean_credentials(preferences),
     }
 
 
@@ -163,6 +184,9 @@ def profile_biography(profile):
     credentials = profile.get("credentials") or []
     if credentials:
         body = f"{body.rstrip()}\n\nCredentials: " + "; ".join(credentials)
+    interests = profile.get("interests") or []
+    if interests:
+        body = f"{body.rstrip()}\n\nInterests: " + "; ".join(interests)
     return f"{headline}\n\n{body}".strip()
 
 
@@ -182,6 +206,7 @@ def search_public_profiles(query="", program=None):
             str(profile.get("major", "")),
             str(profile.get("biography", "")),
             " ".join(profile.get("credentials") or []),
+            " ".join(profile.get("interests") or []),
         ]).lower()
         if query and query not in haystack:
             continue
@@ -194,6 +219,7 @@ def search_public_profiles(query="", program=None):
             "biography": profile_biography(profile),
             "linkedin_url": profile.get("linkedin_url"),
             "credentials": _clean_credentials(profile.get("credentials")),
+            "interests": _clean_credentials(profile.get("interests")),
         })
     return sorted(results, key=lambda item: (item["preferred_name"] or item["full_name"]).lower())[:100]
 
@@ -319,6 +345,7 @@ def create_user_profile(
     email, SID, full_name, preferred_name, study_year, major, contact_phone,
     profile_email, profile_picture=None, biography="", biography_public=False,
     linkedin_url=None, graduation_year=None, credentials=None,
+    interests=None, preferences=None,
 ):
     """Create a profile for a user"""
     # First check if user exists
@@ -341,7 +368,8 @@ def create_user_profile(
         "personal_email": profile_email,
         "profile_picture": profile_picture,
         **_clean_profile_fields(
-            biography, biography_public, linkedin_url, graduation_year, credentials
+            biography, biography_public, linkedin_url, graduation_year, credentials,
+            interests, preferences,
         ),
     }
 
@@ -370,7 +398,7 @@ def update_user_profile(
     email, SID=None, full_name=None, preferred_name=None, study_year=None,
     major=None, contact_phone=None, profile_email=None, profile_picture=None,
     biography=None, biography_public=None, linkedin_url=None,
-    graduation_year=None, credentials=None,
+    graduation_year=None, credentials=None, interests=None, preferences=None,
 ):
     """Update a user's profile"""
     # First check if user exists
@@ -411,6 +439,10 @@ def update_user_profile(
         update_data["profile.graduation_year"] = _clean_profile_fields(graduation_year=graduation_year)["graduation_year"]
     if credentials is not None:
         update_data["profile.credentials"] = _clean_credentials(credentials)
+    if interests is not None:
+        update_data["profile.interests"] = _clean_credentials(interests)
+    if preferences is not None:
+        update_data["profile.preferences"] = _clean_credentials(preferences)
 
     if not update_data:
         return "No fields to update"
@@ -1103,12 +1135,21 @@ def _serialize_class(doc):
         "duration_minutes": int(doc.get("duration_minutes") or _slot_duration_minutes(doc.get("time_slot"))),
         "audience": normalize_audience(doc.get("audience")),
         "attachments": [_serialize_attachment(item) for item in (doc.get("attachments") or [])],
+        "organizer": doc.get("organizer", "FINA"),
+        "announcement_type": doc.get("announcement_type", "Event"),
+        "event_end_date": doc.get("event_end_date"),
+        "registration_deadline": doc.get("registration_deadline"),
+        "contact_name": doc.get("contact_name"),
+        "contact_email": doc.get("contact_email"),
+        "contact_phone": doc.get("contact_phone"),
     }
 
 
 def create_class(
     title, description, date, time_slot, location, capacity, created_by,
-    duration_minutes=60, audience=None, attachments=None,
+    duration_minutes=60, audience=None, attachments=None, organizer="FINA",
+    announcement_type="Event", event_end_date=None, registration_deadline=None,
+    contact_name=None, contact_email=None, contact_phone=None,
 ):
     """Insert a new class. Caller must already have verified admin status."""
     if capacity is None or int(capacity) <= 0:
@@ -1150,6 +1191,13 @@ def create_class(
         "status": "active",
         "created_at": now,
         "updated_at": now,
+        "organizer": str(organizer or "FINA").strip()[:80],
+        "announcement_type": str(announcement_type or "Event").strip()[:80],
+        "event_end_date": event_end_date or date,
+        "registration_deadline": registration_deadline,
+        "contact_name": (contact_name or "").strip()[:160] or None,
+        "contact_email": (contact_email or "").strip().lower()[:160] or None,
+        "contact_phone": (contact_phone or "").strip()[:60] or None,
     }
     result = class_collection.insert_one(doc)
     doc["_id"] = result.inserted_id
@@ -1243,6 +1291,9 @@ def register_for_class(class_id, student_email):
         return "Class not found"
     if doc.get("status", "active") != "active":
         return "Class is not active"
+    deadline = doc.get("registration_deadline")
+    if deadline and datetime.utcnow().date().isoformat() > str(deadline)[:10]:
+        return "Registration is closed"
     if not audience_allows(doc.get("audience"), student_email):
         return "Class is not available for your programme"
 

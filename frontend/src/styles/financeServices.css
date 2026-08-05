@@ -1,0 +1,33 @@
+.finance-services-main { max-width: 1180px; }
+.finance-services-intro { margin: 2rem 0 1.25rem; max-width: 760px; }
+.finance-services-intro h1 { margin: .2rem 0 .45rem; color: #16223f; font-size: clamp(2rem, 4vw, 3.2rem); }
+.finance-services-intro p:not(.section-kicker) { color: #66718b; font-size: 1.05rem; line-height: 1.65; }
+.section-kicker { color: #a87816; font-size: .72rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.finance-services-tabs { display: flex; flex-wrap: wrap; gap: .65rem; margin-bottom: 1rem; }
+.finance-services-tabs button { border: 1px solid #b9c4d8; border-radius: 999px; background: #fffaf0; color: #243452; cursor: pointer; padding: .68rem 1rem; font-weight: 700; }
+.finance-services-tabs button.active { border-color: #172b56; background: #172b56; color: #fff; }
+.service-notice, .service-error { border-radius: 10px; padding: .8rem 1rem; margin: .7rem 0; }
+.service-notice { background: #e6f5ee; color: #1f654d; }
+.service-error { background: #fff0ed; color: #9a3026; }
+.service-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+.service-card { border: 1px solid #c9d1df; border-radius: 15px; background: #fffaf1; box-shadow: 5px 5px 0 rgba(29, 44, 74, .12); padding: 1.25rem; }
+.service-card-heading { display: flex; justify-content: space-between; align-items: start; gap: 1rem; margin-bottom: 1rem; }
+.service-card h2 { color: #17223f; font-size: 1.45rem; margin: .3rem 0 .8rem; }
+.service-card h3 { color: #17223f; margin: 1rem 0 .35rem; }
+.service-card p { color: #5f6b84; line-height: 1.55; }
+.service-form { display: grid; gap: .8rem; }
+.service-form label { display: grid; gap: .35rem; color: #23304c; font-weight: 700; font-size: .9rem; }
+.service-form input, .service-form select, .service-form textarea, .admin-service-tools textarea { width: 100%; box-sizing: border-box; border: 1px solid #aebbd0; border-radius: 8px; background: #fff; color: #1d2943; padding: .65rem .75rem; font: inherit; font-weight: 500; }
+.service-form textarea, .admin-service-tools textarea { resize: vertical; }
+.service-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+.status-pill { border-radius: 999px; padding: .32rem .65rem; font-size: .72rem; text-transform: uppercase; font-weight: 800; }
+.status-draft { background: #edf0f5; color: #5c6a80; }.status-submitted { background: #dff3e9; color: #226b51; }
+.resume-preview { min-height: 360px; }
+.resume-preview > p { border-bottom: 1px solid #e5e6e4; padding-bottom: .75rem; }
+.polish-preview, .admin-service-tools { margin-top: 1rem; border: 1px dashed #aebbd0; border-radius: 10px; padding: .85rem; background: #fff; }
+.polish-preview strong { color: #17223f; }.polish-preview .text-btn { margin-left: .6rem; }
+.text-btn { color: #1b4b91; background: none; border: 0; padding: .35rem 0; cursor: pointer; text-decoration: underline; font: inherit; }
+.business-card-preview { background: linear-gradient(135deg, #1e477d, #327d78); color: #fff; min-height: 280px; }
+.business-card-preview .section-kicker, .business-card-preview p, .business-card-preview small { color: #e6f4ef; }.business-card-preview h2 { color: #fff; font-family: Georgia, serif; font-size: 2rem; margin: 2.5rem 0 .3rem; }
+.business-card-mark { color: #ffe49c; font-weight: 900; letter-spacing: .12em; }
+@media (max-width: 800px) { .service-grid { grid-template-columns: 1fr; } .finance-services-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: .2rem; } }

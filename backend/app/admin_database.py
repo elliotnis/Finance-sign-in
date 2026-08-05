@@ -13,6 +13,8 @@ from .mongo import (
     allowed_email_collection,
     admin_access_collection,
     trading_allowed_email_collection,
+    resume_book_collection, business_card_order_collection,
+    event_registration_collection, merch_order_collection,
 )
 
 
@@ -81,6 +83,11 @@ COLLECTIONS = {
             {"name": "profile.SID", "label": "Student ID", "type": "text"},
             {"name": "profile.study_year", "label": "Study year", "type": "text"},
             {"name": "profile.major", "label": "Major", "type": "text"},
+            {"name": "profile.graduation_year", "label": "Graduation year", "type": "number"},
+            {"name": "profile.biography", "label": "Biography", "type": "textarea"},
+            {"name": "profile.biography_public", "label": "Public biography", "type": "boolean"},
+            {"name": "profile.interests", "label": "Interests", "type": "list"},
+            {"name": "profile.preferences", "label": "Portal preferences", "type": "list"},
             {"name": "profile.contact_phone", "label": "Phone", "type": "text"},
             {"name": "profile.personal_email", "label": "Profile email", "type": "email"},
         ],
@@ -131,6 +138,15 @@ COLLECTIONS = {
             {"name": "time_slot", "label": "Time slot", "type": "text", "placeholder": "14:00-15:00", "required": True},
             {"name": "location", "label": "Location", "type": "text", "required": True},
             {"name": "capacity", "label": "Capacity", "type": "number", "required": True},
+            {"name": "duration_minutes", "label": "Duration (minutes)", "type": "number"},
+            {"name": "organizer", "label": "Organizer", "type": "text", "placeholder": "FINA/QFIN/Other HKUST unit/External Unit"},
+            {"name": "announcement_type", "label": "Announcement type", "type": "text"},
+            {"name": "event_end_date", "label": "Event end date", "type": "date"},
+            {"name": "registration_deadline", "label": "Registration deadline", "type": "date"},
+            {"name": "audience", "label": "Visible to", "type": "list", "help": "ALL, FINA_YEAR_1, QFIN_ALUMNI, etc."},
+            {"name": "contact_name", "label": "Contact name", "type": "text"},
+            {"name": "contact_email", "label": "Contact email", "type": "email"},
+            {"name": "contact_phone", "label": "Contact phone", "type": "text"},
             {"name": "created_by", "label": "Created by", "type": "email", "required": True},
             {"name": "registered_students", "label": "Registered students", "type": "list", "help": "Comma-separated emails"},
             {"name": "status", "label": "Status", "type": "text", "placeholder": "active"},
@@ -148,6 +164,67 @@ COLLECTIONS = {
             {"name": "other_person_name", "label": "Other person", "type": "text"},
             {"name": "attitude_rating", "label": "Attitude rating", "type": "text"},
             {"name": "meeting_content", "label": "Meeting content", "type": "textarea"},
+        ],
+    },
+    "resume_book": {
+        "label": "Resume Book",
+        "collection": resume_book_collection,
+        "description": "Student CV/resume submissions and review status.",
+        "title_fields": ["student_email", "headline", "status"],
+        "fields": [
+            {"name": "student_email", "label": "Student email", "type": "email", "required": True},
+            {"name": "headline", "label": "Headline", "type": "text"},
+            {"name": "education", "label": "Education", "type": "textarea"},
+            {"name": "experience", "label": "Experience", "type": "textarea"},
+            {"name": "skills", "label": "Skills", "type": "list"},
+            {"name": "certifications", "label": "Certifications", "type": "list"},
+            {"name": "cv_text", "label": "CV text", "type": "textarea"},
+            {"name": "display_order", "label": "Display order", "type": "number"},
+            {"name": "status", "label": "Status", "type": "text", "placeholder": "draft/submitted/withdrawn"},
+        ],
+    },
+    "business_card_orders": {
+        "label": "Business Card Orders",
+        "collection": business_card_order_collection,
+        "description": "Student business-card previews and orders.",
+        "title_fields": ["student_email", "name", "status"],
+        "fields": [
+            {"name": "student_email", "label": "Student email", "type": "email", "required": True},
+            {"name": "name", "label": "Name", "type": "text", "required": True},
+            {"name": "title", "label": "Title", "type": "text"},
+            {"name": "programme", "label": "Programme", "type": "text"},
+            {"name": "email", "label": "Card email", "type": "email"},
+            {"name": "phone", "label": "Phone", "type": "text"},
+            {"name": "quantity", "label": "Quantity", "type": "number"},
+            {"name": "linkedin_url", "label": "LinkedIn URL", "type": "text"},
+            {"name": "payment_link", "label": "Payment link", "type": "text"},
+            {"name": "status", "label": "Status", "type": "text"},
+        ],
+    },
+    "event_registrations": {
+        "label": "Event Responses",
+        "collection": event_registration_collection,
+        "description": "Yes/No/withdraw responses for events and announcements.",
+        "title_fields": ["event_id", "student_email", "response"],
+        "fields": [
+            {"name": "event_id", "label": "Event ID", "type": "text", "required": True},
+            {"name": "student_email", "label": "Student email", "type": "email", "required": True},
+            {"name": "response", "label": "Response", "type": "text", "placeholder": "yes/no"},
+        ],
+    },
+    "merch_orders": {
+        "label": "Merchandise Orders",
+        "collection": merch_order_collection,
+        "description": "HKUST FINA merchandise requests.",
+        "title_fields": ["student_email", "item", "status"],
+        "fields": [
+            {"name": "student_email", "label": "Student email", "type": "email", "required": True},
+            {"name": "item", "label": "Item", "type": "text", "required": True},
+            {"name": "size", "label": "Size", "type": "text"},
+            {"name": "quantity", "label": "Quantity", "type": "number"},
+            {"name": "notes", "label": "Notes", "type": "textarea"},
+            {"name": "payment_link", "label": "Payment link", "type": "text"},
+            {"name": "status", "label": "Status", "type": "text"},
         ],
     },
 }
@@ -274,6 +351,8 @@ def _prepare_doc(collection_key: str, doc: dict[str, Any], existing: dict[str, A
             ]
         if "capacity" in prepared:
             prepared["capacity"] = int(prepared["capacity"])
+        if "audience" in prepared and isinstance(prepared["audience"], str):
+            prepared["audience"] = [item.strip().upper() for item in prepared["audience"].split(",") if item.strip()]
     if collection_key == "sessions":
         prepared.setdefault("is_registered", False)
         prepared.setdefault("registered_student", None)

@@ -89,7 +89,7 @@ function normalizeTutoring(registration) {
 function normalizeClass(cls) {
     return {
         id: `class-${cls.id}`,
-        type: 'Class',
+        type: 'FINA event',
         title: cls.title || 'Class',
         date: cls.date,
         timeSlot: cls.time_slot,
@@ -104,7 +104,7 @@ function Dashboard(){
     const { logout } = useAuth();
     const [loading, setLoading] = useState(true);
     const [profilePicture, setProfilePicture] = useState(null);
-    const [profileSummary, setProfileSummary] = useState({ major: '', studyYear: '', graduationYear: '' });
+    const [profileSummary, setProfileSummary] = useState({ major: '', studyYear: '', graduationYear: '', credentials: [], interests: [], preferences: [] });
     const [profileLoading, setProfileLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
     const [bookings, setBookings] = useState([]);
@@ -159,6 +159,9 @@ function Dashboard(){
                     major: profileData.major || '',
                     studyYear: profileData.study_year || '',
                     graduationYear: profileData.graduation_year || '',
+                    credentials: profileData.credentials || [],
+                    interests: profileData.interests || [],
+                    preferences: profileData.preferences || [],
                 });
             }
         } catch (error) {
@@ -274,6 +277,13 @@ function Dashboard(){
 
     const quickActions = [
         {
+            title: 'Finance Services',
+            description: 'Prepare your Resume Book entry, cards, event responses, and merch orders.',
+            icon: 'fa-briefcase',
+            accent: 'teal',
+            onClick: () => navigate('/finance-services'),
+        },
+        {
             title: 'Create Sessions',
             description: 'Open tutor scheduling tools and publish new slots.',
             icon: 'fa-calendar-plus',
@@ -288,8 +298,8 @@ function Dashboard(){
             onClick: () => navigate('/register-session'),
         },
         {
-            title: 'Classes',
-            description: 'Review class calendars and department events.',
+            title: 'Events / Announcements',
+            description: 'Review department events, news, jobs, and workshops.',
             icon: 'fa-graduation-cap',
             accent: 'gold',
             onClick: () => navigate('/classes'),
@@ -390,7 +400,7 @@ function Dashboard(){
                         {getGreeting()}, <span>{displayName}</span>
                     </h1>
                     <p className="motivation">
-                        Your booked tutoring sessions and classes are shown below as soon as you sign in.
+                        Your booked tutoring sessions and FINA events are shown below as soon as you sign in.
                     </p>
                     <div className="hero-meta-row">
                         <span><i className="fas fa-bolt"></i> Ready for today</span>
@@ -412,6 +422,8 @@ function Dashboard(){
                         {(profileSummary.major || profileSummary.graduationYear || profileSummary.studyYear) && (
                             <small>{profileSummary.major || 'Finance'} · {profileSummary.graduationYear ? `Class of ${profileSummary.graduationYear}` : `Year ${profileSummary.studyYear}`}</small>
                         )}
+                        {profileSummary.credentials.length > 0 && <small>{profileSummary.credentials.slice(0, 2).join(' · ')}</small>}
+                        {profileSummary.interests.length > 0 && <small>Interests: {profileSummary.interests.slice(0, 3).join(', ')}</small>}
                     </div>
                 </aside>
             </section>
@@ -536,11 +548,11 @@ function DashboardSchedule({
                             <i className="fas fa-calendar-check"></i>
                             <div>
                                 <strong>No bookings coming up</strong>
-                                <span>Register for a tutoring session or class and it will show here immediately.</span>
+                                <span>Register for a tutoring session or event and it will show here immediately.</span>
                             </div>
                             <div className="schedule-empty-actions">
                                 <button type="button" onClick={() => navigate('/register-session')}>Find tutoring</button>
-                                <button type="button" onClick={() => navigate('/classes')}>View classes</button>
+                                <button type="button" onClick={() => navigate('/classes')}>View events</button>
                             </div>
                         </div>
                     )}

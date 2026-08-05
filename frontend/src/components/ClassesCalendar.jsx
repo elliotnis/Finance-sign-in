@@ -115,7 +115,13 @@ function ClassesCalendar() {
 
   const classesAt = (date, timeSlot) => {
     const ds = formatDateYMD(date);
-    return classes.filter((c) => c.date === ds && c.time_slot === timeSlot);
+    const [slotStart] = timeSlot.split('-');
+    const slotMinutes = Number(slotStart.slice(0, 2)) * 60 + Number(slotStart.slice(3, 5));
+    return classes.filter((c) => {
+      const [start] = String(c.time_slot || '').split('-');
+      const eventMinutes = Number(start.slice(0, 2)) * 60 + Number(start.slice(3, 5));
+      return c.date === ds && eventMinutes >= slotMinutes && eventMinutes < slotMinutes + 60;
+    });
   };
 
   const handleRegister = async () => {
@@ -190,12 +196,12 @@ function ClassesCalendar() {
     <div className="dashboard-container classes-page">
       <header className="dashboard-header">
         <div className="header-content">
-          <DepartmentBrand subtitle="Classes" />
+          <DepartmentBrand subtitle="Events & Announcements" />
           <div className="user-section">
             <div className="user-info">
               <span className="user-name">Welcome, {username || 'Student'}!</span>
               <span className="user-role">
-                {isAdmin ? 'Admin · manage classes' : 'Browse and join classes'}
+                {isAdmin ? 'Admin · manage portal events' : 'Browse and register for events'}
               </span>
             </div>
             <button className="logout-btn" onClick={() => navigate('/dashboard')}>
@@ -221,7 +227,7 @@ function ClassesCalendar() {
           </div>
           {isAdmin && (
             <button className="primary-btn" onClick={() => setShowCreateModal(true)}>
-              + Create Class
+              + Create Event
             </button>
           )}
         </div>
@@ -315,6 +321,7 @@ function ClassDetailsModal({
       return false;
     }
   })();
+  const registrationClosed = Boolean(cls.registration_deadline && new Date(`${cls.registration_deadline}T23:59:59`) < new Date());
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -322,11 +329,14 @@ function ClassDetailsModal({
         <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
         <h2 className="modal-title">{cls.title}</h2>
         <div className="modal-meta">
-          <div><strong>Date:</strong> {cls.date}</div>
+          <div><strong>Date:</strong> {cls.date}{cls.event_end_date && cls.event_end_date !== cls.date ? ` – ${cls.event_end_date}` : ''}</div>
           <div><strong>Time:</strong> {cls.time_slot}</div>
           <div><strong>Duration:</strong> {cls.duration_minutes || 60} minutes</div>
           <div><strong>Location:</strong> {cls.location}</div>
+          <div><strong>Organizer:</strong> {cls.organizer || 'FINA'} · <strong>Type:</strong> {cls.announcement_type || 'Event'}</div>
           <div><strong>Audience:</strong> {(cls.audience || ['ALL']).join(', ')}</div>
+          {cls.registration_deadline && <div><strong>Registration closes:</strong> {cls.registration_deadline}</div>}
+          {(cls.contact_name || cls.contact_email) && <div><strong>Contact:</strong> {cls.contact_name || cls.contact_email}{cls.contact_name && cls.contact_email ? ` · ${cls.contact_email}` : ''}</div>}
           <div>
             <strong>Seats:</strong> {cls.registered_count} / {cls.capacity}
             {cls.is_full && <span className="badge badge-full">Full</span>}
@@ -356,13 +366,15 @@ function ClassDetailsModal({
 
         <div className="modal-actions">
           {past ? (
-            <span className="muted">This class has ended.</span>
+            <span className="muted">This event has ended.</span>
           ) : mine ? (
             <button className="primary-btn danger" onClick={onUnregister} disabled={busy}>
               {busy ? 'Cancelling…' : 'Cancel my registration'}
             </button>
+          ) : registrationClosed ? (
+            <span className="muted">Registration is closed.</span>
           ) : cls.is_full ? (
-            <button className="primary-btn" disabled>Class full</button>
+            <button className="primary-btn" disabled>Event full</button>
           ) : (
             <button className="primary-btn" onClick={onRegister} disabled={busy}>
               {busy ? 'Registering…' : 'Register'}
@@ -371,7 +383,7 @@ function ClassDetailsModal({
 
           {isAdmin && (
             <button className="secondary-btn danger-outline" onClick={onCancelClass} disabled={busy}>
-              Admin: cancel class
+              Admin: cancel event
             </button>
           )}
         </div>
@@ -384,11 +396,18 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(formatDateYMD(new Date()));
-  const [timeSlot, setTimeSlot] = useState(TIME_SLOTS[0]);
+  const [timeStart, setTimeStart] = useState('09:00');
   const [location, setLocation] = useState('');
   const [capacity, setCapacity] = useState(20);
   const [durationMinutes, setDurationMinutes] = useState(60);
   const [audience, setAudience] = useState('ALL');
+  const [organizer, setOrganizer] = useState('FINA');
+  const [announcementType, setAnnouncementType] = useState('Event');
+  const [eventEndDate, setEventEndDate] = useState('');
+  const [registrationDeadline, setRegistrationDeadline] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState(adminEmail);
+  const [contactPhone, setContactPhone] = useState('');
   const [attachments, setAttachments] = useState([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -429,12 +448,19 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title, description, date, time_slot: buildTimeSlot(timeSlot, durationMinutes),
+          title, description, date, time_slot: buildTimeSlot(`${timeStart}-`, durationMinutes),
           location, capacity: Number(capacity),
           created_by: adminEmail,
           duration_minutes: Number(durationMinutes),
           audience: [audience],
           attachments,
+          organizer,
+          announcement_type: announcementType,
+          event_end_date: eventEndDate || date,
+          registration_deadline: registrationDeadline || null,
+          contact_name: contactName || null,
+          contact_email: contactEmail || null,
+          contact_phone: contactPhone || null,
         }),
       });
       if (!r.ok) {
@@ -453,7 +479,7 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
-        <h2 className="modal-title">Create a new class</h2>
+        <h2 className="modal-title">Create an event or announcement</h2>
 
         {error && <div className="modal-error">{error}</div>}
 
@@ -472,16 +498,18 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
             </label>
             <label>
-              Time slot
-              <select value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)}>
-                {TIME_SLOTS.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
+              Start time
+              <input type="time" value={timeStart} onChange={(e) => setTimeStart(e.target.value)} required />
             </label>
             <label>
               Duration
               <select value={durationMinutes} onChange={(e) => setDurationMinutes(Number(e.target.value))}>
                 {[30, 45, 60, 90, 120, 180].map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}
               </select>
+            </label>
+            <label>
+              Event end date
+              <input type="date" value={eventEndDate} min={date} onChange={(e) => setEventEndDate(e.target.value)} />
             </label>
           </div>
           <div className="form-row">
@@ -505,14 +533,29 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
               Visible to
               <select value={audience} onChange={(e) => setAudience(e.target.value)}>
                 <option value="ALL">All finance students</option>
-                <option value="FINA">FINA students</option>
-                <option value="QFIN">QFIN students</option>
+                <option value="FINA">All FINA students</option>
+                <option value="FINA_YEAR_1">FINA Year 1</option><option value="FINA_YEAR_2">FINA Year 2</option><option value="FINA_YEAR_3">FINA Year 3</option><option value="FINA_ALUMNI">FINA Alumni</option>
+                <option value="QFIN">All QFIN students</option>
+                <option value="QFIN_YEAR_1">QFIN Year 1</option><option value="QFIN_YEAR_2">QFIN Year 2</option><option value="QFIN_YEAR_3">QFIN Year 3</option><option value="QFIN_ALUMNI">QFIN Alumni</option>
               </select>
+            </label>
+            <label>
+              Registration closes
+              <input type="date" value={registrationDeadline} max={date} onChange={(e) => setRegistrationDeadline(e.target.value)} />
             </label>
             <label>
               Files (optional, max 5 × 5 MB)
               <input type="file" multiple onChange={handleFiles} />
             </label>
+          </div>
+          <div className="form-row">
+            <label>Organizer<select value={organizer} onChange={(e) => setOrganizer(e.target.value)}><option>FINA</option><option>QFIN</option><option>Other HKUST unit</option><option>External Unit</option></select></label>
+            <label>Announcement type<select value={announcementType} onChange={(e) => setAnnouncementType(e.target.value)}>{['News', 'Job Posting', 'Seminar', 'Event', 'Workshop', 'Student Well-being', 'Other'].map((type) => <option key={type}>{type}</option>)}</select></label>
+          </div>
+          <div className="form-row">
+            <label>Contact name<input value={contactName} onChange={(e) => setContactName(e.target.value)} /></label>
+            <label>Contact email<input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} /></label>
+            <label>Contact phone<input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} /></label>
           </div>
           {attachments.length > 0 && <small>{attachments.map((file) => file.filename).join(', ')}</small>}
 
@@ -521,7 +564,7 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
               Cancel
             </button>
             <button type="submit" className="primary-btn" disabled={busy}>
-              {busy ? 'Creating…' : 'Create class'}
+              {busy ? 'Creating…' : 'Publish event'}
             </button>
           </div>
         </form>

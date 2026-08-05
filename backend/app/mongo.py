@@ -32,6 +32,11 @@ try:
     trading_order_collection = db["trading_order_collection"]  # Youth Financetopia Challenge orders
     trading_game_collection = db["trading_game_collection"]  # Youth Financetopia Challenge round state
     trading_session_collection = db["trading_session_collection"]  # Short-lived challenge login sessions
+    # Finance student-services workflows.
+    resume_book_collection = db["resume_book_collection"]
+    business_card_order_collection = db["business_card_order_collection"]
+    event_registration_collection = db["event_registration_collection"]
+    merch_order_collection = db["merch_order_collection"]
 
     # Indexes (idempotent — safe to run on every startup).
     # TTL index auto-deletes expired email codes from the collection.
@@ -56,6 +61,10 @@ try:
     trading_game_collection.create_index("key", unique=True)
     trading_session_collection.create_index("token_hash", unique=True)
     trading_session_collection.create_index("expires_at", expireAfterSeconds=0)
+    resume_book_collection.create_index("student_email", unique=True)
+    business_card_order_collection.create_index([("student_email", 1), ("created_at", -1)])
+    event_registration_collection.create_index([("event_id", 1), ("student_email", 1)], unique=True)
+    merch_order_collection.create_index([("student_email", 1), ("created_at", -1)])
 
     print("MongoDB connection successful")
     print("Connected to database:", db.name)
