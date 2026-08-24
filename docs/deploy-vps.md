@@ -14,14 +14,14 @@ The following repository variable is optional; the value shown is the configured
 
 ## Server requirements
 
-FNZ231 already meets these requirements: Docker Engine, Docker Compose v2, a clone of this repository at the deployment path, and an SSH key/configuration that allows that clone to fetch `origin` from GitHub. Its `.env` remains only on the server and continues to provide SMTP, database, frontend URL, and other runtime settings. It also needs the repository-scoped GitHub Actions runner installed as the `adm1` user and running as a service.
+FNZ231 already meets these requirements: Docker Engine, Docker Compose v2, a clone of this repository at the deployment path, and an SSH key/configuration that allows that clone to fetch `origin` from GitHub. Its `.env` remains only on the server and continues to provide SMTP, database, frontend URL, and other runtime settings. It also needs the repository-scoped GitHub Actions runner installed as the `adm1` user and running as a service. Public DNS for `fnz231.ust.hk` must resolve to `143.89.175.90`, and inbound TCP ports 80 and 443 (plus UDP 443 for HTTP/3) must be allowed.
 
 ## Deployment behaviour
 
 1. GitHub Actions builds the frontend and syntax-checks the backend.
 2. The FNZ231 runner picks up the deploy job through its outbound GitHub connection and fetches the pushed branch in the existing server clone.
 3. It force-checks out `origin/main` or `origin/master` in that clone. This resets **tracked application files** only; `.env` and Docker volumes are not removed.
-4. `docker compose up -d --build --remove-orphans` rebuilds and restarts the stack.
-5. The workflow waits for `http://127.0.0.1/` and `http://127.0.0.1/api/_health`; a failure makes the GitHub Actions run fail.
+4. `docker compose up -d --build --remove-orphans` rebuilds and restarts the stack. Caddy obtains and renews the public TLS certificate automatically and redirects the old `http://143.89.175.90` URL to `https://fnz231.ust.hk`.
+5. The workflow verifies the certificate, web page, and `/api/_health` endpoint over HTTPS; a failure makes the GitHub Actions run fail.
 
 The server keeps its inbound SSH firewall restricted to the existing internal/VPN ranges; GitHub Actions does not need inbound SSH access.

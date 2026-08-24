@@ -76,9 +76,10 @@ jobs:
               "SMTP_USERYFC": "yfc",
               "SMTP_PASSWORDYFC": os.environ["SMTP_PASSWORDYFC_SECRET"],
               "SMTP_FROMYFC": '"Youth Financetopia <yfc@ust.hk>"',
+              "FRONTEND_URL": "https://fnz231.ust.hk",
               "OPENROUTER_API_KEY": os.environ.get("OPENROUTER_API_KEY_SECRET", ""),
               "OPENROUTER_MODEL": os.environ.get("OPENROUTER_MODEL_VALUE", "openai/gpt-oss-120b"),
-              "OPENROUTER_SITE_URL": "http://143.89.175.90",
+              "OPENROUTER_SITE_URL": "https://fnz231.ust.hk",
               "OPENROUTER_APP_NAME": "HKUST Finance Portal",
           }
 
@@ -118,10 +119,15 @@ jobs:
 
           docker compose up -d --build --remove-orphans
 
-          # Fail the deployment if the public web page or proxied API is not up.
-          for attempt in $(seq 1 30); do
-            if curl --fail --silent --show-error http://127.0.0.1/ >/dev/null \
-              && curl --fail --silent --show-error http://127.0.0.1/api/_health >/dev/null; then
+          # Fail the deployment if Caddy cannot serve a valid public TLS
+          # certificate or proxy the frontend and backend over HTTPS.
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --show-error \
+              --resolve fnz231.ust.hk:443:127.0.0.1 \
+              https://fnz231.ust.hk/ >/dev/null \
+              && curl --fail --silent --show-error \
+              --resolve fnz231.ust.hk:443:127.0.0.1 \
+              https://fnz231.ust.hk/api/_health >/dev/null; then
               exit 0
             fi
             sleep 2

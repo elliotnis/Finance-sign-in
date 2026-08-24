@@ -1,0 +1,18 @@
+http://143.89.175.90 {
+	redir https://fnz231.ust.hk{uri} permanent
+}
+
+fnz231.ust.hk {
+	encode zstd gzip
+
+	@api_root path /api
+	redir @api_root /api/ 308
+
+	handle_path /api/* {
+		reverse_proxy backend:8000
+	}
+
+	handle {
+		reverse_proxy frontend:80
+	}
+}
