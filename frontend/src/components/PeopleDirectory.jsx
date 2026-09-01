@@ -51,7 +51,7 @@ function PeopleDirectory() {
       <main className="dashboard-main">
         <div className="dashboard-content">
           <h1>People directory</h1>
-          <p className="subtitle">Search biographies and credentials that students have explicitly made public.</p>
+          <p className="subtitle">Search biographies and credentials that students and staff have explicitly made public.</p>
           <form className="form-row" onSubmit={(event) => { event.preventDefault(); loadProfiles(); }}>
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name, programme, biography or credential" />
             <select value={program} onChange={(event) => setProgram(event.target.value)}>
@@ -64,16 +64,20 @@ function PeopleDirectory() {
           {error && <p className="error-message">{error}</p>}
           {loading ? <p>Loading public biographies…</p> : profiles.length === 0 ? <p>No public biographies match that search.</p> : (
             <div className="classes-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem', marginTop: '1.5rem' }}>
-              {profiles.map((profile) => (
-                <article className="modal-card" key={`${profile.full_name}-${profile.major}`}>
-                  <h2>{profile.preferred_name || profile.full_name}</h2>
-                  <p><strong>{profile.major || 'Finance'} · </strong>{profile.graduation_year ? `Class of ${profile.graduation_year}` : profile.study_year ? `Year ${profile.study_year}` : ''}</p>
-                  <p>{profile.biography}</p>
-                  {profile.interests?.length > 0 && <p><strong>Interests:</strong> {profile.interests.join(', ')}</p>}
-                  {profile.credentials?.length > 0 && <ul>{profile.credentials.map((credential) => <li key={credential}>{credential}</li>)}</ul>}
-                  {profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" rel="noreferrer">Open LinkedIn</a>}
-                </article>
-              ))}
+              {profiles.map((profile) => {
+                const affiliation = profile.affiliation_role === 'staff' ? 'HKUST staff' : profile.major || 'Finance student';
+                const year = profile.graduation_year ? `Class of ${profile.graduation_year}` : profile.study_year ? `Year ${profile.study_year}` : '';
+                return (
+                  <article className="modal-card" key={`${profile.full_name}-${profile.major}`}>
+                    <h2>{profile.preferred_name || profile.full_name}</h2>
+                    <p><strong>{affiliation}</strong>{year && ` · ${year}`}</p>
+                    <p>{profile.biography}</p>
+                    {profile.interests?.length > 0 && <p><strong>Interests:</strong> {profile.interests.join(', ')}</p>}
+                    {profile.credentials?.length > 0 && <ul>{profile.credentials.map((credential) => <li key={credential}>{credential}</li>)}</ul>}
+                    {profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" rel="noreferrer">Open LinkedIn</a>}
+                  </article>
+                );
+              })}
             </div>
           )}
         </div>

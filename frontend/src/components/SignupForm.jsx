@@ -67,11 +67,11 @@ function SignupForm() {
         <div className="logo-container">
           <div className="logo-text">
             <h1>HKUST</h1>
-            <span>Finance student services</span>
+            <span>Finance community portal</span>
           </div>
         </div>
 
-        <h2>Create your student access</h2>
+        <h2>Create your portal access</h2>
         {error && <p className="error-message">{error}</p>}
 
         <div className="input-group">

@@ -36,9 +36,9 @@ class ProfileCreate(BaseModel):
     login_email: str  # User's registered email (used to find the user)
     full_name: str
     preferred_name: str
-    SID: str
-    study_year: str
-    major: str
+    SID: str = ""
+    study_year: str = ""
+    major: str = ""
     contact_phone: str
     profile_email: str  # User's profile email (may different from login email)
     profile_picture: Optional[str] = None  # Base64 encoded image or file path
@@ -84,6 +84,7 @@ class ProfileResponse(BaseModel):
     credentials: List[str] = Field(default_factory=list)
     interests: List[str] = Field(default_factory=list)
     preferences: List[str] = Field(default_factory=list)
+    affiliation_role: Literal["student", "staff", "external"] = "external"
 
     class Config:
         # Allow extra fields and provide defaults for missing fields

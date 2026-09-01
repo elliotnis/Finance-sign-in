@@ -18,6 +18,7 @@ from .utils import (
     get_student_calendar_view,
     get_student_registrations,
     list_classes,
+    portal_role_for_email,
     search_public_profiles,
 )
 
@@ -34,7 +35,7 @@ KNOWLEDGE = [
     {
         "id": "profile",
         "title": "Profile and biography",
-        "text": "Complete your name, student ID, programme, study year and graduation year before using sessions. Your biography is private by default; you can explicitly make it public in Profile so other students can find your credentials and optional LinkedIn link.",
+        "text": "Profile requirements follow the HKUST email domain: connect.ust.hk accounts are students and provide student ID, programme, study year (Years 1–5), and graduation year; ust.hk accounts are staff and do not receive those student-only fields. Biographies are private unless explicitly made public.",
     },
     {
         "id": "sessions",
@@ -44,7 +45,7 @@ KNOWLEDGE = [
     {
         "id": "classes",
         "title": "Classes and events",
-        "text": "Classes are shared events with a date, time, capacity, programme audience and optional attachments. Register from the Classes calendar; registered students receive confirmation when email notifications are configured.",
+        "text": "Classes are shared events with a date, time, capacity, programme audience and optional attachments. Register from the Classes calendar; registered portal members receive confirmation when email notifications are configured.",
     },
     {
         "id": "linkedin",
@@ -69,7 +70,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "search_classes",
-            "description": "Find visible classes and events in the portal. Use this when a student asks what classes are available or asks about an event date.",
+            "description": "Find visible classes and events in the portal. Use this when a user asks what classes are available or asks about an event date.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -117,7 +118,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "get_my_schedule",
-            "description": "Read the signed-in student's existing tutoring registrations so the assistant can avoid suggesting conflicts.",
+            "description": "Read the signed-in user's existing tutoring registrations so the assistant can avoid suggesting conflicts.",
             "parameters": {"type": "object", "properties": {}, "additionalProperties": False},
         },
     },
@@ -142,7 +143,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "highlight_portal_content",
-            "description": "Navigate to a portal page and visually highlight a matching button, heading, class, session, or search result. Use this when the student asks where something is or wants help while navigating.",
+            "description": "Navigate to a portal page and visually highlight a matching button, heading, class, session, or search result. Use this when the user asks where something is or wants help while navigating.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -158,7 +159,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "open_portal_page",
-            "description": "Offer a link to a portal page when the student asks to open a section or wants to continue a scheduling task. This only returns a navigation suggestion; it never changes data.",
+            "description": "Offer a link to a portal page when the user asks to open a section or wants to continue a scheduling task. This only returns a navigation suggestion; it never changes data.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -453,15 +454,17 @@ def _history_messages(history):
 
 def _openrouter_answer(question, selected, user_email=None, history=None, context_path=None):
     source_text = "\n".join(f"- {entry['title']}: {entry['text']}" for entry in selected)
+    affiliation = portal_role_for_email(user_email)
+    member_label = "staff member" if affiliation == "staff" else "student" if affiliation == "student" else "portal member"
     system = (
-        "You are the HKUST Finance student portal guide. Be concise, warm, and concrete. "
+        f"You are the HKUST Finance portal guide. The signed-in user is a {member_label}. Be concise, warm, and concrete. "
         "Use the indexed guide as your source of truth. Never invent availability, registration status, "
-        "people, or deadlines. When a student asks about classes, tutoring, or scheduling, call the relevant "
+        "people, or deadlines. When the user asks about classes, tutoring, or scheduling, call the relevant "
         "read-only tool first. For a specific slot handoff, search first and then call "
         "prepare_session_registration with the exact date and time_slot returned by the search. When they ask where "
         "something is, use the navigation or highlight tool so the "
         "portal can take them to the relevant page. You may help prepare a scheduling handoff, but you must not "
-        "create, cancel, register, or change anything. Ask the student to use the page's explicit confirmation "
+        "create, cancel, register, or change anything. Ask the user to use the page's explicit confirmation "
         "controls for changes. "
         "If a tool returns no result, say so clearly and offer the next useful step.\n\n"
         f"Indexed guide:\n{source_text or '- No matching guide entry; use the tools or explain the limitation.'}"

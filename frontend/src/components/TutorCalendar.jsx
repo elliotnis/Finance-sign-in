@@ -555,7 +555,7 @@ function TutorCalendar() {
                                         value={formData.audience[0]}
                                         onChange={(e) => setFormData({ ...formData, audience: [e.target.value] })}
                                     >
-                                        <option value="ALL">All finance students</option>
+                                        <option value="ALL">All finance portal members</option>
                                         <option value="FINA">FINA students</option>
                                         <option value="QFIN">QFIN students</option>
                                     </select>

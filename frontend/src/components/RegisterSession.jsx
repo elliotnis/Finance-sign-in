@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AppointmentTypeSelect from './AppointmentTypeSelect';
 import DepartmentBrand from './DepartmentBrand';
+import { getPortalRoleLabel } from '../userRole';
 import '../styles/tutorCalendar.css';
 import '../styles/registerSession.css';
 
@@ -320,6 +321,7 @@ function RegisterSession() {
     }
 
     const username = localStorage.getItem('username');
+    const userEmail = localStorage.getItem('user_email');
 
     return (
         <div className="dashboard-container register-session-page">
@@ -328,7 +330,7 @@ function RegisterSession() {
                     <DepartmentBrand subtitle="Session Registration" />
                     <div className="user-section">
                         <div className="user-info">
-                            <span className="user-name">Welcome, {username || 'Student'}!</span>
+                            <span className="user-name">Welcome, {username || getPortalRoleLabel(userEmail)}!</span>
                             <span className="user-role">Book a mentor session</span>
                         </div>
                         <button 

@@ -83,10 +83,22 @@ def normalize_email_for_access(email):
 
 
 PROGRAMS = {"FINA", "QFIN"}
-AUDIENCE_LABELS = PROGRAMS | {
-    "FINA_YEAR_1", "FINA_YEAR_2", "FINA_YEAR_3", "FINA_ALUMNI",
-    "QFIN_YEAR_1", "QFIN_YEAR_2", "QFIN_YEAR_3", "QFIN_ALUMNI", "ALL",
-}
+STUDY_YEARS = range(1, 6)
+AUDIENCE_LABELS = PROGRAMS | {"ALL"} | {
+    f"{program}_YEAR_{year}"
+    for program in PROGRAMS
+    for year in STUDY_YEARS
+} | {f"{program}_ALUMNI" for program in PROGRAMS}
+
+
+def portal_role_for_email(email):
+    """Infer the portal affiliation from the canonical HKUST email domain."""
+    normalized = normalize_email_for_access(email)
+    if normalized.endswith("@connect.ust.hk"):
+        return "student"
+    if normalized.endswith("@ust.hk"):
+        return "staff"
+    return "external"
 
 
 def normalize_audience(audience):
@@ -175,8 +187,11 @@ def _clean_profile_fields(
 def profile_biography(profile):
     """Build a concise, reusable biography from structured profile fields."""
     profile = profile or {}
-    name = profile.get("preferred_name") or profile.get("full_name") or "Student"
-    programme = profile.get("major") or "Finance student"
+    affiliation_role = profile.get("affiliation_role") or "student"
+    fallback_name = "Staff member" if affiliation_role == "staff" else "Student"
+    fallback_programme = "HKUST staff" if affiliation_role == "staff" else "Finance student"
+    name = profile.get("preferred_name") or profile.get("full_name") or fallback_name
+    programme = profile.get("major") or fallback_programme
     year = profile.get("graduation_year")
     year_text = f"Class of {year}" if year else (f"Year {profile.get('study_year')}" if profile.get("study_year") else "")
     headline = " · ".join(part for part in (name, programme, year_text) if part)
@@ -196,7 +211,8 @@ def search_public_profiles(query="", program=None):
     program = (program or "").strip().upper()
     results = []
     for user in user_collection.find({"profile.biography_public": True}, {"password": 0}):
-        profile = user.get("profile") or {}
+        profile = dict(user.get("profile") or {})
+        profile["affiliation_role"] = portal_role_for_email(user.get("email"))
         major = str(profile.get("major", "")).upper()
         if program and program not in major:
             continue
@@ -220,6 +236,7 @@ def search_public_profiles(query="", program=None):
             "linkedin_url": profile.get("linkedin_url"),
             "credentials": _clean_credentials(profile.get("credentials")),
             "interests": _clean_credentials(profile.get("interests")),
+            "affiliation_role": profile["affiliation_role"],
         })
     return sorted(results, key=lambda item: (item["preferred_name"] or item["full_name"]).lower())[:100]
 

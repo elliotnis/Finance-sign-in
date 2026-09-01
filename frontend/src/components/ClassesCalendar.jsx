@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DepartmentBrand from './DepartmentBrand';
+import { getPortalRoleLabel } from '../userRole';
 import '../styles/dashboard.css';
 import '../styles/tutorCalendar.css';
 import '../styles/classesCalendar.css';
@@ -199,7 +200,7 @@ function ClassesCalendar() {
           <DepartmentBrand subtitle="Events & Announcements" />
           <div className="user-section">
             <div className="user-info">
-              <span className="user-name">Welcome, {username || 'Student'}!</span>
+              <span className="user-name">Welcome, {username || getPortalRoleLabel(userEmail)}!</span>
               <span className="user-role">
                 {isAdmin ? 'Admin · manage portal events' : 'Browse and register for events'}
               </span>
@@ -532,11 +533,13 @@ function CreateClassModal({ adminEmail, onClose, onCreated }) {
             <label>
               Visible to
               <select value={audience} onChange={(e) => setAudience(e.target.value)}>
-                <option value="ALL">All finance students</option>
+                <option value="ALL">All finance portal members</option>
                 <option value="FINA">All FINA students</option>
-                <option value="FINA_YEAR_1">FINA Year 1</option><option value="FINA_YEAR_2">FINA Year 2</option><option value="FINA_YEAR_3">FINA Year 3</option><option value="FINA_ALUMNI">FINA Alumni</option>
+                {[1, 2, 3, 4, 5].map((year) => <option key={`FINA-${year}`} value={`FINA_YEAR_${year}`}>FINA Year {year}</option>)}
+                <option value="FINA_ALUMNI">FINA Alumni</option>
                 <option value="QFIN">All QFIN students</option>
-                <option value="QFIN_YEAR_1">QFIN Year 1</option><option value="QFIN_YEAR_2">QFIN Year 2</option><option value="QFIN_YEAR_3">QFIN Year 3</option><option value="QFIN_ALUMNI">QFIN Alumni</option>
+                {[1, 2, 3, 4, 5].map((year) => <option key={`QFIN-${year}`} value={`QFIN_YEAR_${year}`}>QFIN Year {year}</option>)}
+                <option value="QFIN_ALUMNI">QFIN Alumni</option>
               </select>
             </label>
             <label>

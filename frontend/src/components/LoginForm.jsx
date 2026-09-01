@@ -43,11 +43,11 @@ function LoginForm() {
         <div className="logo-container">
           <div className="logo-text">
             <h1>HKUST</h1>
-            <span>Finance student services</span>
+            <span>Finance community portal</span>
           </div>
         </div>
 
-        <h2>Sign in to your student desk</h2>
+        <h2>Sign in to your portal</h2>
 
         <div className="login-mode-tabs" role="tablist">
           <button

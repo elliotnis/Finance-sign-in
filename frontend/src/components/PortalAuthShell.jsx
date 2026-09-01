@@ -2,7 +2,7 @@ import PortalAuthCarousel from './PortalAuthCarousel';
 
 const STAGES = [
   { key: 'access', number: '01', label: 'Access' },
-  { key: 'profile', number: '02', label: 'Student record' },
+  { key: 'profile', number: '02', label: 'Profile' },
   { key: 'portal', number: '03', label: 'Portal' },
 ];
 
@@ -24,7 +24,7 @@ function PortalAuthShell({ currentStage = 'access', children }) {
 
         <div className="portal-auth-statement">
           <span>FINA / QFIN</span>
-          <h1>Student services, arranged around your week.</h1>
+          <h1>Finance services, arranged around your week.</h1>
         </div>
 
         <ol className="portal-auth-progress" aria-label="Account setup progress">

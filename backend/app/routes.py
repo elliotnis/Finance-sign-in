@@ -25,6 +25,7 @@ from .utils import (
     submit_reflection,
     # Admin + classes
     is_admin, is_email_allowed, is_gamemaster, is_trading_player_email_allowed, normalize_email_for_access,
+    portal_role_for_email,
     create_class, list_classes, get_class, get_class_attachment,
     get_class_notification_data, get_class_notification_recipients, delete_class,
     register_for_class, unregister_from_class, get_my_classes,
@@ -588,20 +589,21 @@ def create_profile(profile_data: ProfileCreate):
     """
     login_email = normalize_email_for_access(profile_data.login_email)
     require_allowed_email(login_email)
+    is_staff = portal_role_for_email(login_email) == "staff"
     result = create_user_profile(
         login_email,  # Use login_email to find the user
-        profile_data.SID,
+        "" if is_staff else profile_data.SID,
         profile_data.full_name,
         profile_data.preferred_name,
-        profile_data.study_year,
-        profile_data.major,
+        "" if is_staff else profile_data.study_year,
+        "" if is_staff else profile_data.major,
         profile_data.contact_phone,
         profile_data.profile_email,  # Use profile_email for the profile data
         profile_data.profile_picture,
         profile_data.biography,
         profile_data.biography_public,
         profile_data.linkedin_url,
-        profile_data.graduation_year,
+        None if is_staff else profile_data.graduation_year,
         profile_data.credentials,
         profile_data.interests,
         profile_data.preferences,
@@ -647,7 +649,9 @@ def get_profile(login_email: str):
             detail="Profile not found for this user"
         )
 
-    return ProfileResponse(**profile)
+    response = dict(profile)
+    response["affiliation_role"] = portal_role_for_email(login_email)
+    return ProfileResponse(**response)
 
 @router.put("/profile/{login_email}")
 def update_profile(login_email: str, profile_update: ProfileUpdate):
@@ -656,20 +660,21 @@ def update_profile(login_email: str, profile_update: ProfileUpdate):
     """
     login_email = normalize_email_for_access(login_email)
     require_allowed_email(login_email)
+    is_staff = portal_role_for_email(login_email) == "staff"
     result = update_user_profile(
         login_email,  # Use login_email to find the user
-        profile_update.SID,
+        "" if is_staff else profile_update.SID,
         profile_update.full_name,
         profile_update.preferred_name,
-        profile_update.study_year,
-        profile_update.major,
+        "" if is_staff else profile_update.study_year,
+        "" if is_staff else profile_update.major,
         profile_update.contact_phone,
         profile_update.profile_email,  # Use profile_email for the update
         profile_update.profile_picture,
         profile_update.biography,
         profile_update.biography_public,
         profile_update.linkedin_url,
-        profile_update.graduation_year,
+        0 if is_staff else profile_update.graduation_year,
         profile_update.credentials,
         profile_update.interests,
         profile_update.preferences,
@@ -1047,9 +1052,17 @@ def submit_session_reflection(reflection_data: ReflectionSubmit):
 
 @router.get("/me/role")
 def get_my_role(email: str):
-    """Tell the frontend whether this email is in the admin allow-list."""
+    """Return access flags and the affiliation inferred from the HKUST domain."""
     email = normalize_email_for_access(email)
-    return {"email": email, "is_admin": is_admin(email), "is_allowed": is_email_allowed(email)}
+    affiliation_role = portal_role_for_email(email)
+    return {
+        "email": email,
+        "role": affiliation_role,
+        "is_student": affiliation_role == "student",
+        "is_staff": affiliation_role == "staff",
+        "is_admin": is_admin(email),
+        "is_allowed": is_email_allowed(email),
+    }
 
 
 # ==================== Admin Database Manager ====================

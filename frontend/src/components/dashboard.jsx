@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
 import DepartmentBrand from './DepartmentBrand';
+import { getPortalRole, getPortalRoleLabel } from '../userRole';
 import '../styles/dashboard.css';
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
@@ -107,15 +108,16 @@ function Dashboard(){
     const [profileSummary, setProfileSummary] = useState({ major: '', studyYear: '', graduationYear: '', credentials: [], interests: [], preferences: [] });
     const [profileLoading, setProfileLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [portalRole, setPortalRole] = useState(() => getPortalRole(localStorage.getItem('user_email')));
     const [bookings, setBookings] = useState([]);
     const [bookingsLoading, setBookingsLoading] = useState(true);
     const [bookingsError, setBookingsError] = useState('');
     const [displayName, setDisplayName] = useState(() => {
         const storedName = localStorage.getItem('preferred_name');
         if (storedName && storedName.includes('@')) {
-            return 'Student';
+            return getPortalRoleLabel(localStorage.getItem('user_email'));
         }
-        return storedName || 'Student';
+        return storedName || getPortalRoleLabel(localStorage.getItem('user_email'));
     });
 
     const fetchAdminRole = useCallback(async () => {
@@ -131,6 +133,7 @@ function Dashboard(){
                     return;
                 }
                 setIsAdmin(Boolean(data.is_admin));
+                setPortalRole(data.role || getPortalRole(userEmail));
             }
         } catch (error) {
             console.error('Error checking admin role:', error);
@@ -213,7 +216,7 @@ function Dashboard(){
 
         if (preferred_name && preferred_name.includes('@')) {
             localStorage.removeItem('preferred_name');
-            setDisplayName('Student');
+            setDisplayName(getPortalRoleLabel(localStorage.getItem('user_email')));
         }
 
         if (!user_id){
@@ -277,13 +280,6 @@ function Dashboard(){
 
     const quickActions = [
         {
-            title: 'Finance Services',
-            description: 'Prepare your Resume Book entry, cards, event responses, and merch orders.',
-            icon: 'fa-briefcase',
-            accent: 'teal',
-            onClick: () => navigate('/finance-services'),
-        },
-        {
             title: 'Create Sessions',
             description: 'Open tutor scheduling tools and publish new slots.',
             icon: 'fa-calendar-plus',
@@ -320,12 +316,22 @@ function Dashboard(){
         },
         {
             title: 'Verification',
-            description: 'Complete or check your student verification.',
+            description: 'Complete or check your session verification.',
             icon: 'fa-shield-halved',
             accent: 'red',
             onClick: () => navigate('/verification'),
         },
     ];
+
+    if (portalRole === 'student' || isAdmin) {
+        quickActions.unshift({
+            title: 'Finance Services',
+            description: 'Prepare your Resume Book entry, cards, event responses, and merch orders.',
+            icon: 'fa-briefcase',
+            accent: 'teal',
+            onClick: () => navigate('/finance-services'),
+        });
+    }
 
     if (isAdmin) {
         quickActions.push({
@@ -419,6 +425,7 @@ function Dashboard(){
                         <span className="hero-card-label">Signed in as</span>
                         <strong>{displayName}</strong>
                         <small>{userEmail}</small>
+                        <small>{portalRole === 'staff' ? 'HKUST staff' : portalRole === 'student' ? 'HKUST student' : 'Portal user'}</small>
                         {(profileSummary.major || profileSummary.graduationYear || profileSummary.studyYear) && (
                             <small>{profileSummary.major || 'Finance'} · {profileSummary.graduationYear ? `Class of ${profileSummary.graduationYear}` : `Year ${profileSummary.studyYear}`}</small>
                         )}

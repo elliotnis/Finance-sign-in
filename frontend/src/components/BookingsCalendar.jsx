@@ -278,7 +278,7 @@ function BookingsCalendar() {
           <span>Dashboard</span>
         </button>
         <div className="booking-title">
-          <span>FINA student portal</span>
+          <span>FINA community portal</span>
           <h1>My Calendar</h1>
         </div>
         <button type="button" className="booking-icon-button" onClick={loadBookings}>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
 import PortalAuthShell from './PortalAuthShell';
+import { getPortalRole, getPortalRoleLabel } from '../userRole';
 import '../styles/auth.css';
 
 function getSafeReturnTo(locationState) {
@@ -29,6 +30,10 @@ function ProfileCompletion() {
   const userEmail = locationState.email || sessionData.email || '';
   const userId = locationState.userId;
   const returnTo = getSafeReturnTo(locationState);
+  const portalRole = getPortalRole(userEmail);
+  const isStaff = portalRole === 'staff';
+  const roleLabel = getPortalRoleLabel(userEmail);
+  const affiliationDescription = isStaff ? 'staff' : portalRole === 'student' ? 'a student' : 'a portal member';
 
   console.log('ProfileCompletion rendered');
   console.log('Location state:', location.state);
@@ -74,12 +79,12 @@ function ProfileCompletion() {
         login_email: userEmail,
         full_name: formData.fullName,
         preferred_name: formData.preferredName,
-        SID: formData.studentId,
-        study_year: formData.yearOfStudy,
-        major: formData.major,
+        SID: isStaff ? '' : formData.studentId,
+        study_year: isStaff ? '' : formData.yearOfStudy,
+        major: isStaff ? '' : formData.major,
         contact_phone: formData.contactNumber,
         profile_email: userEmail, // Using the same email for profile
-        graduation_year: formData.graduationYear ? Number(formData.graduationYear) : null,
+        graduation_year: !isStaff && formData.graduationYear ? Number(formData.graduationYear) : null,
         biography: formData.biography,
         biography_public: formData.biographyPublic,
         linkedin_url: formData.linkedinUrl || null,
@@ -125,12 +130,12 @@ function ProfileCompletion() {
         <div className="logo-container">
           <div className="logo-text">
             <h1>HKUST</h1>
-            <span>Finance student services</span>
+            <span>Finance community portal</span>
           </div>
         </div>
 
-        <h2>Build your student record</h2>
-        <p className="subtitle">Add the details tutors and admins need before you enter the portal.</p>
+        <h2>Build your {roleLabel.toLowerCase()} profile</h2>
+        <p className="subtitle">Your HKUST email identifies you as {affiliationDescription}. Add the details people need before you enter the portal.</p>
         
         {error && <p className="error-message">{error}</p>}
 
@@ -148,11 +153,11 @@ function ProfileCompletion() {
           <i className="fas fa-user input-icon"></i>
         </div>
 
-        <div className="input-group">
+        {!isStaff && <div className="input-group">
           <label htmlFor="graduationYear">Expected graduation year</label>
           <input type="number" id="graduationYear" name="graduationYear" min="2000" max="2200" value={formData.graduationYear} onChange={handleInputChange} placeholder="e.g. 2028" />
           <i className="fas fa-calendar input-icon"></i>
-        </div>
+        </div>}
 
         <div className="input-group">
           <label htmlFor="biography">Biography (optional)</label>
@@ -198,7 +203,7 @@ function ProfileCompletion() {
           <i className="fas fa-user-tag input-icon"></i>
         </div>
 
-        <div className="input-group">
+        {!isStaff && <div className="input-group">
           <label htmlFor="studentId">Student ID *</label>
           <input
             type="text"
@@ -210,9 +215,9 @@ function ProfileCompletion() {
             required
           />
           <i className="fas fa-id-card input-icon"></i>
-        </div>
+        </div>}
 
-        <div className="input-group">
+        {!isStaff && <div className="input-group">
           <label htmlFor="yearOfStudy">Year of Study *</label>
           <select
             id="yearOfStudy"
@@ -229,9 +234,9 @@ function ProfileCompletion() {
             <option value="5">Year 5</option>
           </select>
           <i className="fas fa-graduation-cap input-icon"></i>
-        </div>
+        </div>}
 
-        <div className="input-group">
+        {!isStaff && <div className="input-group">
           <label htmlFor="major">Major *</label>
           <select
             id="major"
@@ -245,7 +250,7 @@ function ProfileCompletion() {
             <option value="FINA">Finance (FINA)</option>
           </select>
           <i className="fas fa-book input-icon"></i>
-        </div>
+        </div>}
 
         <div className="input-group">
           <label htmlFor="contactNumber">Contact Number *</label>
@@ -266,7 +271,7 @@ function ProfileCompletion() {
         </button>
 
         <div className="signup-link">
-          <small>All fields are required to access the platform</small>
+          <small>{isStaff ? 'Name and contact details are required.' : 'Student details and contact information are required.'}</small>
         </div>
       </form>
     </PortalAuthShell>

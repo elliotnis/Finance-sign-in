@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
 import PortalAuthShell from './PortalAuthShell';
+import { getPortalRole, getPortalRoleLabel } from '../userRole';
 import '../styles/auth.css';
 
 function ProfileUpdate() {
@@ -39,6 +40,8 @@ function ProfileUpdate() {
 
   // Get user email from localStorage or auth context
   const userEmail = user?.email || localStorage.getItem('user_email');
+  const isStaff = getPortalRole(userEmail) === 'staff';
+  const roleLabel = getPortalRoleLabel(userEmail);
 
   useEffect(() => {
     if (!userEmail) {
@@ -158,13 +161,13 @@ function ProfileUpdate() {
       const profileUpdateData = {
         full_name: formData.fullName,
         preferred_name: formData.preferredName,
-        SID: formData.studentId,
-        study_year: formData.yearOfStudy,
-        major: formData.major,
+        SID: isStaff ? '' : formData.studentId,
+        study_year: isStaff ? '' : formData.yearOfStudy,
+        major: isStaff ? '' : formData.major,
         contact_phone: formData.contactNumber,
         profile_email: formData.profileEmail,
         profile_picture: formData.profilePicture,
-        graduation_year: formData.graduationYear ? Number(formData.graduationYear) : null,
+        graduation_year: !isStaff && formData.graduationYear ? Number(formData.graduationYear) : null,
         biography: formData.biography,
         biography_public: formData.biographyPublic,
         linkedin_url: formData.linkedinUrl || null,
@@ -260,7 +263,7 @@ function ProfileUpdate() {
           <div className="logo-container">
             <div className="logo-text">
               <h1>HKUST</h1>
-              <span>Finance student services</span>
+              <span>Finance community portal</span>
             </div>
           </div>
           <h2>Loading profile...</h2>
@@ -276,12 +279,12 @@ function ProfileUpdate() {
         <div className="logo-container">
           <div className="logo-text">
             <h1>HKUST</h1>
-            <span>Finance student services</span>
+            <span>Finance community portal</span>
           </div>
         </div>
 
-        <h2>Update your student record</h2>
-        <p className="subtitle">Keep your contact details, programme information, and profile photo current.</p>
+        <h2>Update your {roleLabel.toLowerCase()} profile</h2>
+        <p className="subtitle">Keep your contact details, biography, and profile photo current.</p>
         
         {error && <p className="error-message">{error}</p>}
         {success && <p className="success-message">{success}</p>}
@@ -346,7 +349,7 @@ function ProfileUpdate() {
           <i className="fas fa-user-tag input-icon"></i>
         </div>
 
-        <div className="input-group">
+        {!isStaff && <div className="input-group">
           <label htmlFor="studentId">Student ID *</label>
           <input
             type="text"
@@ -358,9 +361,9 @@ function ProfileUpdate() {
             required
           />
           <i className="fas fa-id-card input-icon"></i>
-        </div>
+        </div>}
 
-        <div className="input-group">
+        {!isStaff && <div className="input-group">
           <label htmlFor="yearOfStudy">Year of Study *</label>
           <select
             id="yearOfStudy"
@@ -377,9 +380,9 @@ function ProfileUpdate() {
             <option value="5">Year 5</option>
           </select>
           <i className="fas fa-graduation-cap input-icon"></i>
-        </div>
+        </div>}
 
-        <div className="input-group">
+        {!isStaff && <div className="input-group">
           <label htmlFor="major">Major *</label>
           <select
             id="major"
@@ -393,12 +396,12 @@ function ProfileUpdate() {
             <option value="FINA">Finance (FINA)</option>
           </select>
           <i className="fas fa-book input-icon"></i>
-        </div>
+        </div>}
 
-        <div className="input-group">
+        {!isStaff && <div className="input-group">
           <label htmlFor="graduationYear">Expected graduation year</label>
           <input type="number" id="graduationYear" name="graduationYear" min="2000" max="2200" value={formData.graduationYear} onChange={handleInputChange} placeholder="e.g. 2028" />
-        </div>
+        </div>}
 
         <div className="input-group">
           <label htmlFor="biography">Biography</label>
