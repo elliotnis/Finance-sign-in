@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import math
+import json
+from pathlib import Path
 import secrets
 import string
 from datetime import datetime, timedelta, timezone
@@ -722,6 +724,9 @@ NEWS_EVENTS.extend(
     }
     for row_id, period_id, asset_ids, headline, brief, rumor, question in BALANCE_SIGNAL_ROWS
 )
+
+
+NEWS_EVENTS.extend(json.loads(Path(__file__).with_name("trading_news_catalog.json").read_text()))
 
 
 def _asset_price_map(asset: dict[str, Any]) -> dict[str, float]:

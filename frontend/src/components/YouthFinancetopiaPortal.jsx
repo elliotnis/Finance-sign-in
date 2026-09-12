@@ -989,14 +989,15 @@ function MarketTape({ news, currentPeriodId, evidenceIds, toggleEvidence }) {
                 <button className="yf-news-card-toggle" type="button" onClick={() => toggle(setExpanded, item.id)} aria-expanded={isOpen}>
                   <span className="yf-news-index">{String(index + 1).padStart(2, '0')}</span>
                   <span className="yf-news-card-title">
-                    <small>{item.period_label} / MARKET CLUE</small>
+                    <small>{item.period_label} / {item.type === 'rumor' ? 'UNVERIFIED RUMOR' : item.type === 'news' ? 'SIMULATED NEWS' : 'MARKET CLUE'}</small>
                     <strong>{item.headline}</strong>
                   </span>
                   <i className={`fa-solid fa-${isOpen ? 'minus' : 'plus'}`} />
                 </button>
                 {isOpen && (
                   <div className="yf-news-body">
-                    <div className="yf-source-line"><span><i className="fa-solid fa-circle-check" /> CONFIRMED BRIEF</span><b>Medium detail</b></div>
+                    <div className="yf-source-line"><span><i className={`fa-solid ${item.type === 'rumor' ? 'fa-comment-dots' : 'fa-circle-check'}`} /> {item.type === 'rumor' ? 'UNVERIFIED' : item.type === 'news' ? 'SIMULATED REPORT' : 'CONFIRMED BRIEF'}</span><b>{item.source || 'Market briefing'}</b></div>
+                    {item.source && <p>Fictional source and scenario. Broader-market context, not a report about a specific challenge asset.</p>}
                     <p>{item.brief}</p>
                     <blockquote>{item.question}</blockquote>
                     <div className="yf-news-actions">
@@ -1004,10 +1005,10 @@ function MarketTape({ news, currentPeriodId, evidenceIds, toggleEvidence }) {
                         <i className={`fa-${isPinned ? 'solid' : 'regular'} fa-bookmark`} />
                         {isPinned ? 'Pinned to notebook' : 'Pin as evidence'}
                       </button>
-                      <button type="button" onClick={() => toggle(setRumors, item.id)} aria-expanded={rumorOpen}>
+                      {item.rumor && <button type="button" onClick={() => toggle(setRumors, item.id)} aria-expanded={rumorOpen}>
                         <i className="fa-solid fa-comment-dots" />
                         {rumorOpen ? 'Hide desk chatter' : 'Check desk chatter'}
-                      </button>
+                      </button>}
                     </div>
                     {rumorOpen && (
                       <div className="yf-rumor"><span>UNVERIFIED</span><p>{item.rumor}</p></div>

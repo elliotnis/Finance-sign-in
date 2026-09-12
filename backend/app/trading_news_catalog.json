@@ -1,0 +1,1502 @@
+[
+  {
+    "id": "catalog-news-1",
+    "period_id": "2018Q1",
+    "headline": "Apple reports improved delivery times following capacity upgrades.",
+    "brief": "The published operating data suggests fewer bottlenecks and possible volume support for AAPL.",
+    "source": "Market School Desk",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-2",
+    "period_id": "2018Q1",
+    "headline": "JPMorgan completes a previously announced acquisition.",
+    "brief": "The completed deal adds capabilities to JPM, with integration costs still uncertain.",
+    "source": "Enterprise Technology News",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-3",
+    "period_id": "2018Q1",
+    "headline": "Coca-Cola publishes updated environmental and supply-chain targets.",
+    "brief": "The formal targets may affect KO costs, supplier choices, and institutional demand.",
+    "source": "Market School Desk",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-4",
+    "period_id": "2018Q1",
+    "headline": "NVIDIA raises its full-year capital expenditure forecast.",
+    "brief": "Higher investment signals confidence in demand while increasing the funding needs of NVDA.",
+    "source": "Enterprise Technology News",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-5",
+    "period_id": "2018Q1",
+    "headline": "Tesla announces a senior leadership appointment for its largest division.",
+    "brief": "The confirmed appointment could alter TSLA strategy, but its impact will take time to measure.",
+    "source": "Market School Desk",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-6",
+    "period_id": "2018Q2",
+    "headline": "Amazon reports that input costs changed materially during the quarter.",
+    "brief": "The company disclosure helps students assess possible pressure on AMZN pricing and margins.",
+    "source": "Enterprise Technology News",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-7",
+    "period_id": "2018Q2",
+    "headline": "Microsoft expands into three additional regional markets.",
+    "brief": "The confirmed launch gives MSFT a larger addressable market and new operating costs.",
+    "source": "Market School Desk",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-8",
+    "period_id": "2018Q2",
+    "headline": "Apple board authorizes a capital return program after its annual review.",
+    "brief": "The formal authorization may support AAPL shareholders, depending on how much is executed.",
+    "source": "Enterprise Technology News",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-9",
+    "period_id": "2018Q2",
+    "headline": "JPMorgan increases research spending as competition intensifies.",
+    "brief": "The disclosed investment may strengthen JPM products while weighing on current profitability.",
+    "source": "Market School Desk",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-10",
+    "period_id": "2018Q2",
+    "headline": "Coca-Cola receives regulatory clearance for a major product or service expansion.",
+    "brief": "The approval removes one obstacle to expansion, but does not guarantee higher KO sales.",
+    "source": "Enterprise Technology News",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-11",
+    "period_id": "2018Q3",
+    "headline": "NVIDIA signs a publicly announced strategic supply agreement.",
+    "brief": "The confirmed agreement improves visibility into NVDA supply or distribution capacity.",
+    "source": "Market School Desk",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-12",
+    "period_id": "2018Q3",
+    "headline": "Tesla launches a cost-efficiency plan and publishes its savings target.",
+    "brief": "The disclosed target could improve TSLA margins if management delivers the planned savings.",
+    "source": "Enterprise Technology News",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-13",
+    "period_id": "2018Q3",
+    "headline": "Amazon reports stronger customer demand in its latest quarterly filing.",
+    "brief": "The filing provides an authoritative demand signal for AMZN, subject to execution risk.",
+    "source": "Market School Desk",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-14",
+    "period_id": "2018Q3",
+    "headline": "Microsoft confirms a new multi-year investment program for its core business.",
+    "brief": "The announced spending may support MSFT growth, although near-term cash flow could be lower.",
+    "source": "Enterprise Technology News",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-15",
+    "period_id": "2018Q3",
+    "headline": "Apple publishes its 2018 operating update with revenue and margin guidance.",
+    "brief": "The reported figures give investors a formal benchmark for AAPL earnings expectations.",
+    "source": "Market School Desk",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-news-16",
+    "period_id": "2018Q4",
+    "headline": "Tesla reports improved delivery times following capacity upgrades.",
+    "brief": "The published operating data suggests fewer bottlenecks and possible volume support for TSLA.",
+    "source": "Industry Economics Brief",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-17",
+    "period_id": "2018Q4",
+    "headline": "Amazon completes a previously announced acquisition.",
+    "brief": "The completed deal adds capabilities to AMZN, with integration costs still uncertain.",
+    "source": "The Financial Classroom",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-18",
+    "period_id": "2018Q4",
+    "headline": "Microsoft publishes updated environmental and supply-chain targets.",
+    "brief": "The formal targets may affect MSFT costs, supplier choices, and institutional demand.",
+    "source": "Industry Economics Brief",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-19",
+    "period_id": "2018Q4",
+    "headline": "Apple raises its full-year capital expenditure forecast.",
+    "brief": "Higher investment signals confidence in demand while increasing the funding needs of AAPL.",
+    "source": "The Financial Classroom",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-20",
+    "period_id": "2018Q4",
+    "headline": "JPMorgan announces a senior leadership appointment for its largest division.",
+    "brief": "The confirmed appointment could alter JPM strategy, but its impact will take time to measure.",
+    "source": "Industry Economics Brief",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-21",
+    "period_id": "2019Q1",
+    "headline": "Coca-Cola reports that input costs changed materially during the quarter.",
+    "brief": "The company disclosure helps students assess possible pressure on KO pricing and margins.",
+    "source": "The Financial Classroom",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-22",
+    "period_id": "2019Q1",
+    "headline": "NVIDIA expands into three additional regional markets.",
+    "brief": "The confirmed launch gives NVDA a larger addressable market and new operating costs.",
+    "source": "Industry Economics Brief",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-23",
+    "period_id": "2019Q1",
+    "headline": "Tesla board authorizes a capital return program after its annual review.",
+    "brief": "The formal authorization may support TSLA shareholders, depending on how much is executed.",
+    "source": "The Financial Classroom",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-24",
+    "period_id": "2019Q1",
+    "headline": "Amazon increases research spending as competition intensifies.",
+    "brief": "The disclosed investment may strengthen AMZN products while weighing on current profitability.",
+    "source": "Industry Economics Brief",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-25",
+    "period_id": "2019Q1",
+    "headline": "Microsoft receives regulatory clearance for a major product or service expansion.",
+    "brief": "The approval removes one obstacle to expansion, but does not guarantee higher MSFT sales.",
+    "source": "The Financial Classroom",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-26",
+    "period_id": "2019Q2",
+    "headline": "Apple signs a publicly announced strategic supply agreement.",
+    "brief": "The confirmed agreement improves visibility into AAPL supply or distribution capacity.",
+    "source": "Industry Economics Brief",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-27",
+    "period_id": "2019Q2",
+    "headline": "JPMorgan launches a cost-efficiency plan and publishes its savings target.",
+    "brief": "The disclosed target could improve JPM margins if management delivers the planned savings.",
+    "source": "The Financial Classroom",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-28",
+    "period_id": "2019Q2",
+    "headline": "Coca-Cola reports stronger customer demand in its latest quarterly filing.",
+    "brief": "The filing provides an authoritative demand signal for KO, subject to execution risk.",
+    "source": "Industry Economics Brief",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-29",
+    "period_id": "2019Q2",
+    "headline": "NVIDIA confirms a new multi-year investment program for its core business.",
+    "brief": "The announced spending may support NVDA growth, although near-term cash flow could be lower.",
+    "source": "The Financial Classroom",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-30",
+    "period_id": "2019Q2",
+    "headline": "Tesla publishes its 2019 operating update with revenue and margin guidance.",
+    "brief": "The reported figures give investors a formal benchmark for TSLA earnings expectations.",
+    "source": "Industry Economics Brief",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-news-31",
+    "period_id": "2019Q3",
+    "headline": "Coca-Cola completes a previously announced acquisition.",
+    "brief": "The completed deal adds capabilities to KO, with integration costs still uncertain.",
+    "source": "Technology Sector Review",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-32",
+    "period_id": "2019Q3",
+    "headline": "NVIDIA publishes updated environmental and supply-chain targets.",
+    "brief": "The formal targets may affect NVDA costs, supplier choices, and institutional demand.",
+    "source": "Banking Sector Bulletin",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-33",
+    "period_id": "2019Q3",
+    "headline": "Tesla raises its full-year capital expenditure forecast.",
+    "brief": "Higher investment signals confidence in demand while increasing the funding needs of TSLA.",
+    "source": "Technology Sector Review",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-34",
+    "period_id": "2019Q3",
+    "headline": "Amazon announces a senior leadership appointment for its largest division.",
+    "brief": "The confirmed appointment could alter AMZN strategy, but its impact will take time to measure.",
+    "source": "Banking Sector Bulletin",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-35",
+    "period_id": "2019Q3",
+    "headline": "Microsoft reports that input costs changed materially during the quarter.",
+    "brief": "The company disclosure helps students assess possible pressure on MSFT pricing and margins.",
+    "source": "Technology Sector Review",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-36",
+    "period_id": "2019Q4",
+    "headline": "Apple expands into three additional regional markets.",
+    "brief": "The confirmed launch gives AAPL a larger addressable market and new operating costs.",
+    "source": "Banking Sector Bulletin",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-37",
+    "period_id": "2019Q4",
+    "headline": "JPMorgan board authorizes a capital return program after its annual review.",
+    "brief": "The formal authorization may support JPM shareholders, depending on how much is executed.",
+    "source": "Technology Sector Review",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-38",
+    "period_id": "2019Q4",
+    "headline": "Coca-Cola increases research spending as competition intensifies.",
+    "brief": "The disclosed investment may strengthen KO products while weighing on current profitability.",
+    "source": "Banking Sector Bulletin",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-39",
+    "period_id": "2019Q4",
+    "headline": "NVIDIA receives regulatory clearance for a major product or service expansion.",
+    "brief": "The approval removes one obstacle to expansion, but does not guarantee higher NVDA sales.",
+    "source": "Technology Sector Review",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-40",
+    "period_id": "2019Q4",
+    "headline": "Tesla signs a publicly announced strategic supply agreement.",
+    "brief": "The confirmed agreement improves visibility into TSLA supply or distribution capacity.",
+    "source": "Banking Sector Bulletin",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-41",
+    "period_id": "2020Q1",
+    "headline": "Amazon launches a cost-efficiency plan and publishes its savings target.",
+    "brief": "The disclosed target could improve AMZN margins if management delivers the planned savings.",
+    "source": "Technology Sector Review",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-42",
+    "period_id": "2020Q1",
+    "headline": "Microsoft reports stronger customer demand in its latest quarterly filing.",
+    "brief": "The filing provides an authoritative demand signal for MSFT, subject to execution risk.",
+    "source": "Banking Sector Bulletin",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-43",
+    "period_id": "2020Q1",
+    "headline": "Apple confirms a new multi-year investment program for its core business.",
+    "brief": "The announced spending may support AAPL growth, although near-term cash flow could be lower.",
+    "source": "Technology Sector Review",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-44",
+    "period_id": "2020Q1",
+    "headline": "JPMorgan publishes its 2020 operating update with revenue and margin guidance.",
+    "brief": "The reported figures give investors a formal benchmark for JPM earnings expectations.",
+    "source": "Banking Sector Bulletin",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-news-45",
+    "period_id": "2020Q1",
+    "headline": "Microsoft completes a previously announced acquisition.",
+    "brief": "The completed deal adds capabilities to MSFT, with integration costs still uncertain.",
+    "source": "Retail & Payments Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-46",
+    "period_id": "2020Q2",
+    "headline": "Apple publishes updated environmental and supply-chain targets.",
+    "brief": "The formal targets may affect AAPL costs, supplier choices, and institutional demand.",
+    "source": "Campus Finance Wire",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-47",
+    "period_id": "2020Q2",
+    "headline": "JPMorgan raises its full-year capital expenditure forecast.",
+    "brief": "Higher investment signals confidence in demand while increasing the funding needs of JPM.",
+    "source": "Retail & Payments Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-48",
+    "period_id": "2020Q2",
+    "headline": "Coca-Cola announces a senior leadership appointment for its largest division.",
+    "brief": "The confirmed appointment could alter KO strategy, but its impact will take time to measure.",
+    "source": "Campus Finance Wire",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-49",
+    "period_id": "2020Q2",
+    "headline": "NVIDIA reports that input costs changed materially during the quarter.",
+    "brief": "The company disclosure helps students assess possible pressure on NVDA pricing and margins.",
+    "source": "Retail & Payments Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-50",
+    "period_id": "2020Q2",
+    "headline": "Tesla expands into three additional regional markets.",
+    "brief": "The confirmed launch gives TSLA a larger addressable market and new operating costs.",
+    "source": "Campus Finance Wire",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-51",
+    "period_id": "2020Q3",
+    "headline": "Amazon board authorizes a capital return program after its annual review.",
+    "brief": "The formal authorization may support AMZN shareholders, depending on how much is executed.",
+    "source": "Retail & Payments Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-52",
+    "period_id": "2020Q3",
+    "headline": "Microsoft increases research spending as competition intensifies.",
+    "brief": "The disclosed investment may strengthen MSFT products while weighing on current profitability.",
+    "source": "Campus Finance Wire",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-53",
+    "period_id": "2020Q3",
+    "headline": "Apple receives regulatory clearance for a major product or service expansion.",
+    "brief": "The approval removes one obstacle to expansion, but does not guarantee higher AAPL sales.",
+    "source": "Retail & Payments Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-54",
+    "period_id": "2020Q3",
+    "headline": "JPMorgan signs a publicly announced strategic supply agreement.",
+    "brief": "The confirmed agreement improves visibility into JPM supply or distribution capacity.",
+    "source": "Campus Finance Wire",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-55",
+    "period_id": "2020Q3",
+    "headline": "Coca-Cola launches a cost-efficiency plan and publishes its savings target.",
+    "brief": "The disclosed target could improve KO margins if management delivers the planned savings.",
+    "source": "Retail & Payments Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-56",
+    "period_id": "2020Q4",
+    "headline": "NVIDIA reports stronger customer demand in its latest quarterly filing.",
+    "brief": "The filing provides an authoritative demand signal for NVDA, subject to execution risk.",
+    "source": "Campus Finance Wire",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-57",
+    "period_id": "2020Q4",
+    "headline": "Tesla confirms a new multi-year investment program for its core business.",
+    "brief": "The announced spending may support TSLA growth, although near-term cash flow could be lower.",
+    "source": "Retail & Payments Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-58",
+    "period_id": "2020Q4",
+    "headline": "Amazon publishes its 2020 operating update with revenue and margin guidance.",
+    "brief": "The reported figures give investors a formal benchmark for AMZN earnings expectations.",
+    "source": "Campus Finance Wire",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-news-59",
+    "period_id": "2020Q4",
+    "headline": "NVIDIA completes a previously announced acquisition.",
+    "brief": "The completed deal adds capabilities to NVDA, with integration costs still uncertain.",
+    "source": "Market Structure Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-60",
+    "period_id": "2020Q4",
+    "headline": "Tesla publishes updated environmental and supply-chain targets.",
+    "brief": "The formal targets may affect TSLA costs, supplier choices, and institutional demand.",
+    "source": "Corporate Filing Monitor",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-61",
+    "period_id": "2021Q1",
+    "headline": "Amazon raises its full-year capital expenditure forecast.",
+    "brief": "Higher investment signals confidence in demand while increasing the funding needs of AMZN.",
+    "source": "Market Structure Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-62",
+    "period_id": "2021Q1",
+    "headline": "Microsoft announces a senior leadership appointment for its largest division.",
+    "brief": "The confirmed appointment could alter MSFT strategy, but its impact will take time to measure.",
+    "source": "Corporate Filing Monitor",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-63",
+    "period_id": "2021Q1",
+    "headline": "Apple reports that input costs changed materially during the quarter.",
+    "brief": "The company disclosure helps students assess possible pressure on AAPL pricing and margins.",
+    "source": "Market Structure Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-64",
+    "period_id": "2021Q1",
+    "headline": "JPMorgan expands into three additional regional markets.",
+    "brief": "The confirmed launch gives JPM a larger addressable market and new operating costs.",
+    "source": "Corporate Filing Monitor",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-65",
+    "period_id": "2021Q1",
+    "headline": "Coca-Cola board authorizes a capital return program after its annual review.",
+    "brief": "The formal authorization may support KO shareholders, depending on how much is executed.",
+    "source": "Market Structure Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-66",
+    "period_id": "2021Q2",
+    "headline": "NVIDIA increases research spending as competition intensifies.",
+    "brief": "The disclosed investment may strengthen NVDA products while weighing on current profitability.",
+    "source": "Corporate Filing Monitor",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-67",
+    "period_id": "2021Q2",
+    "headline": "Tesla receives regulatory clearance for a major product or service expansion.",
+    "brief": "The approval removes one obstacle to expansion, but does not guarantee higher TSLA sales.",
+    "source": "Market Structure Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-68",
+    "period_id": "2021Q2",
+    "headline": "Amazon signs a publicly announced strategic supply agreement.",
+    "brief": "The confirmed agreement improves visibility into AMZN supply or distribution capacity.",
+    "source": "Corporate Filing Monitor",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-69",
+    "period_id": "2021Q2",
+    "headline": "Microsoft launches a cost-efficiency plan and publishes its savings target.",
+    "brief": "The disclosed target could improve MSFT margins if management delivers the planned savings.",
+    "source": "Market Structure Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-70",
+    "period_id": "2021Q2",
+    "headline": "Apple reports stronger customer demand in its latest quarterly filing.",
+    "brief": "The filing provides an authoritative demand signal for AAPL, subject to execution risk.",
+    "source": "Corporate Filing Monitor",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-71",
+    "period_id": "2021Q3",
+    "headline": "JPMorgan confirms a new multi-year investment program for its core business.",
+    "brief": "The announced spending may support JPM growth, although near-term cash flow could be lower.",
+    "source": "Market Structure Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-72",
+    "period_id": "2021Q3",
+    "headline": "Coca-Cola publishes its 2021 operating update with revenue and margin guidance.",
+    "brief": "The reported figures give investors a formal benchmark for KO earnings expectations.",
+    "source": "Corporate Filing Monitor",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-news-73",
+    "period_id": "2021Q3",
+    "headline": "Apple completes a previously announced acquisition.",
+    "brief": "The completed deal adds capabilities to AAPL, with integration costs still uncertain.",
+    "source": "Consumer Business Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-74",
+    "period_id": "2021Q3",
+    "headline": "JPMorgan publishes updated environmental and supply-chain targets.",
+    "brief": "The formal targets may affect JPM costs, supplier choices, and institutional demand.",
+    "source": "Institutional Investor Notes",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-75",
+    "period_id": "2021Q3",
+    "headline": "Coca-Cola raises its full-year capital expenditure forecast.",
+    "brief": "Higher investment signals confidence in demand while increasing the funding needs of KO.",
+    "source": "Consumer Business Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-76",
+    "period_id": "2021Q4",
+    "headline": "NVIDIA announces a senior leadership appointment for its largest division.",
+    "brief": "The confirmed appointment could alter NVDA strategy, but its impact will take time to measure.",
+    "source": "Institutional Investor Notes",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-77",
+    "period_id": "2021Q4",
+    "headline": "Tesla reports that input costs changed materially during the quarter.",
+    "brief": "The company disclosure helps students assess possible pressure on TSLA pricing and margins.",
+    "source": "Consumer Business Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-78",
+    "period_id": "2021Q4",
+    "headline": "Amazon expands into three additional regional markets.",
+    "brief": "The confirmed launch gives AMZN a larger addressable market and new operating costs.",
+    "source": "Institutional Investor Notes",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-79",
+    "period_id": "2021Q4",
+    "headline": "Microsoft board authorizes a capital return program after its annual review.",
+    "brief": "The formal authorization may support MSFT shareholders, depending on how much is executed.",
+    "source": "Consumer Business Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-80",
+    "period_id": "2021Q4",
+    "headline": "Apple increases research spending as competition intensifies.",
+    "brief": "The disclosed investment may strengthen AAPL products while weighing on current profitability.",
+    "source": "Institutional Investor Notes",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-81",
+    "period_id": "2022Q1",
+    "headline": "JPMorgan receives regulatory clearance for a major product or service expansion.",
+    "brief": "The approval removes one obstacle to expansion, but does not guarantee higher JPM sales.",
+    "source": "Consumer Business Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-82",
+    "period_id": "2022Q1",
+    "headline": "Coca-Cola signs a publicly announced strategic supply agreement.",
+    "brief": "The confirmed agreement improves visibility into KO supply or distribution capacity.",
+    "source": "Institutional Investor Notes",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-83",
+    "period_id": "2022Q1",
+    "headline": "NVIDIA launches a cost-efficiency plan and publishes its savings target.",
+    "brief": "The disclosed target could improve NVDA margins if management delivers the planned savings.",
+    "source": "Consumer Business Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-84",
+    "period_id": "2022Q1",
+    "headline": "Tesla reports stronger customer demand in its latest quarterly filing.",
+    "brief": "The filing provides an authoritative demand signal for TSLA, subject to execution risk.",
+    "source": "Institutional Investor Notes",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-85",
+    "period_id": "2022Q1",
+    "headline": "Amazon confirms a new multi-year investment program for its core business.",
+    "brief": "The announced spending may support AMZN growth, although near-term cash flow could be lower.",
+    "source": "Consumer Business Journal",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-86",
+    "period_id": "2022Q2",
+    "headline": "Microsoft publishes its 2022 operating update with revenue and margin guidance.",
+    "brief": "The reported figures give investors a formal benchmark for MSFT earnings expectations.",
+    "source": "Institutional Investor Notes",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-news-87",
+    "period_id": "2022Q2",
+    "headline": "Tesla completes a previously announced acquisition.",
+    "brief": "The completed deal adds capabilities to TSLA, with integration costs still uncertain.",
+    "source": "Automotive Markets Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-88",
+    "period_id": "2022Q2",
+    "headline": "Amazon publishes updated environmental and supply-chain targets.",
+    "brief": "The formal targets may affect AMZN costs, supplier choices, and institutional demand.",
+    "source": "The Morning Ledger",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-89",
+    "period_id": "2022Q2",
+    "headline": "Microsoft raises its full-year capital expenditure forecast.",
+    "brief": "Higher investment signals confidence in demand while increasing the funding needs of MSFT.",
+    "source": "Automotive Markets Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-90",
+    "period_id": "2022Q2",
+    "headline": "Apple announces a senior leadership appointment for its largest division.",
+    "brief": "The confirmed appointment could alter AAPL strategy, but its impact will take time to measure.",
+    "source": "The Morning Ledger",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-91",
+    "period_id": "2022Q3",
+    "headline": "JPMorgan reports that input costs changed materially during the quarter.",
+    "brief": "The company disclosure helps students assess possible pressure on JPM pricing and margins.",
+    "source": "Automotive Markets Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-92",
+    "period_id": "2022Q3",
+    "headline": "Coca-Cola expands into three additional regional markets.",
+    "brief": "The confirmed launch gives KO a larger addressable market and new operating costs.",
+    "source": "The Morning Ledger",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-93",
+    "period_id": "2022Q3",
+    "headline": "NVIDIA board authorizes a capital return program after its annual review.",
+    "brief": "The formal authorization may support NVDA shareholders, depending on how much is executed.",
+    "source": "Automotive Markets Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-94",
+    "period_id": "2022Q3",
+    "headline": "Tesla increases research spending as competition intensifies.",
+    "brief": "The disclosed investment may strengthen TSLA products while weighing on current profitability.",
+    "source": "The Morning Ledger",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-95",
+    "period_id": "2022Q3",
+    "headline": "Amazon receives regulatory clearance for a major product or service expansion.",
+    "brief": "The approval removes one obstacle to expansion, but does not guarantee higher AMZN sales.",
+    "source": "Automotive Markets Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-96",
+    "period_id": "2022Q4",
+    "headline": "Microsoft signs a publicly announced strategic supply agreement.",
+    "brief": "The confirmed agreement improves visibility into MSFT supply or distribution capacity.",
+    "source": "The Morning Ledger",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-97",
+    "period_id": "2022Q4",
+    "headline": "Apple launches a cost-efficiency plan and publishes its savings target.",
+    "brief": "The disclosed target could improve AAPL margins if management delivers the planned savings.",
+    "source": "Automotive Markets Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-98",
+    "period_id": "2022Q4",
+    "headline": "JPMorgan reports stronger customer demand in its latest quarterly filing.",
+    "brief": "The filing provides an authoritative demand signal for JPM, subject to execution risk.",
+    "source": "The Morning Ledger",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-99",
+    "period_id": "2022Q4",
+    "headline": "Coca-Cola confirms a new multi-year investment program for its core business.",
+    "brief": "The announced spending may support KO growth, although near-term cash flow could be lower.",
+    "source": "Automotive Markets Report",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-news-100",
+    "period_id": "2022Q4",
+    "headline": "NVIDIA publishes its 2022 operating update with revenue and margin guidance.",
+    "brief": "The reported figures give investors a formal benchmark for NVDA earnings expectations.",
+    "source": "The Morning Ledger",
+    "type": "news",
+    "question": "Does this broader-market report support your thesis, or is it unrelated to the assets you hold?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-rumor-1",
+    "period_id": "2018Q1",
+    "headline": "Rumor: Apple's CEO was seen entering a private meeting with a major supplier.",
+    "brief": "The meeting could concern a partnership or routine business; AAPL has made no announcement.",
+    "source": "After-Hours Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-rumor-2",
+    "period_id": "2018Q1",
+    "headline": "Rumor: Microsoft has reserved extra production capacity ahead of an unannounced launch.",
+    "brief": "Supplier chatter hints at stronger plans, but there is no purchase order or MSFT filing to verify it.",
+    "source": "After-Hours Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-rumor-3",
+    "period_id": "2018Q1",
+    "headline": "Rumor: Amazon executives are interviewing candidates for a secret new division.",
+    "brief": "Hiring activity may signal expansion, restructuring, or nothing material for AMZN.",
+    "source": "After-Hours Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-rumor-4",
+    "period_id": "2018Q2",
+    "headline": "Rumor: A large fund has been quietly building a position in Tesla.",
+    "brief": "Unusual market activity can have many causes and does not confirm institutional interest in TSLA.",
+    "source": "After-Hours Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-rumor-5",
+    "period_id": "2018Q2",
+    "headline": "Rumor: NVIDIA is testing a premium product with a small group of customers.",
+    "brief": "A limited test may never become a commercial launch or meaningful revenue for NVDA.",
+    "source": "After-Hours Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-rumor-6",
+    "period_id": "2018Q3",
+    "headline": "Rumor: Coca-Cola has paused negotiations on a proposed regional partnership.",
+    "brief": "The reported pause is unverified and its possible financial impact on KO is unknown.",
+    "source": "After-Hours Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-rumor-7",
+    "period_id": "2018Q3",
+    "headline": "Rumor: Suppliers expect JPMorgan to revise order volumes next quarter.",
+    "brief": "Channel expectations can be wrong and are not a substitute for guidance from JPM.",
+    "source": "After-Hours Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-rumor-8",
+    "period_id": "2018Q3",
+    "headline": "Rumor: Apple managers attended a closed-door automation conference.",
+    "brief": "Attendance might point to future investment, but no project or budget for AAPL is confirmed.",
+    "source": "After-Hours Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2020
+  },
+  {
+    "id": "catalog-rumor-9",
+    "period_id": "2018Q4",
+    "headline": "Rumor: Tesla's CEO was seen entering a private meeting with a major supplier.",
+    "brief": "The meeting could concern a partnership or routine business; TSLA has made no announcement.",
+    "source": "Retail Channel Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-rumor-10",
+    "period_id": "2018Q4",
+    "headline": "Rumor: NVIDIA has reserved extra production capacity ahead of an unannounced launch.",
+    "brief": "Supplier chatter hints at stronger plans, but there is no purchase order or NVDA filing to verify it.",
+    "source": "Retail Channel Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-rumor-11",
+    "period_id": "2019Q1",
+    "headline": "Rumor: Coca-Cola executives are interviewing candidates for a secret new division.",
+    "brief": "Hiring activity may signal expansion, restructuring, or nothing material for KO.",
+    "source": "Retail Channel Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-rumor-12",
+    "period_id": "2019Q1",
+    "headline": "Rumor: A large fund has been quietly building a position in JPMorgan.",
+    "brief": "Unusual market activity can have many causes and does not confirm institutional interest in JPM.",
+    "source": "Retail Channel Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-rumor-13",
+    "period_id": "2019Q1",
+    "headline": "Rumor: Apple is testing a premium product with a small group of customers.",
+    "brief": "A limited test may never become a commercial launch or meaningful revenue for AAPL.",
+    "source": "Retail Channel Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-rumor-14",
+    "period_id": "2019Q2",
+    "headline": "Rumor: Microsoft has paused negotiations on a proposed regional partnership.",
+    "brief": "The reported pause is unverified and its possible financial impact on MSFT is unknown.",
+    "source": "Retail Channel Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-rumor-15",
+    "period_id": "2019Q2",
+    "headline": "Rumor: Suppliers expect Amazon to revise order volumes next quarter.",
+    "brief": "Channel expectations can be wrong and are not a substitute for guidance from AMZN.",
+    "source": "Retail Channel Chatter",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2021
+  },
+  {
+    "id": "catalog-rumor-16",
+    "period_id": "2019Q3",
+    "headline": "Rumor: JPMorgan's CEO was seen entering a private meeting with a major supplier.",
+    "brief": "The meeting could concern a partnership or routine business; JPM has made no announcement.",
+    "source": "Executive Travel Watch",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-rumor-17",
+    "period_id": "2019Q3",
+    "headline": "Rumor: Apple has reserved extra production capacity ahead of an unannounced launch.",
+    "brief": "Supplier chatter hints at stronger plans, but there is no purchase order or AAPL filing to verify it.",
+    "source": "Executive Travel Watch",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-rumor-18",
+    "period_id": "2019Q3",
+    "headline": "Rumor: Microsoft executives are interviewing candidates for a secret new division.",
+    "brief": "Hiring activity may signal expansion, restructuring, or nothing material for MSFT.",
+    "source": "Executive Travel Watch",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-rumor-19",
+    "period_id": "2019Q4",
+    "headline": "Rumor: A large fund has been quietly building a position in Amazon.",
+    "brief": "Unusual market activity can have many causes and does not confirm institutional interest in AMZN.",
+    "source": "Executive Travel Watch",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-rumor-20",
+    "period_id": "2019Q4",
+    "headline": "Rumor: Tesla is testing a premium product with a small group of customers.",
+    "brief": "A limited test may never become a commercial launch or meaningful revenue for TSLA.",
+    "source": "Executive Travel Watch",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-rumor-21",
+    "period_id": "2020Q1",
+    "headline": "Rumor: NVIDIA has paused negotiations on a proposed regional partnership.",
+    "brief": "The reported pause is unverified and its possible financial impact on NVDA is unknown.",
+    "source": "Executive Travel Watch",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-rumor-22",
+    "period_id": "2020Q1",
+    "headline": "Rumor: Suppliers expect Coca-Cola to revise order volumes next quarter.",
+    "brief": "Channel expectations can be wrong and are not a substitute for guidance from KO.",
+    "source": "Executive Travel Watch",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2022
+  },
+  {
+    "id": "catalog-rumor-23",
+    "period_id": "2020Q1",
+    "headline": "Rumor: Amazon's CEO was seen entering a private meeting with a major supplier.",
+    "brief": "The meeting could concern a partnership or routine business; AMZN has made no announcement.",
+    "source": "Supplier Corridor Notes",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-rumor-24",
+    "period_id": "2020Q2",
+    "headline": "Rumor: Tesla has reserved extra production capacity ahead of an unannounced launch.",
+    "brief": "Supplier chatter hints at stronger plans, but there is no purchase order or TSLA filing to verify it.",
+    "source": "Supplier Corridor Notes",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-rumor-25",
+    "period_id": "2020Q2",
+    "headline": "Rumor: NVIDIA executives are interviewing candidates for a secret new division.",
+    "brief": "Hiring activity may signal expansion, restructuring, or nothing material for NVDA.",
+    "source": "Supplier Corridor Notes",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-rumor-26",
+    "period_id": "2020Q3",
+    "headline": "Rumor: A large fund has been quietly building a position in Coca-Cola.",
+    "brief": "Unusual market activity can have many causes and does not confirm institutional interest in KO.",
+    "source": "Supplier Corridor Notes",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-rumor-27",
+    "period_id": "2020Q3",
+    "headline": "Rumor: JPMorgan is testing a premium product with a small group of customers.",
+    "brief": "A limited test may never become a commercial launch or meaningful revenue for JPM.",
+    "source": "Supplier Corridor Notes",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-rumor-28",
+    "period_id": "2020Q3",
+    "headline": "Rumor: Apple has paused negotiations on a proposed regional partnership.",
+    "brief": "The reported pause is unverified and its possible financial impact on AAPL is unknown.",
+    "source": "Supplier Corridor Notes",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-rumor-29",
+    "period_id": "2020Q4",
+    "headline": "Rumor: Suppliers expect Microsoft to revise order volumes next quarter.",
+    "brief": "Channel expectations can be wrong and are not a substitute for guidance from MSFT.",
+    "source": "Supplier Corridor Notes",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2023
+  },
+  {
+    "id": "catalog-rumor-30",
+    "period_id": "2020Q4",
+    "headline": "Rumor: Coca-Cola's CEO was seen entering a private meeting with a major supplier.",
+    "brief": "The meeting could concern a partnership or routine business; KO has made no announcement.",
+    "source": "Component Market Talk",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-rumor-31",
+    "period_id": "2021Q1",
+    "headline": "Rumor: JPMorgan has reserved extra production capacity ahead of an unannounced launch.",
+    "brief": "Supplier chatter hints at stronger plans, but there is no purchase order or JPM filing to verify it.",
+    "source": "Component Market Talk",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-rumor-32",
+    "period_id": "2021Q1",
+    "headline": "Rumor: Apple executives are interviewing candidates for a secret new division.",
+    "brief": "Hiring activity may signal expansion, restructuring, or nothing material for AAPL.",
+    "source": "Component Market Talk",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-rumor-33",
+    "period_id": "2021Q1",
+    "headline": "Rumor: A large fund has been quietly building a position in Microsoft.",
+    "brief": "Unusual market activity can have many causes and does not confirm institutional interest in MSFT.",
+    "source": "Component Market Talk",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-rumor-34",
+    "period_id": "2021Q2",
+    "headline": "Rumor: Amazon is testing a premium product with a small group of customers.",
+    "brief": "A limited test may never become a commercial launch or meaningful revenue for AMZN.",
+    "source": "Component Market Talk",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-rumor-35",
+    "period_id": "2021Q2",
+    "headline": "Rumor: Tesla has paused negotiations on a proposed regional partnership.",
+    "brief": "The reported pause is unverified and its possible financial impact on TSLA is unknown.",
+    "source": "Component Market Talk",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-rumor-36",
+    "period_id": "2021Q3",
+    "headline": "Rumor: Suppliers expect NVIDIA to revise order volumes next quarter.",
+    "brief": "Channel expectations can be wrong and are not a substitute for guidance from NVDA.",
+    "source": "Component Market Talk",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2024
+  },
+  {
+    "id": "catalog-rumor-37",
+    "period_id": "2021Q3",
+    "headline": "Rumor: Microsoft's CEO was seen entering a private meeting with a major supplier.",
+    "brief": "The meeting could concern a partnership or routine business; MSFT has made no announcement.",
+    "source": "Industry Conference Buzz",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-rumor-38",
+    "period_id": "2021Q3",
+    "headline": "Rumor: Amazon has reserved extra production capacity ahead of an unannounced launch.",
+    "brief": "Supplier chatter hints at stronger plans, but there is no purchase order or AMZN filing to verify it.",
+    "source": "Industry Conference Buzz",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-rumor-39",
+    "period_id": "2021Q4",
+    "headline": "Rumor: Tesla executives are interviewing candidates for a secret new division.",
+    "brief": "Hiring activity may signal expansion, restructuring, or nothing material for TSLA.",
+    "source": "Industry Conference Buzz",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-rumor-40",
+    "period_id": "2021Q4",
+    "headline": "Rumor: A large fund has been quietly building a position in NVIDIA.",
+    "brief": "Unusual market activity can have many causes and does not confirm institutional interest in NVDA.",
+    "source": "Industry Conference Buzz",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-rumor-41",
+    "period_id": "2022Q1",
+    "headline": "Rumor: Coca-Cola is testing a premium product with a small group of customers.",
+    "brief": "A limited test may never become a commercial launch or meaningful revenue for KO.",
+    "source": "Industry Conference Buzz",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-rumor-42",
+    "period_id": "2022Q1",
+    "headline": "Rumor: JPMorgan has paused negotiations on a proposed regional partnership.",
+    "brief": "The reported pause is unverified and its possible financial impact on JPM is unknown.",
+    "source": "Industry Conference Buzz",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-rumor-43",
+    "period_id": "2022Q1",
+    "headline": "Rumor: Suppliers expect Apple to revise order volumes next quarter.",
+    "brief": "Channel expectations can be wrong and are not a substitute for guidance from AAPL.",
+    "source": "Industry Conference Buzz",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2025
+  },
+  {
+    "id": "catalog-rumor-44",
+    "period_id": "2022Q2",
+    "headline": "Rumor: NVIDIA's CEO was seen entering a private meeting with a major supplier.",
+    "brief": "The meeting could concern a partnership or routine business; NVDA has made no announcement.",
+    "source": "Trading Floor Whispers",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-rumor-45",
+    "period_id": "2022Q2",
+    "headline": "Rumor: Coca-Cola has reserved extra production capacity ahead of an unannounced launch.",
+    "brief": "Supplier chatter hints at stronger plans, but there is no purchase order or KO filing to verify it.",
+    "source": "Trading Floor Whispers",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-rumor-46",
+    "period_id": "2022Q3",
+    "headline": "Rumor: JPMorgan executives are interviewing candidates for a secret new division.",
+    "brief": "Hiring activity may signal expansion, restructuring, or nothing material for JPM.",
+    "source": "Trading Floor Whispers",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-rumor-47",
+    "period_id": "2022Q3",
+    "headline": "Rumor: A large fund has been quietly building a position in Apple.",
+    "brief": "Unusual market activity can have many causes and does not confirm institutional interest in AAPL.",
+    "source": "Trading Floor Whispers",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-rumor-48",
+    "period_id": "2022Q3",
+    "headline": "Rumor: Microsoft is testing a premium product with a small group of customers.",
+    "brief": "A limited test may never become a commercial launch or meaningful revenue for MSFT.",
+    "source": "Trading Floor Whispers",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-rumor-49",
+    "period_id": "2022Q4",
+    "headline": "Rumor: Amazon has paused negotiations on a proposed regional partnership.",
+    "brief": "The reported pause is unverified and its possible financial impact on AMZN is unknown.",
+    "source": "Trading Floor Whispers",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2026
+  },
+  {
+    "id": "catalog-rumor-50",
+    "period_id": "2022Q4",
+    "headline": "Rumor: Suppliers expect Tesla to revise order volumes next quarter.",
+    "brief": "Channel expectations can be wrong and are not a substitute for guidance from TSLA.",
+    "source": "Trading Floor Whispers",
+    "type": "rumor",
+    "question": "What independent evidence would you need before acting on this claim?",
+    "catalog_year": 2026
+  }
+]
