@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../styles/youthFinancetopiaPortal.css';
@@ -501,6 +502,7 @@ function YouthFinancetopiaPortal() {
       </div>
 
       <RoundHero
+        floatTimer
         game={state?.game}
         secondsLeft={secondsLeft}
         isRoundOpen={isRoundOpen}
@@ -697,10 +699,21 @@ function ChallengeLogin({
   );
 }
 
-function RoundHero({ game, secondsLeft, isRoundOpen, refreshing, onRefresh }) {
+function RoundHero({ game, secondsLeft, isRoundOpen, refreshing, onRefresh, floatTimer = false }) {
+  const timerRef = useRef(null);
+  const [timerDetached, setTimerDetached] = useState(false);
+  useEffect(() => {
+    if (!floatTimer || !timerRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setTimerDetached(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+    });
+    observer.observe(timerRef.current);
+    return () => observer.disconnect();
+  }, [floatTimer]);
   const totalSeconds = game?.round_duration_seconds || 180;
   const progress = Math.max(0, Math.min(100, (secondsLeft / totalSeconds) * 100));
   return (
+    <>
     <section className={`yf-round-hero ${isRoundOpen ? 'open' : ''}`}>
       <div className="yf-round-kicker">
         <span>{game?.is_complete ? 'FINAL RESULTS' : isRoundOpen ? 'DECISION WINDOW' : 'BRIEFING MODE'}</span>
@@ -717,7 +730,7 @@ function RoundHero({ game, secondsLeft, isRoundOpen, refreshing, onRefresh }) {
             : 'Open the latest briefings and build your team view. Your host controls when trading begins.'}
         </p>
       </div>
-      <div className="yf-round-timer" aria-label={`${Math.floor(secondsLeft / 60)} minutes ${secondsLeft % 60} seconds remaining`}>
+      <div ref={timerRef} className="yf-round-timer" aria-label={`${Math.floor(secondsLeft / 60)} minutes ${secondsLeft % 60} seconds remaining`}>
         <span>TIME LEFT</span>
         <strong>{String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:{String(secondsLeft % 60).padStart(2, '0')}</strong>
         <div><span style={{ width: `${progress}%` }} /></div>
@@ -727,6 +740,15 @@ function RoundHero({ game, secondsLeft, isRoundOpen, refreshing, onRefresh }) {
         {refreshing ? 'Syncing' : 'Sync now'}
       </button>}
     </section>
+    {floatTimer && timerDetached && createPortal(
+      <div className="yf-floating-countdown" role="timer" aria-label="Round time remaining">
+        <span>TIME LEFT</span>
+        <strong>{String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:{String(secondsLeft % 60).padStart(2, '0')}</strong>
+        <div className="yf-floating-countdown-track"><span style={{ width: `${progress}%` }} /></div>
+      </div>,
+      document.body,
+    )}
+    </>
   );
 }
 
