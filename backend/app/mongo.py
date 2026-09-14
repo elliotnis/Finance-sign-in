@@ -16,7 +16,7 @@ DATABASE_URI = (
 
 try:
     client = pymongo.MongoClient(DATABASE_URI)
-    db = client.get_database("sign_up_system")  # Use the exact database name from Atlas
+    db = client.get_database(os.getenv("DATABASE_NAME", "sign_up_system"))  # Use the exact database name from Atlas
     user_collection = db["user_collection"]
     session_collection = db["session_collection"]  # For storing session information
     registration_collection = db["registration_collection"]  # For storing session registrations

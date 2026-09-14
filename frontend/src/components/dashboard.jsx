@@ -1,3 +1,4 @@
+import PeopleNotificationLink from './PeopleNotificationLink';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
@@ -279,6 +280,7 @@ function Dashboard(){
     };
 
     const quickActions = [
+        {title: 'People Finder', description: 'Connect with students and arrange private meetings.', icon: 'fa-users', accent: 'teal', onClick: () => navigate('/people')},
         {
             title: 'Create Sessions',
             description: 'Open tutor scheduling tools and publish new slots.',
@@ -359,6 +361,7 @@ function Dashboard(){
             <header className="dashboard-header">
                 <div className="header-content">
                     <DepartmentBrand subtitle="Session Calendar" />
+                    <PeopleNotificationLink email={userEmail} />
                     <div className="user-section">
                         <div className="user-info">
                             <span className="user-name">Welcome, {displayName}</span>

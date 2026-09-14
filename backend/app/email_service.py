@@ -91,6 +91,8 @@ def send_email(
     text_body: str | None = None,
     smtp_profile: str | None = None,
     attachments: list[dict] | None = None,
+    calendar_body: str | None = None,
+    calendar_method: str = "REQUEST",
 ) -> None:
     """Send a single email. Blocks until the SMTP server returns.
 
@@ -104,6 +106,8 @@ def send_email(
     msg["Subject"] = subject
     msg.set_content(text_body or _strip_html(html_body))
     msg.add_alternative(html_body, subtype="html")
+    if calendar_body:
+        msg.add_attachment(calendar_body, subtype="calendar", filename="invitation.ics", params={"method": calendar_method})
     for attachment in attachments or []:
         try:
             content = base64.b64decode(attachment.get("data_base64", ""), validate=True)

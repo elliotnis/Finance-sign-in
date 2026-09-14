@@ -55,6 +55,7 @@ function ProfileCompletion() {
     interests: '',
     preferences: ''
   });
+  const [joinPeople, setJoinPeople] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -116,7 +117,7 @@ function ProfileCompletion() {
 
       console.log('Profile created successfully:', data);
       sessionStorage.removeItem('post_login_redirect');
-      navigate(returnTo);
+      navigate(joinPeople ? '/people?tab=settings' : returnTo);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -135,6 +136,7 @@ function ProfileCompletion() {
         </div>
 
         <h2>Build your {roleLabel.toLowerCase()} profile</h2>
+        <label><input type="checkbox" checked={joinPeople} onChange={e => setJoinPeople(e.target.checked)} /> Set up my optional People Finder profile next</label>
         <p className="subtitle">Your HKUST email identifies you as {affiliationDescription}. Add the details people need before you enter the portal.</p>
         
         {error && <p className="error-message">{error}</p>}

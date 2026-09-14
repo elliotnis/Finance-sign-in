@@ -1,10 +1,35 @@
 import os
+import asyncio
+import logging
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import router
 
-app = FastAPI(docs_url="/")
+@asynccontextmanager
+async def lifespan(app):
+    from app.people import init_indexes, expire_requests, deliver_notifications
+    from app.portal_session import sessions
+    init_indexes()
+    sessions.create_index('expires_at', expireAfterSeconds=0)
+    async def recover():
+        while True:
+            try:
+                await asyncio.to_thread(expire_requests)
+                await asyncio.to_thread(deliver_notifications)
+            except Exception:
+                logging.exception('People Finder recovery failed')
+            await asyncio.sleep(30)
+    task = asyncio.create_task(recover())
+    try:
+        yield
+    finally:
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task
+
+app = FastAPI(docs_url="/", lifespan=lifespan)
 
 _cors_extra = os.getenv("CORS_ORIGINS", "")
 if _cors_extra.strip():
@@ -51,6 +76,8 @@ app.add_middleware(
 )
 # Include router
 app.include_router(router)
+from app.people import router as people_router
+app.include_router(people_router)
 
 @app.get("/_health")
 def health():

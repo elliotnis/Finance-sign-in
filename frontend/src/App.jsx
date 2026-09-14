@@ -13,6 +13,7 @@ import Verification from './components/Verification';
 import DatabaseManager from './components/DatabaseManager';
 import YouthFinancetopiaPortal, { YouthFinancetopiaGamemasterPortal } from './components/YouthFinancetopiaPortal';
 import BookingsCalendar from './components/BookingsCalendar';
+import PeopleFinder from './components/PeopleFinder';
 import PeopleDirectory from './components/PeopleDirectory';
 import SignupAssistant from './components/SignupAssistant';
 import FinanceServices from './components/FinanceServices';
@@ -81,6 +82,7 @@ function StudentPortalApp() {
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/complete-profile" element={<ProfileCompletion />} />
         <Route path="/profile" element={<ProfileUpdate />} />
+        <Route path="/people" element={<PeopleFinder />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/sessions" element={< MySessions />} />
         <Route path="/tutor-calendar" element={<TutorCalendar />} />

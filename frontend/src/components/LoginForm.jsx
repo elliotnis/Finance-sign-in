@@ -146,6 +146,7 @@ function PasswordLogin({ navigate, login, returnTo }) {
         email,
       };
 
+      sessionStorage.setItem('portal_session', data.session_token);
       login(userData);
 
       if (targetPath === '/complete-profile') {
@@ -345,6 +346,7 @@ function EmailLinkLogin({ navigate, returnTo }) {
         throw new Error(data.detail || data.message || 'This code is invalid or expired.');
       }
 
+      sessionStorage.setItem('portal_session', data.session_token);
       await completeEmailLogin(data.email, data.user_id);
     } catch (err) {
       setError(err.message || 'This code is invalid or expired.');

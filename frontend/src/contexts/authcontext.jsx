@@ -40,6 +40,7 @@ export function AuthProvider({ children }) {
     };
 
     const logout = () => {
+        sessionStorage.removeItem('portal_session');
         setUser(null);
         AUTH_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
     };

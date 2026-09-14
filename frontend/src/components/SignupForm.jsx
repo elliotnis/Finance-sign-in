@@ -12,11 +12,9 @@ function SignupForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted with:', { email, password });
     
     try {
       const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
-      console.log('API URL:', API_URL);
       
       const response = await fetch(`${API_URL}/signup`, {
         method: 'POST',
@@ -26,16 +24,14 @@ function SignupForm() {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('Response status:', response.status);
       const data = await response.json();
-      console.log('Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.detail || 'Signup failed');
       }
 
+      sessionStorage.setItem('portal_session', data.session_token);
       // Handle successful signup
-      console.log('Signup successful:', data);
       
       // save to session storage
       sessionStorage.setItem('pendingProfile', JSON.stringify({
@@ -44,7 +40,6 @@ function SignupForm() {
 
 
       // Navigate to profile completion page with user data
-      console.log('Navigating to profile completion...');
       navigate('/complete-profile', { 
         state: { 
           email: email,

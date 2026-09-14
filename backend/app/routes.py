@@ -84,6 +84,8 @@ from .schema import (
 )
 
 
+from .portal_session import issue_session
+
 router = APIRouter()
 
 
@@ -329,6 +331,7 @@ def signup(user_data: UserSignup):
     
     return {
         "message": "User created successfully",
+        "session_token": issue_session(email),
         "email": email,
         "user_id": user_id
     }
@@ -349,6 +352,7 @@ def login(user_data: UserLogin):
     
     return {
         "message": "Login successful",
+        "session_token": issue_session(email),
         "email": email,
         "user_id": str(user["_id"])
     }
@@ -510,6 +514,7 @@ def verify_email_link(payload: EmailLinkVerify):
 
     response = {
         "message": "Login successful",
+        "session_token": issue_session(user["email"]),
         "email": user["email"],
         "user_id": str(user["_id"]),
     }
