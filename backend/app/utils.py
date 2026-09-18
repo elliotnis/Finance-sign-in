@@ -20,6 +20,11 @@ from bson import ObjectId
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 YOUTH_DUAL_ACCESS_EMAILS = {
+    "bmmiles@ust.hk",
+    "bmmatthew@ust.hk",
+    "wyszeac@connect.ust.hk",
+    "thlamam@connect.ust.hk",
+    "clcchung@connect.ust.hk",
     "lcyangaa@connect.ust.hk",
     "cylaucb@connect.ust.hk",
     "mikiyeung@ust.hk",
