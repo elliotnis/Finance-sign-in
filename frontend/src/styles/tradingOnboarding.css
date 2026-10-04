@@ -1,0 +1,21 @@
+.yf-onboarding-layer { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 16px; background: rgba(19,35,31,.72); font-family: 'DM Sans', sans-serif; color: #13231f; }
+.yf-onboarding-dialog { box-sizing: border-box; width: min(560px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; border: 2px solid #13231f; border-radius: 20px 20px 20px 5px; background: #fffaf0; padding: clamp(20px, 4vw, 36px); box-shadow: 7px 7px 0 #d9ff64; }
+.yf-onboarding-top, .yf-onboarding-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.yf-onboarding-top span { font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+.yf-onboarding-dialog button { border: 1px solid #13231f; border-radius: 8px; padding: 10px 14px; background: #fffef9; color: #13231f; font: inherit; cursor: pointer; }
+.yf-onboarding-dialog button:focus-visible { outline: 3px solid #255fdd; outline-offset: 3px; }
+.yf-onboarding-dialog button:disabled { opacity: .4; cursor: default; }
+.yf-onboarding-actions button:last-child { background: #d9ff64; font-weight: 700; }
+.yf-onboarding-icon { display: grid; place-items: center; width: 64px; height: 64px; margin: 24px 0; border-radius: 14px; background: #d9ff64; font-size: 28px; }
+.yf-onboarding-dialog h2 { font-family: 'Fraunces', Georgia, serif; font-size: 30px; line-height: 1.15; margin: 0 0 16px; }
+.yf-onboarding-dialog p { line-height: 1.7; margin: 0; }
+.yf-onboarding-dots { display: flex; gap: 8px; margin: 24px 0; }
+.yf-onboarding-dots span { width: 24px; height: 5px; border-radius: 4px; background: #c9c7b8; }
+.yf-onboarding-dots .active { background: #087565; }
+.yf-onboarding-dialog small { display: block; margin-top: 20px; color: #64716c; }
+.yf-rank-summary { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.yf-rank-summary > div { display: grid; gap: 5px; }
+.yf-rank-summary span, .yf-rank-summary label { font-size: .7rem; font-weight: 800; }
+.yf-rank-summary strong { font-size: 1.15rem; }
+.yf-rank-summary select { border: 1px solid #13231f; border-radius: 6px; padding: 8px; background: #fffaf0; color: #13231f; }
+.yf-own-team { background: #e8f5bc; }

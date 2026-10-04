@@ -785,6 +785,7 @@ def _public_team(
             }
         )
     data = {
+        "team_id": str(team["_id"]),
         "team_code": team["team_code"],
         "team_name": team["team_name"],
         "members": members,
@@ -1400,6 +1401,18 @@ def _debrief_payload(period_index: int):
     }
 
 
+def _rank_teams(rows):
+    rows.sort(key=lambda row: row["equity"], reverse=True)
+    previous_equity = None
+    rank = 0
+    for index, row in enumerate(rows):
+        if row["equity"] != previous_equity:
+            rank = index + 1
+        row["rank"] = rank
+        previous_equity = row["equity"]
+    return rows
+
+
 def leaderboard(period_index: int | None = None):
     if period_index is None:
         period_index = public_game_state()["current_period_index"]
@@ -1408,14 +1421,35 @@ def leaderboard(period_index: int | None = None):
         portfolio = simulate_portfolio(team["team_code"], period_index)
         rows.append(
             {
+                "team_id": str(team["_id"]),
                 "team_name": team["team_name"],
                 "member_count": len(team.get("members", [])),
                 "equity": portfolio["equity"],
                 "return_pct": portfolio["return_pct"],
             }
         )
-    rows.sort(key=lambda row: row["equity"], reverse=True)
-    return [{**row, "rank": index + 1} for index, row in enumerate(rows)]
+    return _rank_teams(rows)
+
+
+def quarterly_standings(period_index: int, is_complete: bool = False):
+    """Expose only completed quarter marks, using one simulation per team."""
+    completed_count = period_index + (1 if is_complete else 0)
+    quarters = [{"period": period, "teams": []} for period in PERIODS[:completed_count]]
+    if not quarters:
+        return []
+    for team in trading_team_collection.find({}).sort([("created_at", 1)]):
+        portfolio = simulate_portfolio(team["team_code"], completed_count - 1)
+        for quarter, mark in zip(quarters, portfolio["history"]):
+            quarter["teams"].append({
+                "team_id": str(team["_id"]),
+                "team_name": team["team_name"],
+                "member_count": len(team.get("members", [])),
+                "equity": mark["equity"],
+                "return_pct": mark["return_pct"],
+            })
+    for quarter in quarters:
+        _rank_teams(quarter["teams"])
+    return quarters
 
 
 def team_state(email: str):
@@ -1445,6 +1479,7 @@ def team_state(email: str):
         "news": _news_payload(game["current_period_index"]),
         "debrief": _debrief_payload(game["current_period_index"]),
         "leaderboard": leaderboard(game["current_period_index"]),
+        "quarterly_standings": quarterly_standings(game["current_period_index"], game.get("is_complete", False)),
         "interest_rates": {
             year: rate
             for year, rate in INTEREST_RATES.items()

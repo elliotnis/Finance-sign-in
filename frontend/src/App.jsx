@@ -68,7 +68,6 @@ function YouthFinancetopiaApp() {
         <Route path="*" element={<Navigate to="/youth-financetopia" replace />} />
       </Routes>
       <AssistantHighlight />
-      <SignupAssistant />
     </Router>
   );
 }

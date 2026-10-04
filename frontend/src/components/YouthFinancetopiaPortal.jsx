@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import TradingOnboarding from './TradingOnboarding';
 import { Link } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../styles/youthFinancetopiaPortal.css';
@@ -84,6 +85,7 @@ function YouthFinancetopiaPortal() {
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState('');
   const [activeTab, setActiveTab] = useState('market');
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [teamName, setTeamName] = useState('');
   const [teamCode, setTeamCode] = useState('');
   const [orderAsset, setOrderAsset] = useState('stock_a');
@@ -100,6 +102,15 @@ function YouthFinancetopiaPortal() {
   const decisionPeriodRef = useRef(null);
 
   const isAuthenticated = Boolean(sessionToken && sessionEmail);
+  useEffect(() => {
+    if (isAuthenticated && state?.game && !localStorage.getItem(`yf-desk-onboarding-v1:${sessionEmail}`)) {
+      setOnboardingOpen(true);
+    }
+  }, [isAuthenticated, sessionEmail, state?.game]);
+  const closeOnboarding = useCallback(() => {
+    localStorage.setItem(`yf-desk-onboarding-v1:${sessionEmail}`, 'done');
+    setOnboardingOpen(false);
+  }, [sessionEmail]);
   const isLeader = Boolean(state?.team?.is_leader);
   const isRoundOpen = Boolean(state?.game?.is_round_open && secondsLeft > 0);
   const notebookOwner = state?.team?.team_code || sessionEmail || 'guest';
@@ -489,6 +500,7 @@ function YouthFinancetopiaPortal() {
           </div>
         </div>
         <div className="yf-account-menu">
+          <button type="button" onClick={() => setOnboardingOpen(true)} aria-label="Explain the trading desk"><i className="fa-solid fa-circle-question" /></button>
           <span className="yf-account-email">{sessionEmail}</span>
           <button type="button" onClick={signOut} aria-label="Sign out">
             <i className="fa-solid fa-arrow-right-from-bracket" />
@@ -541,6 +553,7 @@ function YouthFinancetopiaPortal() {
 
         <section className="yf-workspace">
           <RoundStrip periods={state?.periods || []} currentIndex={state?.game?.current_period_index || 0} />
+          <TeamRankSummary leaderboard={state?.leaderboard || []} ownTeamId={state?.team?.team_id} onView={() => setActiveTab('portfolio')} periodLabel={state?.game?.current_period?.label} />
 
           {activeTab === 'market' && (
             <MarketMission
@@ -562,6 +575,8 @@ function YouthFinancetopiaPortal() {
             <PerformanceDesk
               portfolio={state?.portfolio}
               leaderboard={state?.leaderboard || []}
+              quarterlyStandings={state?.quarterly_standings || []}
+              ownTeamId={state?.team?.team_id}
               assets={state?.assets || []}
               evidenceCount={evidenceIds.length}
               stance={stance}
@@ -588,6 +603,7 @@ function YouthFinancetopiaPortal() {
           )}
         </section>
       </main>
+      {onboardingOpen && <TradingOnboarding onClose={closeOnboarding} />}
     </div>
   );
 }
@@ -1202,7 +1218,7 @@ function PerformanceChart({ portfolio, assets }) {
   </section>;
 }
 
-function PerformanceDesk({ portfolio, leaderboard, assets, evidenceCount, stance, confidence, thesis }) {
+function PerformanceDesk({ portfolio, leaderboard, quarterlyStandings, ownTeamId, assets, evidenceCount, stance, confidence, thesis }) {
   return (
     <div className="yf-stack">
       <section className="yf-results-intro">
@@ -1210,6 +1226,7 @@ function PerformanceDesk({ portfolio, leaderboard, assets, evidenceCount, stance
         <h2>Track the outcome. Keep the reasoning.</h2>
         <p>Winning one quarter can be luck. The real challenge is making choices your team can explain.</p>
       </section>
+      <QuarterlyStandings quarters={quarterlyStandings} ownTeamId={ownTeamId} />
       <PortfolioPanel portfolio={portfolio} assets={assets} />
       <PerformanceChart portfolio={portfolio} assets={assets} />
       <section className="yf-panel yf-decision-recap">
@@ -1234,24 +1251,43 @@ function PerformanceDesk({ portfolio, leaderboard, assets, evidenceCount, stance
           {!portfolio?.history?.length && <div className="yf-empty-state"><b>No history yet.</b><span>Join a team to begin.</span></div>}
         </div>
       </section>
-      <Leaderboard leaderboard={leaderboard} />
+      <Leaderboard leaderboard={leaderboard} ownTeamId={ownTeamId} />
     </div>
   );
 }
 
-function Leaderboard({ leaderboard }) {
+function TeamRankSummary({ leaderboard, ownTeamId, onView, periodLabel }) {
+  const own = leaderboard.find((team) => team.team_id === ownTeamId);
+  return <section className="yf-panel yf-rank-summary">
+    <div><span>TEAM STANDINGS · {periodLabel}</span><strong>{own ? `Your rank: #${own.rank} of ${leaderboard.length}` : `${leaderboard.length} teams in the field`}</strong><small>{own ? `Portfolio ${money(own.equity)} · Return ${pct(own.return_pct)}` : 'Join a team to see your relative rank.'}</small></div>
+    <button className="yf-secondary" type="button" onClick={onView}>Compare teams & quarters</button>
+  </section>;
+}
+
+function QuarterlyStandings({ quarters = [], ownTeamId }) {
+  const [selectedId, setSelectedId] = useState('');
+  const selected = quarters.find((quarter) => quarter.period.id === selectedId) || quarters.at(-1);
+  const own = selected?.teams.find((team) => team.team_id === ownTeamId);
+  if (!selected) return <section className="yf-panel"><SectionHeading eyebrow="QUARTER STANDINGS" title="Compare teams after each quarter" note="The first completed quarter's standings appear when the host advances the market." /></section>;
+  return <div className="yf-stack">
+    <section className="yf-panel yf-rank-summary"><div><label htmlFor="yf-standings-quarter">Completed quarter</label><select id="yf-standings-quarter" value={selected.period.id} onChange={(event) => setSelectedId(event.target.value)}>{quarters.map((quarter) => <option key={quarter.period.id} value={quarter.period.id}>{quarter.period.label}</option>)}</select></div><strong>{own ? `Your rank: #${own.rank} of ${selected.teams.length}` : 'All team performances'}</strong></section>
+    <Leaderboard leaderboard={selected.teams} ownTeamId={ownTeamId} title={`${selected.period.label} standings`} />
+  </div>;
+}
+
+function Leaderboard({ leaderboard, ownTeamId, title = 'Current team ranking' }) {
   return (
     <section className="yf-panel yf-leaderboard">
-      <SectionHeading eyebrow="THE FIELD" title="Current team ranking" note="Only team names and results are shared - participant emails stay private." />
+      <SectionHeading eyebrow="THE FIELD" title={title} note="Ranked by portfolio value. Equal values share a rank. Return is measured from starting capital." />
       <div className="yf-table-wrap" tabIndex="0" aria-label="Scrollable team ranking table">
         <table>
           <thead><tr><th>Rank</th><th>Team</th><th>Players</th><th>Equity</th><th>Return</th></tr></thead>
           <tbody>
             {leaderboard.length === 0 && <tr><td colSpan="5">No teams have checked in yet.</td></tr>}
             {leaderboard.map((team) => (
-              <tr key={`${team.rank}-${team.team_name}`}>
+              <tr key={team.team_id || `${team.rank}-${team.team_name}`} className={ownTeamId && team.team_id === ownTeamId ? 'yf-own-team' : ''}>
                 <td><span className="yf-rank">{team.rank}</span></td>
-                <td><b>{team.team_name}</b></td>
+                <td><b>{team.team_name}{ownTeamId && team.team_id === ownTeamId ? ' (Your team)' : ''}</b></td>
                 <td>{team.member_count}/3</td>
                 <td>{money(team.equity)}</td>
                 <td className={classForReturn(team.return_pct)}>{pct(team.return_pct)}</td>
