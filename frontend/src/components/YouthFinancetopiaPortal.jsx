@@ -603,7 +603,7 @@ function YouthFinancetopiaPortal() {
           )}
         </section>
       </main>
-      {onboardingOpen && <TradingOnboarding onClose={closeOnboarding} />}
+      {onboardingOpen && <TradingOnboarding onClose={closeOnboarding} onTabChange={setActiveTab} />}
     </div>
   );
 }
