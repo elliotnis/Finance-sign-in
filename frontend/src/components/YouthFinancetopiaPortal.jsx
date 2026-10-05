@@ -626,7 +626,7 @@ function ChallengeLogin({
   return (
     <div className={`yf-page yf-auth-shell ${isGamemaster ? 'yf-auth-gamemaster' : ''}`}>
       <div className="yf-auth-masthead" aria-hidden="true">
-        <span className="yf-auth-stamp">{isGamemaster ? 'CONTROL ROOM / YR 1-5' : 'MARKET LAB / YR 1-5'}</span>
+        <span className="yf-auth-stamp">{isGamemaster ? 'CONTROL ROOM / Year 1-5' : 'MARKET LAB / Year 1-5'}</span>
         <div className="yf-auth-chart">
           <span /><span /><span /><span /><span /><span /><span />
         </div>
@@ -886,7 +886,7 @@ function RoundStrip({ periods, currentIndex }) {
           key={period.id}
           title={period.label}
         >
-          <span>Yr {period.simulation_year ?? period.year - 2017}</span>
+          <span>Year {period.simulation_year ?? period.year - 2017}</span>
           <small>Q{period.quarter}</small>
         </div>
       ))}
@@ -1648,7 +1648,7 @@ export function YouthFinancetopiaGamemasterPortal() {
             )}
             resetGame={() => runGameAction(
               '/trading/round/reset',
-              'The competition was reset to Yr 1 Q1. Teams were kept and all orders were cleared.',
+              'The competition was reset to Year 1 Q1. Teams were kept and all orders were cleared.',
               'Reset the entire competition? This clears every order and cannot be undone.'
             )}
           />

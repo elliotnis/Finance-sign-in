@@ -36,7 +36,7 @@ PERIODS = [
         "id": _period_id(year, quarter),
         "year": year,
         "quarter": quarter,
-        "label": f"Yr {year - 2017} Q{quarter}",
+        "label": f"Year {year - 2017} Q{quarter}",
         "simulation_year": year - 2017,
         "months": months,
     }
@@ -1353,7 +1353,7 @@ def _asset_payload(period_index: int):
 def _relative_year_text(value):
     if not isinstance(value, str):
         return value
-    return re.sub(r"\b(2018|2019|2020|2021|2022)\b", lambda match: f"Yr {int(match.group()) - 2017}", value)
+    return re.sub(r"\b(2018|2019|2020|2021|2022)\b", lambda match: f"Year {int(match.group()) - 2017}", value)
 
 
 def _news_payload(period_index: int):
