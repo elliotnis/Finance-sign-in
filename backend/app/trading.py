@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import re
 import json
 from pathlib import Path
 import secrets
@@ -35,7 +36,8 @@ PERIODS = [
         "id": _period_id(year, quarter),
         "year": year,
         "quarter": quarter,
-        "label": f"{year} Q{quarter}",
+        "label": f"Yr {year - 2017} Q{quarter}",
+        "simulation_year": year - 2017,
         "months": months,
     }
     for year in range(2018, 2023)
@@ -1348,6 +1350,12 @@ def _asset_payload(period_index: int):
     ]
 
 
+def _relative_year_text(value):
+    if not isinstance(value, str):
+        return value
+    return re.sub(r"\b(2018|2019|2020|2021|2022)\b", lambda match: f"Yr {int(match.group()) - 2017}", value)
+
+
 def _news_payload(period_index: int):
     visible_period_ids = {p["id"] for p in PERIODS[: period_index + 1]}
     items = []
@@ -1357,7 +1365,7 @@ def _news_payload(period_index: int):
         period = next(p for p in PERIODS if p["id"] == item["period_id"])
         items.append(
             {
-                **{key: value for key, value in item.items() if key not in {"asset_id", "asset_ids"}},
+                **{key: _relative_year_text(value) if key in {"headline", "brief", "rumor", "question", "summary"} else value for key, value in item.items() if key not in {"asset_id", "asset_ids"}},
                 "year": period["year"],
                 "quarter": period["quarter"],
                 "period_label": period["label"],
