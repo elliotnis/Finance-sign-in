@@ -1356,6 +1356,30 @@ def _relative_year_text(value):
     return re.sub(r"\b(2018|2019|2020|2021|2022)\b", lambda match: f"Year {int(match.group()) - 2017}", value)
 
 
+def _news_scope(item):
+    if item.get("scope") in {"company", "sector"}:
+        return item["scope"]
+    company_events = {
+        "2018q1-a-privacy", "2018q1-c-pipeline", "2018q3-b-deal",
+        "2019q1-a-ads", "2019q4-b-debt", "2020q3-a-digital",
+        "2020q4-c-treatment", "2021q3-c-data", "2021q4-a-shift",
+        "2022q1-b-cashflow", "2022q3-c-demand", "2022q4-a-measurement",
+        "2018q1-growth", "2018q2-platform-warning", "2018q2-health-momentum",
+        "2019q1-debt-pressure", "2020q2-digital-ads", "2020q3-health-pipeline",
+        "2020q4-metabolic-data", "2021q2-research-catalysts",
+        "2021q3-health-repricing", "2021q4-growth-reset",
+        "2022q1-platform-competition", "2022q1-obesity-breakthrough",
+        "2022q3-advertising-slump",
+    }
+    if item["id"] in company_events:
+        return "company"
+    if item["id"].startswith("catalog-"):
+        text = f"{item.get('headline', '')} {item.get('brief', '')}"
+        if re.search(r"\b(?:Apple|JPMorgan|Coca-Cola|NVIDIA|Tesla|Amazon|Microsoft|AAPL|JPM|KO|NVDA|TSLA|AMZN|MSFT)\b", text, re.IGNORECASE):
+            return "company"
+    return "sector"
+
+
 def _news_payload(period_index: int):
     visible_period_ids = {p["id"] for p in PERIODS[: period_index + 1]}
     items = []
@@ -1366,6 +1390,7 @@ def _news_payload(period_index: int):
         items.append(
             {
                 **{key: _relative_year_text(value) if key in {"headline", "brief", "rumor", "question", "summary"} else value for key, value in item.items() if key not in {"asset_id", "asset_ids"}},
+                "scope": _news_scope(item),
                 "year": period["year"],
                 "quarter": period["quarter"],
                 "period_label": period["label"],

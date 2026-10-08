@@ -1005,7 +1005,7 @@ function MarketTape({ news, currentPeriodId, evidenceIds, toggleEvidence }) {
                 <button className="yf-news-card-toggle" type="button" onClick={() => toggle(setExpanded, item.id)} aria-expanded={isOpen}>
                   <span className="yf-news-index">{String(index + 1).padStart(2, '0')}</span>
                   <span className="yf-news-card-title">
-                    <small>{item.period_label} / {item.type === 'rumor' ? 'UNVERIFIED RUMOR' : item.type === 'news' ? 'SIMULATED NEWS' : 'MARKET CLUE'}</small>
+                    <small>{item.period_label} / {item.scope === 'company' ? 'COMPANY NEWS' : item.scope === 'sector' ? 'SECTOR-WIDE NEWS' : 'MARKET NEWS'} / {item.type === 'rumor' ? 'UNVERIFIED RUMOR' : item.type === 'news' ? 'SIMULATED NEWS' : 'MARKET CLUE'}</small>
                     <strong>{item.headline}</strong>
                   </span>
                   <i className={`fa-solid fa-${isOpen ? 'minus' : 'plus'}`} />
