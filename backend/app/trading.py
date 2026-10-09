@@ -1375,7 +1375,7 @@ def _news_scope(item):
         return "company"
     if item["id"].startswith("catalog-"):
         text = f"{item.get('headline', '')} {item.get('brief', '')}"
-        if re.search(r"\b(?:Apple|JPMorgan|Coca-Cola|NVIDIA|Tesla|Amazon|Microsoft|AAPL|JPM|KO|NVDA|TSLA|AMZN|MSFT)\b", text, re.IGNORECASE):
+        if re.search(r"\b(?:Juniper Devices|Stonebridge Banking|Meadow Beverages|Vertex Computing|Aurora Mobility|Redwood Commerce|Summit Software)\b", text, re.IGNORECASE):
             return "company"
     return "sector"
 
